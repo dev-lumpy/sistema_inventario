@@ -1,0 +1,148 @@
+ # ============================================
+# PYTHON
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+*.egg
+*.egg-info/
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+*.pyi
+*.pyd
+
+# ============================================
+# DJANGO
+# ============================================
+*.log
+*.pot
+*.pyc
+*.pyo
+*.mo
+*.po
+db.sqlite3
+db.sqlite3-journal
+/media/
+/static/
+*.sqlite3
+*.sqlite
+local_settings.py
+.env
+.env.local
+.env.*.local
+
+# ============================================
+# ENTORNOS VIRTUALES
+# ============================================
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+python_env/
+.venv/
+.env/
+*.venv
+virtualenv/
+.virtualenvs/
+
+# ============================================
+# EDITORES Y SISTEMA OPERATIVO
+# ============================================
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.code/
+.vscode/settings.json
+.vscode/launch.json
+
+# PyCharm
+.idea/
+*.iml
+.idea_modules/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ============================================
+# NPM / YARN (si usas frontend)
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ============================================
+# ARCHIVOS DE BASE DE DATOS
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+*.mdb
+*.accdb
+
+# ============================================
+# ARCHIVOS DE CONFIGURACIÓN LOCAL
+# ============================================
+*.local
+*.secret
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# ============================================
+# LOGS Y TEMPORALES
+# ============================================
+*.log
+logs/
+*.tmp
+temp/
+tmp/
+*.temp
+*.cache
+*.bak
+*.backup
+
+# ============================================
+# ARCHIVOS COMPRIMIDOS
+# ============================================
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# ============================================
+# OTROS
+# ============================================
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+*.lock
