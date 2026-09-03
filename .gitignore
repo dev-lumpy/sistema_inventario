@@ -115,6 +115,7 @@ yarn.lock
 *.csr
 *.p12
 *.pfx
+license.lic
 
 # ============================================
 # LOGS Y TEMPORALES

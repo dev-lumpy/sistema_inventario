@@ -1,21 +1,157 @@
-MIT License
+LICENCIA DE SOFTWARE PROPIETARIO — SISTEMA TALLER
 
-Copyright (c) 2026 Andres Josue Luna Escobar
+Copyright (c) 2026 Andres Josue Luna Escobar. Todos los derechos reservados.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Esta licencia establece los términos bajo los cuales se concede el uso
+del software "Sistema Taller" (en adelante, "el Software").
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+——————————————————————————————————————
+1. CONCESIÓN DE LICENCIA
+——————————————————————————————————————
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+El autor concede al comprador original una licencia limitada, no exclusiva,
+no transferible e intransferible para usar el Software en UNA (1) instalación
+activa por cada licencia adquirida.
+
+El comprador puede instalar el Software en un máximo de UN (1) equipo o
+servidor a la vez.
+
+——————————————————————————————————————
+2. PROPIEDAD INTELECTUAL
+——————————————————————————————————————
+
+El Software, incluyendo su código fuente, documentación, estructura,
+interfaz y diseño, es propiedad exclusiva del autor. Esta licencia NO
+transfiere propiedad alguna al comprador. El comprador únicamente recibe
+el derecho de uso bajo los términos aquí descritos.
+
+——————————————————————————————————————
+3. RESTRICCIONES — PROHIBICIONES EXPRESAS
+——————————————————————————————————————
+
+Queda estrictamente prohibido:
+
+  a) Distribuir, compartir, publicar, sublicenciar, alquilar, arrendar
+     o vender el Software, su código fuente o cualquier copia del mismo
+     a terceros.
+
+  b) Compartir la clave de licencia (LICENSE_KEY) con cualquier persona
+     que no sea el comprador original.
+
+  c) Usar una misma licencia en más de una instalación simultánea.
+
+  d) Modificar, adaptar, traducir, realizar ingeniería inversa,
+     descompilar o extraer el código fuente del Software, salvo
+     autorización expresa y por escrito del autor.
+
+  e) Crear obras derivadas basadas en el Software.
+
+  f) Eliminar o alterar cualquier aviso de copyright, marca registrada
+     o atribución del autor.
+
+  g) Usar el Software para fines ilegales o no autorizados.
+
+——————————————————————————————————————
+4. AUTORIZACIÓN DE PORTAFOLIO
+——————————————————————————————————————
+
+El comprador puede autorizar o no al autor a mostrar el Software en su
+portafolio profesional, según lo acordado en el momento de la compra.
+
+Si se autoriza el uso en portafolio, el autor podrá:
+
+  — Mostrar capturas de pantalla del Software funcionando
+  — Grabar videos demostrativos del Software
+  — Mostrar fragmentos de código, con datos sensibles del cliente
+    omitidos o anonimizados
+  — Mencionar al comprador como cliente (solo si se acuerda
+    explícitamente)
+
+En ningún caso la autorización de portafolio implica una licencia de
+código abierto ni permite al comprador redistribuir el Software.
+
+——————————————————————————————————————
+5. ACTUALIZACIONES Y SOPORTE
+——————————————————————————————————————
+
+El autor no está obligado a proporcionar actualizaciones, parches,
+correcciones o soporte técnico, salvo que se acuerde expresamente por
+separado.
+
+El autor puede, a su sola discreción, publicar actualizaciones en el
+repositorio privado del comprador. El comprador puede aplicar dichas
+actualizaciones siempre que su licencia esté vigente.
+
+——————————————————————————————————————
+6. TERMINACIÓN
+——————————————————————————————————————
+
+Esta licencia entra en vigor desde la fecha de compra y permanece vigente
+hasta que se termine.
+
+La licencia terminará automáticamente si el comprador:
+  a) Viola cualquiera de las restricciones de esta licencia
+  b) Comparte la clave de licencia con terceros
+  c) Incumple los términos de pago acordados
+
+Al terminar la licencia, el comprador deberá:
+  a) Desinstalar el Software de todos sus equipos
+  b) Destruir todas las copias del Software, incluyendo respaldos
+  c) Eliminar cualquier repositorio local que contenga el código fuente
+
+——————————————————————————————————————
+7. SIN GARANTÍA
+——————————————————————————————————————
+
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO,
+EXPRESA O IMPLÍCITA, INCLUYENDO PERO NO LIMITADO A GARANTÍAS DE
+COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO
+INFRAFRACCIÓN.
+
+EL AUTOR NO GARANTIZA QUE EL SOFTWARE SEA LIBRE DE ERRORES, QUE SU
+FUNCIONAMIENTO SEA ININTERRUMPIDO, O QUE CUMPLA CON TODOS LOS
+REQUISITOS DEL COMPRADOR.
+
+——————————————————————————————————————
+8. LIMITACIÓN DE RESPONSABILIDAD
+——————————————————————————————————————
+
+EN NINGÚN CASO EL AUTOR SERÁ RESPONSABLE POR DAÑOS DIRECTOS, INDIRECTOS,
+INCIDENTALES, ESPECIALES, CONSECUENTES O PUNITIVOS, INCLUYENDO PERO NO
+LIMITADO A PÉRDIDA DE DATOS, PÉRDIDA DE BENEFICIOS, INTERRUPCIÓN DEL
+NEGOCIO O DAÑOS A LA REPUTACIÓN, DERIVADOS DEL USO O LA IMPOSIBILIDAD DE
+USAR EL SOFTWARE, INCLUSO SI SE HA ADVERTIDO DE LA POSIBILIDAD DE TALES
+DAÑOS.
+
+——————————————————————————————————————
+9. LEY APLICABLE Y JURISDICCIÓN
+——————————————————————————————————————
+
+Esta licencia se rige por las leyes del Estado Plurinacional de Bolivia.
+Cualquier disputa derivada de esta licencia será sometida a los tribunales
+competentes de la ciudad de Santa Cruz de la Sierra, Bolivia.
+
+——————————————————————————————————————
+10. ACEPTACIÓN
+——————————————————————————————————————
+
+El uso del Software constituye la aceptación de todos los términos de esta
+licencia. Si el comprador no está de acuerdo con estos términos, no debe
+instalar ni usar el Software.
+
+——————————————————————————————————————
+11. DISPOSICIONES GENERALES
+——————————————————————————————————————
+
+Si alguna disposición de esta licencia se considera inválida o inaplicable,
+las disposiciones restantes continuarán en pleno vigor y efecto.
+
+Esta licencia constituye el acuerdo completo entre el autor y el comprador
+con respecto al Software y reemplaza cualquier acuerdo o entendimiento
+previo.
+
+El hecho de que el autor no ejerza algún derecho bajo esta licencia no
+constituye una renuncia a dicho derecho.
+
+——————————————————————————————————————
+Fin de la licencia

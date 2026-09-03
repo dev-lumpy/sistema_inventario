@@ -17,11 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from apps.clientes.views import dashboard, error_500
+from apps.clientes.views import dashboard, error_500, license_info
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('', dashboard, name='dashboard'),
-    path('error-500', error_500, name='error-500')
+    path('error-500', error_500, name='error-500'),
+    path('license/', license_info, name='license-info'),
 ]
