@@ -40,7 +40,6 @@ dmypy.json
 db.sqlite3
 db.sqlite3-journal
 /media/
-/static/
 *.sqlite3
 *.sqlite
 local_settings.py
