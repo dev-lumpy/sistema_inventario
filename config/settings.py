@@ -10,8 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 import sys
 from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+import sentry_sdk
+from config.sentry_utils import sentry_before_send
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,13 +31,19 @@ sys.path.insert(0, str(BASE_DIR / 'apps'))
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-yfyt3$-h@ifk7&rehi+$d-6uz@9j%51k3)-wp3$r_n$j+ze82r'
+SECRET_KEY = os.getenv("SECRET_KEY", "")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# Monitoreo de errores — solo se envía lo que explícitamente llames con capture_exception()
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN", ""),
+    send_default_pii=True,
+    before_send=sentry_before_send,
+)
 
 # Application definition
 

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Error del servidor · Sistema Taller</title>
+
+<link rel="stylesheet" href="/static/css/css2">
+<link rel="stylesheet" href="/static/css/all.min.css">
+
+<style>
+  :root{
+    --navy: #16233d;
+    --navy-dark: #0e1728;
+    --blue: #2f6fed;
+    --blue-dark: #234fb5;
+    --amber: #f2994a;
+    --green: #2ea86b;
+    --red: #e0483e;
+    --bg: #f4f6fb;
+    --card-bg: #ffffff;
+    --text-main: #1c2536;
+    --text-muted: #7a8499;
+    --border: #e6e9f2;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    min-height: 100vh;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+  }
+
+  :focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px; }
+
+  .error-card{
+    width: 100%;
+    max-width: 560px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15, 26, 46, .08);
+  }
+
+  .error-top{
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+    color:#fff;
+    padding: 34px 34px 28px;
+    text-align:center;
+  }
+
+  .error-icon{
+    width: 64px; height:64px;
+    margin: 0 auto 16px;
+    border-radius: 16px;
+    background: rgba(224,72,62,.15);
+    border: 1px solid rgba(224,72,62,.35);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 1.7rem;
+    color: #ff7a70;
+  }
+
+  .error-code{
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 6px;
+  }
+
+  .error-top h1{
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+  }
+
+  .error-body{
+    padding: 28px 34px 30px;
+  }
+
+  .error-body p{
+    margin: 0 0 22px;
+    color: var(--text-muted);
+    font-size: .92rem;
+    line-height: 1.6;
+    text-align:center;
+  }
+
+  .error-detail{
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: .78rem;
+    color: var(--text-muted);
+    display:flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 24px;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  .actions{
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 9px;
+    border: none;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: .92rem;
+    cursor: pointer;
+    transition: filter .15s ease, transform .05s ease;
+  }
+  .btn:active{ transform: translateY(1px); }
+  .btn:disabled{ opacity: .6; cursor: not-allowed; }
+
+  .btn-primary{ background: var(--blue); color:#fff; }
+  .btn-primary:hover:not(:disabled){ filter: brightness(1.08); }
+
+  .btn-danger{ background: var(--red); color:#fff; }
+  .btn-danger:hover:not(:disabled){ filter: brightness(1.08); }
+
+  .btn-outline{
+    background: #fff;
+    color: var(--text-main);
+    border: 1.5px solid var(--border);
+  }
+  .btn-outline:hover:not(:disabled){ background: var(--bg); }
+
+  .btn i.fa-spin{ display:none; }
+  .btn.loading i.fa-solid:not(.fa-spin){ display:none; }
+  .btn.loading i.fa-spin{ display:inline-block; }
+
+  .status-msg{
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-align:center;
+    display:none;
+  }
+  .status-msg.show{ display:block; }
+  .status-msg.ok{ background: rgba(46,168,107,.1); color: var(--green); }
+  .status-msg.fail{ background: rgba(224,72,62,.1); color: var(--red); }
+  .status-msg.info{ background: rgba(47,111,237,.1); color: var(--blue-dark); }
+
+  .back-home{
+    display:block;
+    text-align:center;
+    margin-top: 20px;
+    font-size: .85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .back-home a{ color: var(--blue); text-decoration:none; }
+  .back-home a:hover{ text-decoration: underline; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="error-card">
+  <div class="error-top">
+    <div class="error-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <div class="error-code" id="errorCodeLabel">ERROR 500 · SERVIDOR</div>
+    <h1>Algo falló en el servidor</h1>
+  </div>
+
+  <div class="error-body">
+    <p>El taller no pudo procesar tu solicitud. Podés reportar el error para que quede registrado, reiniciar el servidor, o hacer ambas cosas.</p>
+
+    <div class="error-detail">
+      <span id="errorTimestamp">—</span>
+      <span id="errorRef">ref: —</span>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-outline" id="btnReport">
+        <i class="fa-regular fa-flag"></i>
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <span>Reportar error</span>
+      </button>
+
+      <button class="btn btn-danger" id="btnRestart">
+        <i class="fa-solid fa-power-off"></i>
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <span>Reiniciar servidor</span>
+      </button>
+
+      <button class="btn btn-primary" id="btnReportAndRestart">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <span>Reportar y reiniciar</span>
+      </button>
+    </div>
+
+    <div class="status-msg" id="statusMsg"></div>
+
+    <div class="back-home">
+      <a href="/">Volver al inicio</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  /*
+    =========================================================================
+    DATOS DEL ERROR
+    Reemplazá esto con lo que tu backend le pase a esta página (por ejemplo
+    inyectado desde el servidor al renderizarla, o leído de la URL con
+    query params: /error-500.html?code=502&ref=ab12cd).
+    =========================================================================
+  */
+  const errorInfo = {
+    code: 500,          // 500, 502, 503, 504, etc.
+    ref: 'TALLER-' + Math.random().toString(36).slice(2, 8).toUpperCase(),
+    timestamp: new Date().toISOString()
+  };
+
+  document.getElementById('errorCodeLabel').textContent = `ERROR ${errorInfo.code} · SERVIDOR`;
+  document.getElementById('errorRef').textContent = `ref: ${errorInfo.ref}`;
+  document.getElementById('errorTimestamp').textContent = errorInfo.timestamp;
+
+  const statusMsg = document.getElementById('statusMsg');
+
+  function showStatus(text, type){
+    statusMsg.textContent = text;
+    statusMsg.className = `status-msg show ${type}`;
+  }
+
+  function setLoading(button, isLoading){
+    button.classList.toggle('loading', isLoading);
+    button.disabled = isLoading;
+  }
+
+  /*
+    =========================================================================
+    FUNCIÓN: reportError()
+    Se ejecuta al tocar "Reportar error". Acá es donde tenés que mandar
+    el error a tu backend (endpoint tipo /api/errors o similar).
+
+    Dejo un fetch de ejemplo COMENTADO. Descomentalo y poné tu URL real.
+    Por ahora simula la llamada con un setTimeout para que puedas ver
+    los 3 estados (cargando / éxito / error) funcionando.
+    =========================================================================
+  */
+  async function reportError(){
+    setLoading(btnReport, true);
+    showStatus('Enviando reporte...', 'info');
+
+    try {
+      // --- Reemplazá este bloque simulado por tu llamada real ---
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      // const res = await fetch('/api/errors/report', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(errorInfo)
+      // });
+      // if (!res.ok) throw new Error('No se pudo enviar el reporte');
+      // -----------------------------------------------------------
+
+      showStatus('Error reportado correctamente.', 'ok');
+    } catch (err) {
+      showStatus('No se pudo enviar el reporte. Intentá de nuevo.', 'fail');
+    } finally {
+      setLoading(btnReport, false);
+    }
+  }
+
+  /*
+    =========================================================================
+    FUNCIÓN: restartServer()
+    Se ejecuta al tocar "Reiniciar servidor". Acá va la llamada a tu
+    endpoint de reinicio (esto normalmente requiere que el usuario esté
+    autenticado como admin — eso lo maneja tu backend, no esta página).
+    =========================================================================
+  */
+  async function restartServer(){
+    setLoading(btnRestart, true);
+    showStatus('Reiniciando servidor...', 'info');
+
+    try {
+      // --- Reemplazá este bloque simulado por tu llamada real ---
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      // const res = await fetch('/api/server/restart', { method: 'POST' });
+      // if (!res.ok) throw new Error('No se pudo reiniciar');
+      // -----------------------------------------------------------
+
+      showStatus('Servidor reiniciado. Podés volver a intentar en unos segundos.', 'ok');
+    } catch (err) {
+      showStatus('No se pudo reiniciar el servidor.', 'fail');
+    } finally {
+      setLoading(btnRestart, false);
+    }
+  }
+
+  /*
+    =========================================================================
+    FUNCIÓN: reportAndRestart()
+    Combina las dos anteriores: primero reporta, y si el reporte sale bien
+    (o igual, según prefieras), reinicia. Ajustá la lógica a tu gusto.
+    =========================================================================
+  */
+  async function reportAndRestart(){
+    setLoading(btnReportAndRestart, true);
+    showStatus('Reportando y reiniciando...', 'info');
+
+    try {
+      // --- Reemplazá por tus llamadas reales, en el orden que prefieras ---
+      await new Promise(resolve => setTimeout(resolve, 1200)); // reporte
+      await new Promise(resolve => setTimeout(resolve, 1500)); // reinicio
+      // await fetch('/api/errors/report', { method:'POST', body: JSON.stringify(errorInfo) });
+      // await fetch('/api/server/restart', { method:'POST' });
+      // ----------------------------------------------------------------------
+
+      showStatus('Reporte enviado y servidor reiniciado.', 'ok');
+    } catch (err) {
+      showStatus('Algo falló en el proceso. Revisá e intentá de nuevo.', 'fail');
+    } finally {
+      setLoading(btnReportAndRestart, false);
+    }
+  }
+
+  const btnReport = document.getElementById('btnReport');
+  const btnRestart = document.getElementById('btnRestart');
+  const btnReportAndRestart = document.getElementById('btnReportAndRestart');
+
+  btnReport.addEventListener('click', reportError);
+  btnRestart.addEventListener('click', restartServer);
+  btnReportAndRestart.addEventListener('click', reportAndRestart);
+</script>
+
+</body>
+</html>
