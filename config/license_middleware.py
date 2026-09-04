@@ -1,7 +1,7 @@
-from django.http import HttpResponse
+from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
 
-from config.license import verify_license
+from config.license import get_machine_id, verify_license
 
 
 class LicenseMiddleware(MiddlewareMixin):
@@ -14,9 +14,10 @@ class LicenseMiddleware(MiddlewareMixin):
 
         license_data = verify_license()
         if license_data is None:
-            return HttpResponse(
-                "<h1>Licencia inválida o expirada</h1>"
-                "<p>Contacta al desarrollador para obtener una licencia válida.</p>",
+            return render(
+                request,
+                "license_invalid.html",
+                {"machine_id": get_machine_id()},
                 status=403,
             )
         return None

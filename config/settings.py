@@ -38,6 +38,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# Tamano maximo de archivos para la licencia
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
+
 # Monitoreo de errores — solo se envía lo que explícitamente llames con capture_exception()
 sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN", ""),

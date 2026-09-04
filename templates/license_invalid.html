@@ -1,0 +1,509 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Licencia — Sistema Taller</title>
+
+<link rel="stylesheet" href="/static/css/css2">
+<link rel="stylesheet" href="/static/css/all.min.css"> 
+
+<style>
+  :root {
+    /* Colores principales */
+    --navy: #16233d;
+    --navy-dark: #0e1728;
+    --blue: #2f6fed;
+    --blue-dark: #234fb5;
+    --green: #2ea86b;
+    --amber: #f2994a;
+    --red: #e0483e;
+    
+    /* Fondos */
+    --bg: #f4f6fb;
+    --card-bg: #ffffff;
+    
+    /* Textos */
+    --text-main: #1c2536;
+    --text-muted: #7a8499;
+    
+    /* Bordes */
+    --border: #e6e9f2;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    min-height: 100vh;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+  }
+
+  :focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px; }
+
+  .license-card{
+    width: 100%;
+    max-width: 500px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15, 26, 46, .08);
+  }
+
+  /* ===== Cabecera navy, igual patrón que la página de error ===== */
+  .license-top{
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+    color:#fff;
+    padding: 34px 34px 28px;
+    text-align:center;
+  }
+
+  .license-icon{
+    width: 64px; height:64px;
+    margin: 0 auto 16px;
+    border-radius: 16px;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 1.7rem;
+  }
+  .license-icon.invalid{
+    background: rgba(224,72,62,.15);
+    border: 1px solid rgba(224,72,62,.35);
+    color: #ff7a70;
+  }
+  .license-icon.expired{
+    background: rgba(242,153,74,.15);
+    border: 1px solid rgba(242,153,74,.35);
+    color: var(--amber);
+  }
+
+  .license-tag{
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .license-top h1{
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 800;
+  }
+
+  /* ===== Cuerpo ===== */
+  .license-body{
+    padding: 28px 34px 30px;
+  }
+
+  .license-body p{
+    margin: 0 0 18px;
+    color: var(--text-muted);
+    font-size: .92rem;
+    line-height: 1.6;
+    text-align:center;
+  }
+
+  .license-body p strong{ color: var(--text-main); }
+
+  .btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: 9px;
+    border: none;
+    background: var(--blue);
+    color:#fff;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: .92rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: filter .15s ease, transform .05s ease;
+  }
+  .btn:hover{ filter: brightness(1.08); }
+  .btn:active{ transform: translateY(1px); }
+
+  .license-detail{
+    margin-top: 22px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: .78rem;
+    color: var(--text-muted);
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .license-detail code{
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    word-break: break-all;
+    text-align: right;
+  }
+
+  .license-footer{
+    margin-top: 20px;
+    text-align:center;
+    font-size: .78rem;
+    color: var(--text-muted);
+  }
+
+  .upload-card{
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15, 26, 46, .08);
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-main);
+  }
+
+  /* ===== Cabecera navy, mismo patrón que error-500 / licencia ===== */
+  .upload-top{
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+    color:#fff;
+    padding: 30px 34px 26px;
+    text-align:center;
+  }
+
+  .upload-icon{
+    width: 60px; height: 60px;
+    margin: 0 auto 14px;
+    border-radius: 16px;
+    background: rgba(47,111,237,.15);
+    border: 1px solid rgba(47,111,237,.35);
+    color: #7ea1f7;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 1.5rem;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+
+  .upload-card.has-file .upload-icon{
+    background: rgba(46,168,107,.15);
+    border-color: rgba(46,168,107,.35);
+    color: #6fe0a8;
+  }
+
+  .upload-tag{
+    font-size: .76rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .upload-top h1{
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+  }
+
+  /* ===== Cuerpo: la zona de arrastrar y soltar ===== */
+  .upload-body{
+    padding: 26px 30px 30px;
+  }
+
+  .dropzone{
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+
+  .dropzone:hover{
+    border-color: var(--blue);
+    background: rgba(47,111,237,.03);
+  }
+
+  .dropzone.dragover{
+    border-color: var(--blue);
+    background: rgba(47,111,237,.06);
+  }
+
+  .upload-card.has-file .dropzone{
+    border-style: solid;
+    border-color: var(--green);
+    background: rgba(46,168,107,.04);
+  }
+
+  .dropzone-title{
+    font-weight: 800;
+    font-size: .95rem;
+    margin-bottom: 4px;
+  }
+
+  .dropzone-sub{
+    font-size: .84rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .dropzone-sub strong{
+    color: var(--blue);
+    font-weight: 700;
+  }
+
+  .dropzone-browse{
+    display: inline-block;
+    padding: 9px 20px;
+    border-radius: 8px;
+    background: var(--blue);
+    color: #fff;
+    font-weight: 700;
+    font-size: .85rem;
+    transition: filter .15s ease;
+  }
+
+  .dropzone:hover .dropzone-browse{ filter: brightness(1.08); }
+
+  .dropzone-filename{
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--green);
+    word-break: break-all;
+  }
+
+  .upload-card.has-file .dropzone-filename{ display: flex; }
+  .upload-card.has-file .dropzone-title,
+  .upload-card.has-file .dropzone-sub,
+  .upload-card.has-file .dropzone-browse{ display: none; }
+
+  .dropzone-remove{
+    background: none;
+    border: none;
+    color: var(--red);
+    cursor: pointer;
+    font-size: .9rem;
+    padding: 0;
+  }
+
+  .upload-detail{
+    margin-top: 18px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: .76rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .alert{
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 340px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(15, 26, 46, .12);
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-main);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity .25s ease, transform .25s ease;
+  }
+
+  .alert.show{
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .alert.success{ border-left-color: var(--green); }
+  .alert.error{ border-left-color: var(--red); }
+  .alert.warning{ border-left-color: var(--amber); }
+  .alert.info{ border-left-color: var(--blue); }
+
+  .alert-icon{
+    font-size: 1.05rem;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+  .alert.success .alert-icon{ color: var(--green); }
+  .alert.error .alert-icon{ color: var(--red); }
+  .alert.warning .alert-icon{ color: var(--amber); }
+  .alert.info .alert-icon{ color: var(--blue); }
+
+  .alert-content{ flex: 1; }
+
+  .alert-title{
+    font-weight: 800;
+    font-size: .88rem;
+    margin-bottom: 2px;
+  }
+
+  .alert-text{
+    font-size: .82rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .alert-close{
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: .85rem;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .alert-close:hover{ color: var(--text-main); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="alertContainer"></div> 
+
+<div class="license-card">
+  <div class="license-top">
+    <div class="license-icon invalid">
+      <i class="fa-solid fa-circle-xmark"></i>
+    </div>
+    <div class="license-tag">Licencia · Sistema Taller</div>
+    <h1>Licencia no válida</h1>
+  </div>
+
+  <div class="license-body">
+    <p>
+      Esta copia de <strong>Sistema Taller</strong> no tiene una licencia
+      
+      válida o la licencia ha expirado.
+    </p>
+    <p>Para obtener una licencia, contactá al desarrollador.</p>
+
+    <a class="btn">
+      <i class="fa-solid fa-envelope"></i>
+      <span>Solicitar licencia</span>
+    </a>
+
+    <div class="license-detail">
+      <span>ID del equipo</span>
+      <code>{{ machine_id }}</code>
+    </div>
+
+    <div class="license-footer">
+      &copy; 2026 Andres Josue Luna Escobar
+    </div>
+  </div>            
+</div>
+
+<div class="upload-card" id="uploadCard" data-accept=".lic" data-max-mb="2" style="display: none;">
+
+  <div class="upload-top">
+    <div class="upload-icon"><i class="fa-solid fa-key"></i></div>
+    <div class="upload-tag">Licencia · Sistema Taller</div>
+    <h1>Cargar archivo de licencia</h1>
+  </div>
+
+  <div class="upload-body">
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone-title">Arrastrá tu archivo .lic acá</div>
+      <div class="dropzone-sub">o hacé clic para <strong>buscarlo en tu equipo</strong></div>
+      <span class="dropzone-browse">Elegir archivo</span>
+
+      <div class="dropzone-filename" id="dropzoneFilename">
+        <i class="fa-solid fa-file-circle-check"></i>
+        <span id="dropzoneFilenameText"></span>
+        <button type="button" class="dropzone-remove" id="dropzoneRemove" title="Quitar archivo">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <input type="file" id="dropzoneInput" hidden>
+    </div>
+
+    <div class="upload-detail">Solo se acepta un archivo de licencia (.lic)</div>
+  </div>
+</div>
+
+
+<script src="{% static 'js/license_main.js' %}"></script>
+<script>
+  /*
+    =========================================================================
+    showAlert(tipo, titulo, texto, duracionMs)
+
+    tipo       -> "success" | "error" | "warning" | "info"
+    titulo     -> texto en negrita arriba
+    texto      -> texto secundario
+    duracionMs -> tiempo antes de desaparecer solo (default 4000) o
+                  lo cierras tu mismo
+
+    Ejemplo de uso:
+      showAlert('success', 'Guardado', 'La orden se registró correctamente.');
+      showAlert('error', 'Error', 'No se pudo conectar con el servidor.', 6000);
+    =========================================================================
+  */
+  const icons = {
+    success: 'fa-circle-check',
+    error: 'fa-circle-xmark',
+    warning: 'fa-triangle-exclamation',
+    info: 'fa-circle-info'
+  };
+
+  function showAlert(tipo = 'info', titulo = '', texto = '', duracionMs = 4000){
+    const container = document.getElementById('alertContainer');
+
+    const alertEl = document.createElement('div');
+    alertEl.className = `alert ${tipo}`;
+    alertEl.innerHTML = `
+      <i class="fa-solid ${icons[tipo] || icons.info} alert-icon"></i>
+      <div class="alert-content">
+        <div class="alert-title">${titulo}</div>
+        <div class="alert-text">${texto}</div>
+      </div>
+      <button type="button" class="alert-close"><i class="fa-solid fa-xmark"></i></button>
+    `;
+
+    container.appendChild(alertEl);
+
+    // Fuerza el reflow para que la transición de entrada se vea
+    requestAnimationFrame(() => alertEl.classList.add('show'));
+
+    function closeAlert(){
+      alertEl.classList.remove('show');
+      alertEl.addEventListener('transitionend', () => alertEl.remove(), { once: true });
+    }
+
+    alertEl.querySelector('.alert-close').addEventListener('click', closeAlert);
+
+    if (duracionMs > 0){
+      setTimeout(closeAlert, duracionMs);
+    }
+  }
+</script>
+</body>
+</html>

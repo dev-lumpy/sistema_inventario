@@ -11,10 +11,3 @@ def dashboard(request):
 def error_500(request):
     return render(request, 'error-500.html')
 
-def license_info(request):
-    lic = verify_license()
-    return JsonResponse({
-        "machine_id": get_machine_id(),
-        "license_valid": lic is not None,
-        "license_data": lic,
-    })

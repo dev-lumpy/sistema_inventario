@@ -1,0 +1,149 @@
+<!--
+  =========================================================================
+  ALERT — mensaje flotante que se autodestruye, mismo esquema de colores
+  que el resto de Sistema Taller (navy/azul/verde/ámbar/rojo).
+  =========================================================================
+-->
+
+<style>
+  :root{
+    --blue: #2f6fed;
+    --green: #2ea86b;
+    --amber: #f2994a;
+    --red: #e0483e;
+    --card-bg: #ffffff;
+    --text-main: #1c2536;
+    --text-muted: #7a8499;
+    --border: #e6e9f2;
+  }
+
+  .alert{
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 340px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--blue);
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(15, 26, 46, .12);
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-main);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity .25s ease, transform .25s ease;
+  }
+
+  .alert.show{
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .alert.success{ border-left-color: var(--green); }
+  .alert.error{ border-left-color: var(--red); }
+  .alert.warning{ border-left-color: var(--amber); }
+  .alert.info{ border-left-color: var(--blue); }
+
+  .alert-icon{
+    font-size: 1.05rem;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+  .alert.success .alert-icon{ color: var(--green); }
+  .alert.error .alert-icon{ color: var(--red); }
+  .alert.warning .alert-icon{ color: var(--amber); }
+  .alert.info .alert-icon{ color: var(--blue); }
+
+  .alert-content{ flex: 1; }
+
+  .alert-title{
+    font-weight: 800;
+    font-size: .88rem;
+    margin-bottom: 2px;
+  }
+
+  .alert-text{
+    font-size: .82rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .alert-close{
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: .85rem;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .alert-close:hover{ color: var(--text-main); }
+
+  @media (prefers-reduced-motion: reduce){
+    .alert{ transition: none !important; }
+  }
+</style>
+
+<!-- Contenedor donde se van a ir insertando los alerts -->
+<div id="alertContainer"></div>
+
+<script>
+  /*
+    =========================================================================
+    showAlert(tipo, titulo, texto, duracionMs)
+
+    tipo       -> "success" | "error" | "warning" | "info"
+    titulo     -> texto en negrita arriba
+    texto      -> texto secundario
+    duracionMs -> tiempo antes de desaparecer solo (default 4000). Poné 0
+                  si no querés que se cierre solo (queda hasta que le den
+                  clic a la X).
+
+    Ejemplo de uso:
+      showAlert('success', 'Guardado', 'La orden se registró correctamente.');
+      showAlert('error', 'Error', 'No se pudo conectar con el servidor.', 6000);
+    =========================================================================
+  */
+  const icons = {
+    success: 'fa-circle-check',
+    error: 'fa-circle-xmark',
+    warning: 'fa-triangle-exclamation',
+    info: 'fa-circle-info'
+  };
+
+  function showAlert(tipo = 'info', titulo = '', texto = '', duracionMs = 4000){
+    const container = document.getElementById('alertContainer');
+
+    const alertEl = document.createElement('div');
+    alertEl.className = `alert ${tipo}`;
+    alertEl.innerHTML = `
+      <i class="fa-solid ${icons[tipo] || icons.info} alert-icon"></i>
+      <div class="alert-content">
+        <div class="alert-title">${titulo}</div>
+        <div class="alert-text">${texto}</div>
+      </div>
+      <button type="button" class="alert-close"><i class="fa-solid fa-xmark"></i></button>
+    `;
+
+    container.appendChild(alertEl);
+
+    // Fuerza el reflow para que la transición de entrada se vea
+    requestAnimationFrame(() => alertEl.classList.add('show'));
+
+    function closeAlert(){
+      alertEl.classList.remove('show');
+      alertEl.addEventListener('transitionend', () => alertEl.remove(), { once: true });
+    }
+
+    alertEl.querySelector('.alert-close').addEventListener('click', closeAlert);
+
+    if (duracionMs > 0){
+      setTimeout(closeAlert, duracionMs);
+    }
+  }
+</script>

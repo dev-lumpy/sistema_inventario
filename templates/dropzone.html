@@ -1,0 +1,298 @@
+<!--
+  =========================================================================
+  DROPZONE — "Cargar archivo de licencia (.lic)"
+  Mismo lenguaje visual que el resto de Sistema Taller: tarjeta blanca con
+  cabecera navy degradada + ícono, igual que error-500.html y licencia.html.
+  Componente independiente, pegalo donde lo necesites.
+  =========================================================================
+-->
+
+<style>
+  :root{
+    --navy: #16233d;
+    --navy-dark: #0e1728;
+    --blue: #2f6fed;
+    --blue-dark: #234fb5;
+    --amber: #f2994a;
+    --green: #2ea86b;
+    --red: #e0483e;
+    --bg: #f4f6fb;
+    --card-bg: #ffffff;
+    --text-main: #1c2536;
+    --text-muted: #7a8499;
+    --border: #e6e9f2;
+  }
+
+  .upload-card{
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15, 26, 46, .08);
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-main);
+  }
+
+  /* ===== Cabecera navy, mismo patrón que error-500 / licencia ===== */
+  .upload-top{
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+    color:#fff;
+    padding: 30px 34px 26px;
+    text-align:center;
+  }
+
+  .upload-icon{
+    width: 60px; height: 60px;
+    margin: 0 auto 14px;
+    border-radius: 16px;
+    background: rgba(47,111,237,.15);
+    border: 1px solid rgba(47,111,237,.35);
+    color: #7ea1f7;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 1.5rem;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+
+  .upload-card.has-file .upload-icon{
+    background: rgba(46,168,107,.15);
+    border-color: rgba(46,168,107,.35);
+    color: #6fe0a8;
+  }
+
+  .upload-tag{
+    font-size: .76rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .upload-top h1{
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+  }
+
+  /* ===== Cuerpo: la zona de arrastrar y soltar ===== */
+  .upload-body{
+    padding: 26px 30px 30px;
+  }
+
+  .dropzone{
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+
+  .dropzone:hover{
+    border-color: var(--blue);
+    background: rgba(47,111,237,.03);
+  }
+
+  .dropzone.dragover{
+    border-color: var(--blue);
+    background: rgba(47,111,237,.06);
+  }
+
+  .upload-card.has-file .dropzone{
+    border-style: solid;
+    border-color: var(--green);
+    background: rgba(46,168,107,.04);
+  }
+
+  .dropzone-title{
+    font-weight: 800;
+    font-size: .95rem;
+    margin-bottom: 4px;
+  }
+
+  .dropzone-sub{
+    font-size: .84rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .dropzone-sub strong{
+    color: var(--blue);
+    font-weight: 700;
+  }
+
+  .dropzone-browse{
+    display: inline-block;
+    padding: 9px 20px;
+    border-radius: 8px;
+    background: var(--blue);
+    color: #fff;
+    font-weight: 700;
+    font-size: .85rem;
+    transition: filter .15s ease;
+  }
+
+  .dropzone:hover .dropzone-browse{ filter: brightness(1.08); }
+
+  .dropzone-filename{
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--green);
+    word-break: break-all;
+  }
+
+  .upload-card.has-file .dropzone-filename{ display: flex; }
+  .upload-card.has-file .dropzone-title,
+  .upload-card.has-file .dropzone-sub,
+  .upload-card.has-file .dropzone-browse{ display: none; }
+
+  .dropzone-remove{
+    background: none;
+    border: none;
+    color: var(--red);
+    cursor: pointer;
+    font-size: .9rem;
+    padding: 0;
+  }
+
+  .upload-detail{
+    margin-top: 18px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: .76rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+</style>
+
+<!--
+  data-accept    -> tipos de archivo aceptados (formato del atributo nativo
+                     "accept" de <input type="file">)
+  data-max-mb    -> tamaño máximo permitido en MB (validación de ejemplo)
+-->
+<div class="upload-card" id="uploadCard" data-accept=".lic" data-max-mb="2" style="display: none;">
+
+  <div class="upload-top">
+    <div class="upload-icon"><i class="fa-solid fa-key"></i></div>
+    <div class="upload-tag">Licencia · Sistema Taller</div>
+    <h1>Cargar archivo de licencia</h1>
+  </div>
+
+  <div class="upload-body">
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone-title">Arrastrá tu archivo .lic acá</div>
+      <div class="dropzone-sub">o hacé clic para <strong>buscarlo en tu equipo</strong></div>
+      <span class="dropzone-browse">Elegir archivo</span>
+
+      <div class="dropzone-filename" id="dropzoneFilename">
+        <i class="fa-solid fa-file-circle-check"></i>
+        <span id="dropzoneFilenameText"></span>
+        <button type="button" class="dropzone-remove" id="dropzoneRemove" title="Quitar archivo">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <input type="file" id="dropzoneInput" hidden>
+    </div>
+
+    <div class="upload-detail">Solo se acepta un archivo de licencia (.lic)</div>
+  </div>
+</div>
+
+<script>
+  /*
+    =========================================================================
+    Lógica del dropzone. No sube el archivo al servidor todavía — lo
+    detecta (clic o arrastre), lo valida contra data-accept y data-max-mb,
+    y lo deja disponible en "selectedFile" para que enganches tu propia
+    función de subida (fetch/FormData, etc.).
+    =========================================================================
+  */
+  const uploadCard = document.getElementById('uploadCard');
+  const dropzone = document.getElementById('dropzone');
+  const input = document.getElementById('dropzoneInput');
+  const filenameText = document.getElementById('dropzoneFilenameText');
+  const removeBtn = document.getElementById('dropzoneRemove');
+
+  let selectedFile = null;
+
+  const acceptedTypes = uploadCard.dataset.accept
+    ? uploadCard.dataset.accept.split(',').map(t => t.trim().toLowerCase())
+    : null;
+  const maxMb = parseFloat(uploadCard.dataset.maxMb || '0');
+
+  // Filtra el explorador nativo para que solo muestre los tipos aceptados.
+  if (acceptedTypes) input.accept = acceptedTypes.join(',');
+
+  function isValidFile(file){
+    if (acceptedTypes){
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (!acceptedTypes.includes(ext)) {
+        alert(`Tipo de archivo no permitido. Solo se acepta: ${acceptedTypes.join(', ')}`);
+        return false;
+      }
+    }
+    if (maxMb > 0 && file.size > maxMb * 1024 * 1024) {
+      alert(`El archivo supera el límite de ${maxMb} MB.`);
+      return false;
+    }
+    return true;
+  }
+
+  function setFile(file){
+    if (!isValidFile(file)) return;
+    selectedFile = file;
+    filenameText.textContent = file.name;
+    uploadCard.classList.add('has-file');
+
+    // ---- Acá enganchás tu subida real, por ejemplo: ----
+    // const formData = new FormData();
+    // formData.append('licencia', selectedFile);
+    // fetch('/api/licencia/subir', { method: 'POST', body: formData });
+  }
+
+  function clearFile(e){
+    e.stopPropagation();
+    selectedFile = null;
+    input.value = '';
+    uploadCard.classList.remove('has-file');
+  }
+
+  dropzone.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => {
+    if (input.files.length) setFile(input.files[0]);
+  });
+
+  ['dragenter', 'dragover'].forEach(evt =>
+    dropzone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    })
+  );
+
+  ['dragleave', 'drop'].forEach(evt =>
+    dropzone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+    })
+  );
+
+  dropzone.addEventListener('drop', (e) => {
+    const file = e.dataTransfer.files[0];
+    if (file) setFile(file);
+  });
+
+  removeBtn.addEventListener('click', clearFile);
+</script>
