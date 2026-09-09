@@ -1,8 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 
-from config.license import get_machine_id, verify_license
-
 
 # Create your views here.
 def dashboard(request):

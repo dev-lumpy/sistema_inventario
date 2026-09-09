@@ -1,0 +1,311 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciar sesión · Sistema Taller</title>
+
+<link rel="stylesheet" href="/static/css/css2">
+<link rel="stylesheet" href="/static/css/all.min.css">
+
+<style>
+  :root{
+    --navy: #16233d;
+    --navy-dark: #0e1728;
+    --blue: #2f6fed;
+    --blue-dark: #234fb5;
+    --amber: #f2994a;
+    --green: #2ea86b;
+    --red: #e0483e;
+    --bg: #f4f6fb;
+    --card-bg: #ffffff;
+    --text-main: #1c2536;
+    --text-muted: #7a8499;
+    --border: #e6e9f2;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    min-height: 100vh;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+  }
+
+  :focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px; }
+
+  .login-card{
+    width: 100%;
+    max-width: 420px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15, 26, 46, .08);
+  }
+
+  /* ===== Cabecera navy, mismo patrón de siempre ===== */
+  .login-top{
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+    color:#fff;
+    padding: 32px 34px 26px;
+    text-align:center;
+  }
+
+  .login-icon{
+    width: 60px; height: 60px;
+    margin: 0 auto 14px;
+    border-radius: 16px;
+    background: rgba(47,111,237,.15);
+    border: 1px solid rgba(47,111,237,.35);
+    color: #7ea1f7;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 1.5rem;
+  }
+
+  .login-tag{
+    font-size: .76rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .login-top h1{
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
+
+  /* ===== Cuerpo / formulario ===== */
+  .login-body{
+    padding: 30px 34px 32px;
+  }
+
+  .field{
+    margin-bottom: 18px;
+  }
+
+  .field label{
+    display:block;
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 6px;
+  }
+
+  .input-wrap{
+    position: relative;
+    display:flex;
+    align-items:center;
+  }
+
+  .input-wrap i{
+    position: absolute;
+    left: 14px;
+    color: var(--text-muted);
+    font-size: .9rem;
+  }
+
+  .input-wrap input{
+    width: 100%;
+    padding: 11px 14px 11px 40px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: .92rem;
+    color: var(--text-main);
+    background: var(--bg);
+    transition: border-color .15s ease, background .15s ease;
+  }
+
+  .input-wrap input:focus{
+    outline: none;
+    border-color: var(--blue);
+    background: #fff;
+  }
+
+  .input-wrap input.error{
+    border-color: var(--red);
+  }
+
+  .toggle-pass{
+    position: absolute;
+    right: 14px;
+    left: auto;
+    color: var(--text-muted);
+    cursor: pointer;
+    background:none;
+    border:none;
+    font-size: .9rem;
+    padding: 0;
+  }
+
+  .field-error{
+    display: none;
+    color: var(--red);
+    font-size: .78rem;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+  .field-error.show{ display:block; }
+
+  .row-between{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    font-size: .84rem;
+  }
+
+  .remember{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .remember input{ accent-color: var(--blue); cursor: pointer; }
+
+  .forgot-link{
+    color: var(--blue);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .forgot-link:hover{ text-decoration: underline; }
+
+  .btn-login{
+    width: 100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 9px;
+    border: none;
+    background: var(--blue);
+    color:#fff;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: .95rem;
+    cursor: pointer;
+    transition: filter .15s ease, transform .05s ease;
+  }
+  .btn-login:hover:not(:disabled){ filter: brightness(1.08); }
+  .btn-login:active{ transform: translateY(1px); }
+  .btn-login:disabled{ opacity:.65; cursor:not-allowed; }
+
+  .btn-login i.fa-spin{ display:none; }
+  .btn-login.loading i.fa-solid:not(.fa-spin){ display:none; }
+  .btn-login.loading i.fa-spin{ display:inline-block; }
+
+  .form-msg{
+    margin-top: 16px;
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: .84rem;
+    font-weight: 600;
+    text-align:center;
+    display:none;
+  }
+  .form-msg.show{ display:block; }
+  .form-msg.ok{ background: rgba(46,168,107,.1); color: var(--green); }
+  .form-msg.fail{ background: rgba(224,72,62,.1); color: var(--red); }
+
+  .login-footer{
+    margin-top: 22px;
+    text-align:center;
+    font-size: .78rem;
+    color: var(--text-muted);
+  }
+
+  .register-footer a:hover{ text-decoration: underline; }
+  
+  .register-footer{
+    margin-top: 22px;
+    text-align:center;
+    font-size: .82rem;
+    color: var(--text-muted);
+  }
+  .register-footer a{
+    color: var(--blue);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="login-top">
+    <div class="login-icon"><i class="fa-solid fa-wrench"></i></div>
+    <div class="login-tag">Sistema Taller</div>
+    <h1>Iniciar sesión</h1>
+  </div>
+
+  <div class="login-body">
+    <form id="loginForm" novalidate>
+
+      <div class="field">
+        <label for="username">Usuario</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-user"></i>
+          <input type="text" id="username" name="username" placeholder="Tu usuario" autocomplete="username">
+        </div>
+        <div class="field-error" id="usernameError">Ingresá tu usuario.</div>
+      </div>
+
+      <div class="field">
+        <label for="password">Contraseña</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" id="password" name="password" placeholder="Tu contraseña" autocomplete="current-password">
+          <button type="button" class="toggle-pass" id="togglePass"><i class="fa-solid fa-eye"></i></button>
+        </div>
+        <div class="field-error" id="passwordError">Ingresá tu contraseña.</div>
+      </div>
+
+      <div class="row-between">
+        <label class="remember">
+          <input type="checkbox" id="remember">
+          Recordarme
+        </label>
+        <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="btn-login" id="btnLogin">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <span>Ingresar</span>
+      </button>
+      
+      <div class="register-footer">
+          ¿No tienes cuenta? <a href="{% url 'usuarios:register' %}">crear cuenta</a>
+      </div>
+
+      <div class="form-msg" id="formMsg"></div>
+    </form>
+
+    <div class="login-footer">
+      &copy; 2026 Sistema Taller
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/login.js' %}"></script>
+
+</body>
+</html>

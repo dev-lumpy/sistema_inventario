@@ -18,11 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 
 from apps.clientes.views import dashboard, error_500
+from apps.login.views import start_login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('', dashboard, name='dashboard'),
+    path('', start_login),
+    # path('license/', include("apps.license.urls")),
+    path('usuarios/', include('apps.usuarios.urls')),
+
+    path('dashboard', dashboard, name='dashboard'),
     path('error-500', error_500, name='error-500'),
-    path('license/', include("apps.license.urls"))
 ]

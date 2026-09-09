@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Error · Sistema Taller</title>
+
+<link rel="stylesheet" href="/static/css/css2">
+<link rel="stylesheet" href="/static/css/all.min.css"> 
+
+<style>
+  :root{
+    --navy: #16233d;
+    --navy-dark: #0e1728;
+    --blue: #2f6fed;
+    --blue-dark: #234fb5;
+    --amber: #f2994a;
+    --green: #2ea86b;
+    --red: #e0483e;
+    --bg: #f4f6fb;
+    --card-bg: #ffffff;
+    --text-main: #1c2536;
+    --text-muted: #7a8499;
+    --border: #e6e9f2;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    min-height: 100vh;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+  }
+
+  :focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px; }
+
+  .error-card{
+    width: 100%;
+    max-width: 480px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15, 26, 46, .08);
+  }
+
+  /* ===== Cabecera navy, mismo patrón de siempre ===== */
+  .error-top{
+    background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+    color:#fff;
+    padding: 34px 34px 28px;
+    text-align:center;
+  }
+
+  .error-icon{
+    width: 64px; height:64px;
+    margin: 0 auto 16px;
+    border-radius: 16px;
+    background: rgba(242,153,74,.15);
+    border: 1px solid rgba(242,153,74,.35);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 1.7rem;
+    color: var(--amber);
+  }
+
+  .error-code{
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .error-top h1{
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+  }
+
+  .error-body{
+    padding: 28px 34px 30px;
+  }
+
+  .error-body p{
+    margin: 0 0 22px;
+    color: var(--text-muted);
+    font-size: .92rem;
+    line-height: 1.6;
+    text-align:center;
+  }
+
+  .error-detail{
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: .78rem;
+    color: var(--text-muted);
+    display:flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 24px;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  .actions{
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 9px;
+    border: none;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: .92rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: filter .15s ease, transform .05s ease;
+  }
+  .btn:active{ transform: translateY(1px); }
+  .btn:disabled{ opacity: .6; cursor: not-allowed; }
+
+  .btn-primary{ background: var(--blue); color:#fff; }
+  .btn-primary:hover:not(:disabled){ filter: brightness(1.08); }
+
+  .btn-outline{
+    background: #fff;
+    color: var(--text-main);
+    border: 1.5px solid var(--border);
+  }
+  .btn-outline:hover:not(:disabled){ background: var(--bg); }
+
+  .btn i.fa-spin{ display:none; }
+  .btn.loading i.fa-solid:not(.fa-spin){ display:none; }
+  .btn.loading i.fa-spin{ display:inline-block; }
+
+  .status-msg{
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-align:center;
+    display:none;
+  }
+  .status-msg.show{ display:block; }
+  .status-msg.ok{ background: rgba(46,168,107,.1); color: var(--green); }
+  .status-msg.fail{ background: rgba(224,72,62,.1); color: var(--red); }
+  .status-msg.info{ background: rgba(47,111,237,.1); color: var(--blue-dark); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="error-card">
+  <div class="error-top">
+    <div class="error-icon"><i class="fa-solid fa-circle-question"></i></div>
+    <div class="error-code" id="errorCodeLabel">ERROR 404 · SOLICITUD</div>
+    <h1 id="errorTitle">Página no encontrada</h1>
+  </div>
+
+  <div class="error-body">
+    <p id="errorMessage">
+      La página o el recurso que buscás no existe, fue movido, o no tenés
+      permiso para acceder a él.
+    </p>
+
+    <div class="error-detail">
+      <span id="errorPath">ruta: —</span>
+      <span id="errorRef">ref: —</span>
+    </div>
+
+    <div class="actions">
+      <a href="/" class="btn btn-primary">
+        <i class="fa-solid fa-house"></i>
+        <span>Volver al inicio</span>
+      </a>
+
+      <button class="btn btn-outline" id="btnReport">
+        <i class="fa-regular fa-flag"></i>
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <span>Reportar problema</span>
+      </button>
+    </div>
+
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+</div>
+
+<script>
+  /*
+    =========================================================================
+    DATOS DEL ERROR
+    Reemplazá con lo que tu backend/router le pase a esta página. Cubre
+    los códigos 4XX más comunes; agregá los que te falten al objeto.
+    También podés leerlos desde la URL: /error.html?code=403
+    =========================================================================
+  */
+  const messagesByCode = {
+    400: { title: 'Solicitud incorrecta', text: 'La solicitud tiene datos inválidos o mal formados.' },
+    401: { title: 'No autorizado', text: 'Necesitás iniciar sesión para acceder a este contenido.' },
+    403: { title: 'Acceso denegado', text: 'No tenés permiso para acceder a esta sección.' },
+    404: { title: 'Página no encontrada', text: 'La página o el recurso que buscás no existe, fue movido, o no tenés permiso para acceder a él.' },
+    408: { title: 'Tiempo de espera agotado', text: 'La solicitud tardó demasiado y fue cancelada. Intentá de nuevo.' },
+    409: { title: 'Conflicto', text: 'La acción no se pudo completar por un conflicto con el estado actual del recurso.' },
+    422: { title: 'Datos no procesables', text: 'La solicitud es válida pero los datos enviados no se pudieron procesar.' },
+    429: { title: 'Demasiadas solicitudes', text: 'Hiciste demasiadas solicitudes en poco tiempo. Esperá un momento e intentá de nuevo.' }
+  };
+
+  const params = new URLSearchParams(window.location.search);
+  const code = parseInt(params.get('code')) || 404;
+  const info = messagesByCode[code] || messagesByCode[404];
+
+  const errorInfo = {
+    code,
+    path: window.location.pathname,
+    ref: 'TALLER-' + Math.random().toString(36).slice(2, 8).toUpperCase()
+  };
+
+  document.getElementById('errorCodeLabel').textContent = `ERROR ${errorInfo.code} · SOLICITUD`;
+  document.getElementById('errorTitle').textContent = info.title;
+  document.getElementById('errorMessage').textContent = info.text;
+  document.getElementById('errorPath').textContent = `ruta: ${errorInfo.path}`;
+  document.getElementById('errorRef').textContent = `ref: ${errorInfo.ref}`;
+
+  const statusMsg = document.getElementById('statusMsg');
+  const btnReport = document.getElementById('btnReport');
+
+  function showStatus(text, type){
+    statusMsg.textContent = text;
+    statusMsg.className = `status-msg show ${type}`;
+  }
+
+  function setLoading(button, isLoading){
+    button.classList.toggle('loading', isLoading);
+    button.disabled = isLoading;
+  }
+
+  /*
+    =========================================================================
+    FUNCIÓN: reportError()
+    Se ejecuta al tocar "Reportar problema". Igual que en la página de
+    error 500: fetch real comentado, simulación con setTimeout mientras
+    tanto para ver los 3 estados funcionando.
+    =========================================================================
+  */
+  async function reportError(){
+    setLoading(btnReport, true);
+    showStatus('Enviando reporte...', 'info');
+
+    try {
+      // --- Reemplazá este bloque simulado por tu llamada real ---
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      // const res = await fetch('/api/errors/report', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(errorInfo)
+      // });
+      // if (!res.ok) throw new Error('No se pudo enviar el reporte');
+      // -----------------------------------------------------------
+
+      showStatus('Error reportado correctamente.', 'ok');
+    } catch (err) {
+      showStatus('No se pudo enviar el reporte. Intentá de nuevo.', 'fail');
+    } finally {
+      setLoading(btnReport, false);
+    }
+  }
+
+  btnReport.addEventListener('click', reportError);
+</script>
+
+</body>
+</html>

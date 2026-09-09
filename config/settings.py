@@ -38,9 +38,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# Tamano maximo de archivos para la licencia
-DATA_UPLOAD_MAX_MEMORY_SIZE = 2 * 1024 * 1024
-
 # Monitoreo de errores — solo se envía lo que explícitamente llames con capture_exception()
 sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN", ""),
@@ -63,6 +60,7 @@ INSTALLED_APPS = [
     'inventario',
     'ordenes',
     'usuarios',
+    'login'
 ]
 
 MIDDLEWARE = [
@@ -74,7 +72,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'config.license_middleware.LicenseMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
