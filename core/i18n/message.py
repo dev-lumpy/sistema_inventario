@@ -141,10 +141,6 @@ MESSAGES: Dict[str, Dict[str, str]] = {
         MessageKey.BUSINESS_RULE_VIOLATION: "Operación no permitida por reglas de negocio",
         MessageKey.USER_CANNOT_BORROW: "No puedes pedir prestado: {reason}",
 
-
-        # Conflict
-        MessageKey.CONFLICT_GENERIC: "Conflicto con los datos actuales",
-        
         # Business Rule
         MessageKey.BUSINESS_RULE_VIOLATION: "Operación no permitida por las reglas de negocio",
         MessageKey.USER_CANNOT_BORROW: "No puedes pedir prestado: {reason}",

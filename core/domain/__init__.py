@@ -2,11 +2,12 @@
 
 from core.domain.producto import (
     Producto,
+    ProductoId,
     NombreProducto,
-    CategoriaProducto,
     Precio,
     Cantidad,
     StockMinimo,
+    EstadoStock,
     ProductoIdInvalidoException,
     NombreProductoInvalidoException,
     CategoriaInvalidaException,
@@ -16,16 +17,20 @@ from core.domain.producto import (
     ProductoNoEncontradoException,
     ProductoDuplicadoException,
     StockInsuficienteException,
-    ProductoInactivoException
+    ProductoInactivoException,
+    StockPorDebajoDelMinimoException,
+    CategoriaVaciaException,
+    ProductoRepository,
 )
 
 __all__ = [
     'Producto',
+    'ProductoId',
     'NombreProducto',
-    'CategoriaProducto',
     'Precio',
     'Cantidad',
     'StockMinimo',
+    'EstadoStock',
     'ProductoIdInvalidoException',
     'NombreProductoInvalidoException',
     'CategoriaInvalidaException',
@@ -35,5 +40,8 @@ __all__ = [
     'ProductoNoEncontradoException',
     'ProductoDuplicadoException',
     'StockInsuficienteException',
-    'ProductoInactivoException'
+    'ProductoInactivoException',
+    'StockPorDebajoDelMinimoException',
+    'CategoriaVaciaException',
+    'ProductoRepository',
 ]

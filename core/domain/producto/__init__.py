@@ -5,12 +5,15 @@ from core.domain.producto.producto import Producto
 
 # Value Objects
 from core.domain.producto.value_objects import (
+    ProductoId,
     NombreProducto,
-    CategoriaProducto,
     Precio,
     Cantidad,
-    StockMinimo
+    StockMinimo,
 )
+
+# Estado
+from core.domain.producto.estado_stock import EstadoStock
 
 # Excepciones
 from core.domain.producto.exceptions import (
@@ -23,20 +26,25 @@ from core.domain.producto.exceptions import (
     ProductoNoEncontradoException,
     ProductoDuplicadoException,
     StockInsuficienteException,
-    ProductoInactivoException
+    ProductoInactivoException,
+    StockPorDebajoDelMinimoException,
+    CategoriaVaciaException,
 )
+
+# Repositorio
+from core.domain.producto.repository import ProductoRepository
 
 __all__ = [
     # Entidad
     'Producto',
-    
     # Value Objects
+    'ProductoId',
     'NombreProducto',
-    'CategoriaProducto',
     'Precio',
     'Cantidad',
     'StockMinimo',
-    
+    # Estado
+    'EstadoStock',
     # Excepciones
     'ProductoIdInvalidoException',
     'NombreProductoInvalidoException',
@@ -47,5 +55,9 @@ __all__ = [
     'ProductoNoEncontradoException',
     'ProductoDuplicadoException',
     'StockInsuficienteException',
-    'ProductoInactivoException'
+    'ProductoInactivoException',
+    'StockPorDebajoDelMinimoException',
+    'CategoriaVaciaException',
+    # Repositorio
+    'ProductoRepository',
 ]

@@ -2,9 +2,14 @@
 
 """Excepciones del dominio Producto"""
 
-from core.domain.exceptions import DomainException
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+from core.domain.shared.exceptions import DomainException
 from core.i18n.message import MessageKey
 
+if TYPE_CHECKING:
+    from core.domain.producto.value_objects import NombreProducto
 
 # ============================================
 # EXCEPCIONES DE VALIDACIÓN
@@ -12,7 +17,7 @@ from core.i18n.message import MessageKey
 
 class ProductoIdInvalidoException(DomainException):
     """Se lanza cuando el ID del producto no es válido"""
-    
+
     def __init__(self, id: str):
         super().__init__(
             code="PRODUCTO_ID_INVALIDO",
@@ -26,9 +31,8 @@ class ProductoIdInvalidoException(DomainException):
 
 class NombreProductoInvalidoException(DomainException):
     """Se lanza cuando el nombre no cumple con las reglas"""
-    
+
     def __init__(self, nombre: str, razon: str, min: int, max: int):
-        # Mapeo de razones a códigos específicos
         code_map = {
             MessageKey.NAME_EMPTY: "PRODUCTO_NOMBRE_VACIO",
             MessageKey.NAME_TOO_SHORT: "PRODUCTO_NOMBRE_CORTO",
@@ -37,7 +41,7 @@ class NombreProductoInvalidoException(DomainException):
             MessageKey.NAME_RESERVED: "PRODUCTO_NOMBRE_RESERVADO",
             MessageKey.NAME_STARTS_WITH_NUMBER: "PRODUCTO_NOMBRE_COMIENZA_CON_NUMERO",
         }
-        
+
         super().__init__(
             code=code_map.get(razon, "PRODUCTO_NOMBRE_INVALIDO"),
             message=f"Nombre de producto inválido: {nombre}",
@@ -51,7 +55,7 @@ class NombreProductoInvalidoException(DomainException):
 
 class CategoriaInvalidaException(DomainException):
     """Se lanza cuando la categoría no está en el catálogo permitido"""
-    
+
     def __init__(self, categoria: str, opciones: str):
         super().__init__(
             code="PRODUCTO_CATEGORIA_INVALIDA",
@@ -64,7 +68,7 @@ class CategoriaInvalidaException(DomainException):
 
 class CategoriaVaciaException(DomainException):
     """Se lanza cuando la categoría está vacía"""
-    
+
     def __init__(self):
         super().__init__(
             code="PRODUCTO_CATEGORIA_VACIA",
@@ -77,7 +81,7 @@ class CategoriaVaciaException(DomainException):
 
 class PrecioInvalidoException(DomainException):
     """Se lanza cuando el precio es negativo o cero"""
-    
+
     def __init__(self, precio: float, max_price: float = 999999.99):
         code     = ""
         user_key = ""
@@ -86,11 +90,11 @@ class PrecioInvalidoException(DomainException):
             user_key = MessageKey.PRICE_NEGATIVE
         elif precio == 0:
             code = "PRODUCTO_PRECIO_CERO"
-            user_key = MessageKey.PRICE_NEGATIVE  # Reutilizamos el mensaje
+            user_key = MessageKey.PRICE_NEGATIVE
         else:
             code = "PRODUCTO_PRECIO_EXCEDE_LIMITE"
             user_key = MessageKey.PRICE_TOO_HIGH
-        
+
         super().__init__(
             code=code,
             message=f"Precio inválido: {precio}",
@@ -103,7 +107,7 @@ class PrecioInvalidoException(DomainException):
 
 class CantidadInvalidaException(DomainException):
     """Se lanza cuando la cantidad es negativa"""
-    
+
     def __init__(self, cantidad: int):
         if cantidad < 0:
             code = "PRODUCTO_CANTIDAD_NEGATIVA"
@@ -111,7 +115,7 @@ class CantidadInvalidaException(DomainException):
         else:
             code = "PRODUCTO_CANTIDAD_CERO"
             user_key = MessageKey.STOCK_ZERO
-        
+
         super().__init__(
             code=code,
             message=f"Cantidad inválida: {cantidad}",
@@ -123,7 +127,7 @@ class CantidadInvalidaException(DomainException):
 
 class StockMinimoInvalidoException(DomainException):
     """Se lanza cuando el stock mínimo es negativo"""
-    
+
     def __init__(self, minimo: int):
         super().__init__(
             code="PRODUCTO_STOCK_MINIMO_NEGATIVO",
@@ -140,7 +144,7 @@ class StockMinimoInvalidoException(DomainException):
 
 class StockPorDebajoDelMinimoException(DomainException):
     """Se lanza cuando el stock actual está por debajo del mínimo"""
-    
+
     def __init__(self, stock_actual: int, stock_minimo: int):
         super().__init__(
             code="PRODUCTO_STOCK_BAJO_MINIMO",
@@ -154,7 +158,7 @@ class StockPorDebajoDelMinimoException(DomainException):
 
 class ProductoNoEncontradoException(DomainException):
     """Se lanza cuando no se encuentra un producto por ID"""
-    
+
     def __init__(self, product_id: str):
         super().__init__(
             code="PRODUCTO_NOT_FOUND",
@@ -167,7 +171,7 @@ class ProductoNoEncontradoException(DomainException):
 
 class ProductoDuplicadoException(DomainException):
     """Se lanza cuando intentas crear un producto con nombre duplicado"""
-    
+
     def __init__(self, nombre: str):
         super().__init__(
             code="PRODUCTO_DUPLICADO",
@@ -180,7 +184,7 @@ class ProductoDuplicadoException(DomainException):
 
 class StockInsuficienteException(DomainException):
     """Se lanza cuando intentas vender más stock del disponible"""
-    
+
     def __init__(self, disponible: int, solicitado: int):
         super().__init__(
             code="PRODUCTO_STOCK_INSUFICIENTE",
@@ -193,8 +197,8 @@ class StockInsuficienteException(DomainException):
 
 
 class ProductoInactivoException(DomainException):
-    """Se lanza cuando intentas operar con un producto inactivo"""
-    
+    """Se lanza cuando se intenta operar sobre un producto inactivo"""
+
     def __init__(self, nombre: str):
         super().__init__(
             code="PRODUCTO_INACTIVO",
@@ -205,31 +209,27 @@ class ProductoInactivoException(DomainException):
         )
 
 
-# ============================================
-# EXCEPCIONES ADICIONALES (las que "faltaban")
-# ============================================
-
 class ProductoConStockNegativoException(DomainException):
-    """Se lanza cuando el stock queda en negativo (error de consistencia)"""
-    
-    def __init__(self, producto_id: str, stock_actual: int):
+    """Se lanza cuando el producto queda con stock negativo"""
+
+    def __init__(self, producto_id: str, cantidad: int):
         super().__init__(
             code="PRODUCTO_STOCK_NEGATIVO",
-            message=f"El producto {producto_id} tiene stock negativo: {stock_actual}",
+            message=f"Producto '{producto_id}' no puede tener stock negativo: {cantidad}",
             user_message_key=MessageKey.STOCK_NEGATIVE,
             status_code=500,
-            stock=stock_actual,
-            producto_id=producto_id
+            producto_id=producto_id,
+            stock=cantidad
         )
 
 
 class ProductoConPrecioCeroException(DomainException):
-    """Se lanza cuando el precio es cero (puede ser permitido o no según negocio)"""
-    
+    """Se lanza cuando se intenta crear un producto con precio cero"""
+
     def __init__(self, nombre: str):
         super().__init__(
             code="PRODUCTO_PRECIO_CERO",
-            message=f"El producto '{nombre}' tiene precio cero",
+            message=f"Producto '{nombre}' no puede tener precio 0",
             user_message_key=MessageKey.PRICE_NEGATIVE,
             status_code=400,
             field=nombre
@@ -237,12 +237,12 @@ class ProductoConPrecioCeroException(DomainException):
 
 
 class ProductoConCategoriaNoPermitidaException(DomainException):
-    """Se lanza cuando la categoría no está permitida para este tipo de producto"""
-    
+    """Se lanza cuando la categoría no está en el catálogo permitido"""
+
     def __init__(self, categoria: str, producto: str):
         super().__init__(
             code="PRODUCTO_CATEGORIA_NO_PERMITIDA",
-            message=f"Categoría '{categoria}' no permitida para '{producto}'",
+            message=f"Producto '{producto}' no puede tener categoría '{categoria}'",
             user_message_key=MessageKey.VALIDATION_INVALID,
             status_code=400,
             field=f"categoría '{categoria}'",

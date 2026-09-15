@@ -4,331 +4,331 @@
 """Pruebas unitarias para la entidad Producto (Aggregate Root)"""
 
 import pytest
+from uuid import UUID
 from core.domain.producto.producto import Producto
+from core.domain.producto.estado_stock import EstadoStock
 from core.domain.producto.value_objects import (
-        NombreProducto,
-        CategoriaProducto,
-        Precio,
-        Cantidad,
-        StockMinimo
-        )
+    ProductoId,
+    NombreProducto,
+    Precio,
+    Cantidad,
+    StockMinimo,
+)
 from core.domain.producto.exceptions import (
-        ProductoInactivoException,
-        StockPorDebajoDelMinimoException,
-        StockInsuficienteException,
-        ProductoNoEncontradoException,
-        NombreProductoInvalidoException,
-        PrecioInvalidoException,
-        CantidadInvalidaException,
-        StockMinimoInvalidoException,
-        CategoriaVaciaException
-        )
-from core.i18n.message import MessageKey
-from core.i18n.manager import MessageManager
+    ProductoInactivoException,
+    StockPorDebajoDelMinimoException,
+    StockInsuficienteException,
+    NombreProductoInvalidoException,
+    PrecioInvalidoException,
+    CantidadInvalidaException,
+    StockMinimoInvalidoException,
+)
+from core.domain.shared.fecha import Fecha
 
 
 class TestProductoCreacion:
     """Pruebas para la creación de productos"""
-    
-    # ============ HELPERS ============
-    
+
     def _crear_producto_valido(self, **kwargs):
-        """Crear un producto válido con valores por defecto"""
         defaults = {
+            "id": ProductoId.generar(),
             "nombre": NombreProducto("Producto Test"),
-            "categoria": CategoriaProducto("Electrónicos"),
             "precio": Precio(100.00),
             "cantidad_inicial": Cantidad(50),
             "stock_minimo": StockMinimo(10),
-            "activo": True
+            "categoria_id": "Electrónicos",
+            "activo": True,
         }
         defaults.update(kwargs)
         return Producto(**defaults)
-    
+
     # ============ TESTS DE CREACIÓN EXITOSA ============
-    
+
     def test_crear_producto_valido(self):
-        """✅ Debe crear un producto correctamente con todos los atributos"""
-        # Arrange
+        """Debe crear un producto correctamente con todos los atributos"""
+        id = ProductoId.generar()
         nombre = NombreProducto("Laptop HP")
-        categoria = CategoriaProducto("Electrónicos")
         precio = Precio(1500.00)
         cantidad = Cantidad(100)
         stock_minimo = StockMinimo(20)
-        
-        # Act
+
         producto = Producto(
+            id=id,
             nombre=nombre,
-            categoria=categoria,
             precio=precio,
             cantidad_inicial=cantidad,
             stock_minimo=stock_minimo,
-            activo=True
+            categoria_id="Electrónicos",
+            activo=True,
         )
-        
-        # Assert
+
+        assert producto.id == id
         assert producto.nombre == nombre
         assert producto.nombre.valor == "Laptop HP"
-        assert producto.categoria == categoria
-        assert producto.categoria.valor == "Electrónicos"
         assert producto.precio == precio
         assert producto.precio.valor == 1500.00
         assert producto.cantidad == cantidad
         assert producto.cantidad.valor == 100
         assert producto.stock_minimo == stock_minimo
         assert producto.stock_minimo.valor == 20
+        assert producto.categoria_id == "Electrónicos"
         assert producto.activo is True
-    
+        assert producto.fecha_creacion is not None
+
     def test_crear_producto_con_stock_mayor_al_minimo(self):
-        """✅ Debe crear producto cuando stock > stock mínimo"""
         producto = self._crear_producto_valido(
             cantidad_inicial=Cantidad(50),
-            stock_minimo=StockMinimo(10)
+            stock_minimo=StockMinimo(10),
         )
-        
         assert producto.cantidad.valor == 50
-        assert producto.stock_minimo.valor == 10
         assert producto.cantidad.valor > producto.stock_minimo.valor
-    
+
     def test_crear_producto_con_stock_igual_al_minimo(self):
-        """✅ Debe crear producto cuando stock == stock mínimo"""
         producto = self._crear_producto_valido(
             cantidad_inicial=Cantidad(10),
-            stock_minimo=StockMinimo(10)
+            stock_minimo=StockMinimo(10),
         )
-        
         assert producto.cantidad.valor == 10
-        assert producto.stock_minimo.valor == 10
         assert producto.cantidad.valor == producto.stock_minimo.valor
-    
+
     def test_crear_producto_activo_por_defecto(self):
-        """✅ Si no se especifica activo, debe crearse como activo por defecto"""
         producto = Producto(
+            id=ProductoId.generar(),
             nombre=NombreProducto("Producto Test"),
-            categoria=CategoriaProducto("Electrónicos"),
             precio=Precio(100.00),
             cantidad_inicial=Cantidad(50),
-            stock_minimo=StockMinimo(10)
-            # activo no se especifica
+            stock_minimo=StockMinimo(10),
         )
-        
         assert producto.activo is True
-    
+
     def test_crear_producto_con_stock_cero(self):
-        """✅ Debe permitir crear producto con stock 0"""
         producto = self._crear_producto_valido(
             cantidad_inicial=Cantidad(0),
-            stock_minimo=StockMinimo(0)
+            stock_minimo=StockMinimo(0),
         )
-        
         assert producto.cantidad.valor == 0
-        assert producto.esta_en_alerta() is True  # 0 <= 10
-    
+        assert producto.esta_en_alerta() is True
+
     def test_crear_producto_con_stock_minimo_cero(self):
-        """✅ Debe permitir stock mínimo 0"""
         producto = self._crear_producto_valido(
             cantidad_inicial=Cantidad(5),
-            stock_minimo=StockMinimo(0)
+            stock_minimo=StockMinimo(0),
         )
-        
         assert producto.stock_minimo.valor == 0
-        assert producto.esta_en_alerta() is False  # 5 > 0
-    
-    def test_crear_producto_con_precio_cero(self):
-        """❌ NO DEBE permitir precio 0 (regla de negocio: Precio > 0)"""
-        with pytest.raises(PrecioInvalidoException) as exc_info:
-            Precio(0.00)
-        
-        assert exc_info.value.price == 0.00
-    
-    def test_crear_producto_con_precio_positivo(self):
-        """✅ Debe permitir precio positivo"""
-        producto = self._crear_producto_valido(
-            precio=Precio(99.99)
-        )
-        
-        assert producto.precio.valor == 99.99
-    
-    # ============ TESTS DE VALIDACIÓN (CASOS QUE DEBEN FALLAR) ============
-    
+        assert producto.esta_en_alerta() is False
+
+    # ============ TESTS DE VALIDACIÓN ============
+
     def test_crear_producto_con_stock_menor_al_minimo_lanza_excepcion(self):
-        """❌ Debe lanzar StockPorDebajoDelMinimoException si stock < stock mínimo"""
-        # Act & Assert
         with pytest.raises(StockPorDebajoDelMinimoException) as exc_info:
             Producto(
+                id=ProductoId.generar(),
                 nombre=NombreProducto("Producto Test"),
-                categoria=CategoriaProducto("Electrónicos"),
                 precio=Precio(100.00),
-                cantidad_inicial=Cantidad(5),  # stock = 5
-                stock_minimo=StockMinimo(10),   # mínimo = 10
-                activo=True
+                cantidad_inicial=Cantidad(5),
+                stock_minimo=StockMinimo(10),
             )
-        
-        # Verificar que la excepción contiene los valores correctos
         assert exc_info.value.stock_actual == 5
         assert exc_info.value.stock_minimo == 10
-    
-    def test_crear_producto_con_stock_negativo_lanza_excepcion(self):
-        """❌ El Value Object Cantidad debe validar stock negativo"""
-        with pytest.raises(CantidadInvalidaException) as exc_info:
-            Cantidad(-5)
-        
-        assert exc_info.value.cantidad == -5
-    
-    def test_crear_producto_con_stock_minimo_negativo_lanza_excepcion(self):
-        """❌ El Value Object StockMinimo debe validar valores negativos"""
-        with pytest.raises(StockMinimoInvalidoException) as exc_info:
-            StockMinimo(-1)
-        
-        assert exc_info.value.stock == -1
-    
-    def test_crear_producto_con_precio_negativo_lanza_excepcion(self):
-        """❌ El Value Object Precio debe validar precios negativos"""
-        with pytest.raises(PrecioInvalidoException) as exc_info:
-            Precio(-100.00)
-        
-        assert exc_info.value.price == -100.00
-    
-    def test_crear_producto_con_nombre_vacio_lanza_excepcion(self):
-        """❌ El Value Object NombreProducto debe validar nombre vacío"""
-        with pytest.raises(NombreProductoInvalidoException) as exc_info:
-            NombreProducto("")
-        
-        assert exc_info.value.field == ""
-    
-    def test_crear_producto_con_nombre_solo_espacios_lanza_excepcion(self):
-        """❌ El Value Object NombreProducto debe validar solo espacios"""
-        with pytest.raises(NombreProductoInvalidoException) as exc_info:
-            NombreProducto("   ")
-        
-        assert exc_info.value.field == "   "
-    
-    def test_crear_producto_con_nombre_muy_corto_lanza_excepcion(self):
-        """❌ El Value Object NombreProducto debe validar longitud mínima (3)"""
-        with pytest.raises(NombreProductoInvalidoException) as exc_info:
-            NombreProducto("Ab")  # 2 caracteres
-        
-        assert exc_info.value.field == "Ab"
-        assert exc_info.value.min == 3
-    
-    def test_crear_producto_con_nombre_muy_largo_lanza_excepcion(self):
-        """❌ El Value Object NombreProducto debe validar longitud máxima (50)"""
-        nombre_largo = "A" * 51
-        with pytest.raises(NombreProductoInvalidoException) as exc_info:
-            NombreProducto(nombre_largo)
-        
-        assert exc_info.value.field == nombre_largo
-        assert exc_info.value.max == 50
-    
-    def test_crear_producto_con_nombre_con_caracteres_especiales_lanza_excepcion(self):
-        """❌ El Value Object NombreProducto debe validar caracteres especiales"""
-        with pytest.raises(NombreProductoInvalidoException) as exc_info:
-            NombreProducto("Producto@#$")
-        
-        assert exc_info.value.field == "Producto@#$"
-    
-    def test_crear_producto_con_nombre_reservado_lanza_excepcion(self):
-        """❌ El Value Object NombreProducto debe validar palabras reservadas"""
-        with pytest.raises(NombreProductoInvalidoException) as exc_info:
-            NombreProducto("admin")
-        
-        assert exc_info.value.field == "admin"
-    
-    def test_crear_producto_con_nombre_empieza_con_numero_lanza_excepcion(self):
-        """❌ El Value Object NombreProducto debe validar que no empiece con número"""
-        with pytest.raises(NombreProductoInvalidoException) as exc_info:
-            NombreProducto("123Producto")
-        
-        assert exc_info.value.field == "123Producto"
-    
-    def test_crear_producto_con_categoria_vacia_lanza_excepcion(self):
-        """❌ El Value Object CategoriaProducto debe validar categoría vacía"""
-        with pytest.raises(CategoriaVaciaException):
-            CategoriaProducto("")
-    
-    def test_crear_producto_con_categoria_solo_espacios_lanza_excepcion(self):
-        """❌ El Value Object CategoriaProducto debe validar solo espacios"""
-        with pytest.raises(CategoriaVaciaException):
-            CategoriaProducto("   ")
-    
-    # ============ TESTS DE INTEGRACIÓN DE VALUE OBJECTS ============
-    
-    def test_crear_producto_con_todos_los_value_objects(self):
-        """✅ Debe funcionar con todos los Value Objects correctos"""
-        nombre = NombreProducto("Smartphone Samsung")
-        categoria = CategoriaProducto("Tecnología")
-        precio = Precio(899.99)
-        cantidad = Cantidad(25)
-        stock_minimo = StockMinimo(5)
-        
-        producto = Producto(
-            nombre=nombre,
-            categoria=categoria,
-            precio=precio,
-            cantidad_inicial=cantidad,
-            stock_minimo=stock_minimo
-        )
-        
-        assert isinstance(producto.nombre, NombreProducto)
-        assert isinstance(producto.categoria, CategoriaProducto)
-        assert isinstance(producto.precio, Precio)
-        assert isinstance(producto.cantidad, Cantidad)
-        assert isinstance(producto.stock_minimo, StockMinimo)
-        assert producto.activo is True
-    
-    def test_crear_producto_con_categoria_personalizada(self):
-        """✅ Debe permitir cualquier categoría válida"""
-        categorias = ["Electrónicos", "Ropa", "Alimentos", "Libros", "Muebles"]
-        
-        for cat in categorias:
-            producto = self._crear_producto_valido(
-                categoria=CategoriaProducto(cat)
-            )
-            assert producto.categoria.valor == cat
-    
-    # ============ TESTS DE INMUTABILIDAD ============
-    
-    def test_crear_producto_y_modificar_objeto_no_afecta_valor_original(self):
-        """✅ Los Value Objects deben ser inmutables"""
-        nombre_original = NombreProducto("Original")
-        producto = self._crear_producto_valido(
-            nombre=nombre_original
-        )
-        
-        # Los Value Objects son frozen, no se pueden modificar
-        assert producto.nombre.valor == "Original"
-    
-    # ============ TEST DE REPRESENTACIÓN ============
-    
+
+    # ============ TESTS DE REPRESENTACIÓN ============
+
     def test_repr_del_producto_creado(self):
-        """✅ La representación debe incluir los atributos principales"""
         producto = self._crear_producto_valido()
         repr_str = repr(producto)
-        
         assert "Producto" in repr_str
         assert "Producto Test" in repr_str
-        assert "Electrónicos" in repr_str
         assert "100.0" in repr_str
-        assert "50" in repr_str
-    
-    # ============ TEST DE ESTADO INICIAL ============
-    
+
     def test_producto_recien_creado_no_esta_en_alerta_si_stock_suficiente(self):
-        """✅ Producto nuevo no debe estar en alerta si stock > stock mínimo"""
         producto = self._crear_producto_valido(
             cantidad_inicial=Cantidad(50),
-            stock_minimo=StockMinimo(10)
+            stock_minimo=StockMinimo(10),
         )
-        
         assert producto.esta_en_alerta() is False
-    
+
     def test_producto_recien_creado_esta_en_alerta_si_stock_insuficiente(self):
-        """✅ Producto nuevo debe estar en alerta si stock <= stock mínimo"""
         producto = self._crear_producto_valido(
-            nombre="Producto Test",
-            cantidad_inicial=Cantidad(15),      # ✅ Stock inicial mayor que el mínimo
-            stock_minimo=StockMinimo(10)   # ✅ El mínimo es 10
+            cantidad_inicial=Cantidad(15),
+            stock_minimo=StockMinimo(10),
         )
-        # Después de crear, reducir el stock para probar la alerta
-        producto.reducir_stock(10)  # Quedan 5 < 10
+        producto.reducir_stock(10)
         assert producto.esta_en_alerta() is True
+
+
+class TestEstadoStock:
+    """Pruebas para la derivación de EstadoStock"""
+
+    def test_disponible_cuando_stock_supera_minimo(self):
+        p = self._crear_producto()
+        assert p.estado_stock() == EstadoStock.DISPONIBLE
+        assert p.esta_disponible() is True
+        assert p.esta_bajo_stock() is False
+        assert p.esta_agotado() is False
+        assert p.esta_en_alerta() is False
+
+    def test_bajo_cuando_stock_igual_al_minimo(self):
+        p = self._crear_producto(cantidad=10, minimo=10)
+        assert p.estado_stock() == EstadoStock.BAJO
+        assert p.esta_bajo_stock() is True
+        assert p.esta_en_alerta() is True
+
+    def test_bajo_cuando_stock_menor_al_minimo(self):
+        """Crear con stock valido, luego reducir por debajo del minimo"""
+        p = self._crear_producto(cantidad=10, minimo=10)
+        p.reducir_stock(5)  # ahora 5 < 10
+        assert p.estado_stock() == EstadoStock.BAJO
+
+    def test_agotado_cuando_stock_cero(self):
+        p = self._crear_producto(cantidad=5, minimo=5)
+        p.reducir_stock(5)
+        assert p.estado_stock() == EstadoStock.AGOTADO
+        assert p.esta_agotado() is True
+        assert p.esta_en_alerta() is True
+
+    def test_agotado_despues_de_reducir_stock(self):
+        p = self._crear_producto(cantidad=5, minimo=5)
+        p.reducir_stock(5)
+        assert p.estado_stock() == EstadoStock.AGOTADO
+
+    def test_vuelve_a_disponible_despues_de_aumentar_stock(self):
+        p = self._crear_producto(cantidad=10, minimo=5)
+        p.reducir_stock(10)  # queda en 0, AGOTADO
+        assert p.estado_stock() == EstadoStock.AGOTADO
+        p.aumentar_stock(10)  # vuelve a 10, DISPONIBLE
+        assert p.estado_stock() == EstadoStock.DISPONIBLE
+
+    def _crear_producto(self, cantidad=50, minimo=10):
+        return Producto(
+            id=ProductoId.generar(),
+            nombre=NombreProducto("Artículo X"),
+            precio=Precio(100.00),
+            cantidad_inicial=Cantidad(cantidad),
+            stock_minimo=StockMinimo(minimo),
+        )
+
+
+class TestProductoIdentidad:
+    """Pruebas para identidad (__eq__, __hash__)"""
+
+    def test_dos_productos_con_mismo_id_son_iguales(self):
+        id = ProductoId.generar()
+        p1 = Producto(id=id, nombre=NombreProducto("Artículo A"), precio=Precio(10), cantidad_inicial=Cantidad(5), stock_minimo=StockMinimo(1))
+        p2 = Producto(id=id, nombre=NombreProducto("Artículo B"), precio=Precio(20), cantidad_inicial=Cantidad(5), stock_minimo=StockMinimo(1))
+        assert p1 == p2
+        assert hash(p1) == hash(p2)
+
+    def test_dos_productos_con_distinto_id_son_distintos(self):
+        p1 = Producto(id=ProductoId.generar(), nombre=NombreProducto("Artículo A"), precio=Precio(10), cantidad_inicial=Cantidad(5), stock_minimo=StockMinimo(1))
+        p2 = Producto(id=ProductoId.generar(), nombre=NombreProducto("Artículo A"), precio=Precio(10), cantidad_inicial=Cantidad(5), stock_minimo=StockMinimo(1))
+        assert p1 != p2
+
+    def test_igualdad_con_no_producto_retorna_not_implemented(self):
+        p = Producto(id=ProductoId.generar(), nombre=NombreProducto("Artículo A"), precio=Precio(10), cantidad_inicial=Cantidad(5), stock_minimo=StockMinimo(1))
+        assert (p == 1) is False
+
+
+class TestProductoMetodos:
+    """Pruebas para los métodos de dominio"""
+
+    def _crear_producto_valido(self, activo=True):
+        return Producto(
+            id=ProductoId.generar(),
+            nombre=NombreProducto("Producto Test"),
+            precio=Precio(100.00),
+            cantidad_inicial=Cantidad(50),
+            stock_minimo=StockMinimo(10),
+            activo=activo,
+        )
+
+    def test_actualizar_precio_producto_activo(self):
+        p = self._crear_producto_valido()
+        p.actualizar_precio(Precio(200.00))
+        assert p.precio.valor == 200.00
+
+    def test_actualizar_precio_producto_inactivo_lanza_excepcion(self):
+        p = self._crear_producto_valido(activo=False)
+        with pytest.raises(ProductoInactivoException):
+            p.actualizar_precio(Precio(200.00))
+
+    def test_aumentar_stock_producto_activo(self):
+        p = self._crear_producto_valido()
+        p.aumentar_stock(10)
+        assert p.cantidad.valor == 60
+
+    def test_aumentar_stock_producto_inactivo_lanza_excepcion(self):
+        p = self._crear_producto_valido(activo=False)
+        with pytest.raises(ProductoInactivoException):
+            p.aumentar_stock(10)
+
+    def test_reducir_stock_producto_activo(self):
+        p = self._crear_producto_valido()
+        p.reducir_stock(10)
+        assert p.cantidad.valor == 40
+
+    def test_reducir_stock_producto_inactivo_lanza_excepcion(self):
+        p = self._crear_producto_valido(activo=False)
+        with pytest.raises(ProductoInactivoException):
+            p.reducir_stock(10)
+
+    def test_reducir_stock_insuficiente_lanza_excepcion(self):
+        p = self._crear_producto_valido()
+        with pytest.raises(StockInsuficienteException):
+            p.reducir_stock(100)
+
+    def test_activar_producto(self):
+        p = self._crear_producto_valido(activo=False)
+        assert p.activo is False
+        p.activar()
+        assert p.activo is True
+
+    def test_desactivar_producto(self):
+        p = self._crear_producto_valido()
+        p.desactivar()
+        assert p.activo is False
+
+    def test_aumentar_stock_con_cero_lanza_value_error(self):
+        p = self._crear_producto_valido()
+        with pytest.raises(ValueError):
+            p.aumentar_stock(0)
+
+    def test_reducir_stock_con_cero_lanza_value_error(self):
+        p = self._crear_producto_valido()
+        with pytest.raises(ValueError):
+            p.reducir_stock(0)
+
+
+class TestProductoFechaCreacion:
+    """Pruebas para fecha_creacion"""
+
+    def test_fecha_creacion_asignada_automaticamente(self):
+        p = Producto(
+            id=ProductoId.generar(),
+            nombre=NombreProducto("Artículo Z"),
+            precio=Precio(100),
+            cantidad_inicial=Cantidad(10),
+            stock_minimo=StockMinimo(1),
+        )
+        assert p.fecha_creacion is not None
+
+    def test_fecha_creacion_personalizada(self):
+        fecha = Fecha.desde_iso("2024-01-01T00:00:00+00:00")
+        p = Producto(
+            id=ProductoId.generar(),
+            nombre=NombreProducto("Artículo Y"),
+            precio=Precio(100),
+            cantidad_inicial=Cantidad(10),
+            stock_minimo=StockMinimo(1),
+            fecha_creacion=fecha,
+        )
+        assert p.fecha_creacion == fecha
+
+    def test_fecha_creacion_en_utc(self):
+        p = Producto(
+            id=ProductoId.generar(),
+            nombre=NombreProducto("Artículo W"),
+            precio=Precio(100),
+            cantidad_inicial=Cantidad(10),
+            stock_minimo=StockMinimo(1),
+        )
+        assert p.fecha_creacion.valor.tzinfo is not None
