@@ -17,16 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from apps.clientes.views import dashboard, error_500
-from apps.login.views import start_login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('', start_login),
-    # path('license/', include("apps.license.urls")),
-    path('usuarios/', include('apps.usuarios.urls')),
-
-    path('dashboard', dashboard, name='dashboard'),
-    path('error-500', error_500, name='error-500'),
+    # Incluir los urls de la app usuarios bajo el prefijo "api/usuarios/"
+    path("api/usuarios/", include("apps.usuarios.urls")),
 ]

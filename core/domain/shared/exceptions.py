@@ -1,7 +1,7 @@
 # core/domain/shared/exceptions.py
 
 from typing import Any, Dict, Optional
-from core.i18n.manager import MessageManager
+from core.i18n.manager import MessageKeyManager
 
 
 class DomainException(Exception):
@@ -27,7 +27,7 @@ class DomainException(Exception):
         language = context.pop("language", None)
 
         if message_key:
-            self.user_message = MessageManager.get_message(message_key, language or "", **context)
+            self.user_message = MessageKeyManager.get_message(message_key, language or "", **context)
         else:
             self.user_message = user_message or message
 

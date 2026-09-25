@@ -50,6 +50,7 @@ local_settings.py
 # ============================================
 # ENTORNOS VIRTUALES
 # ============================================
+entrega/
 venv/
 env/
 ENV/

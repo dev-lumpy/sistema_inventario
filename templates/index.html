@@ -72,8 +72,11 @@ body{
   .sidebar-nav{
      flex:1;
      overflow-y:auto;
+     scrollbar-width: none;
+     -ms-overflow-style: none;
      padding: 14px 10px 20px;
   }
+  .sidebar-nav::-webkit-scrollbar { display: none; }
 
   .nav-heading{
      font-size: .68rem;
@@ -287,77 +290,7 @@ body{
             </div>
 
             <ul>
-               <!--
-                  =========================================================================
-                  EJEMPLO DE ITEM DE NAV — usa exactamente esta estructura para agregar
-                  más opciones al menú. Cada opción es un <li> con un <a> adentro:
-
-                  - clase "nav-link"      -> OBLIGATORIA, da el estilo del botón
-                  - atributo data-section -> OBLIGATORIO, debe coincidir EXACTO con
-                  el id del <section> que va a mostrar.
-                  Ej: data-section="inicio" activa
-                  <section id="inicio" class="content-section">
-                  - clase "active"        -> OPCIONAL, solo la ponés en la opción
-                  que debe estar seleccionada al cargar
-                  la página (normalmente la primera)
-
-                  El ícono <i> es de Font Awesome (podés cambiarlo) y el <span> es
-                  el texto visible. Para agregar una opción nueva, copiá este <li>
-                  completo, cambiá el ícono, el texto y el data-section, y creá su
-                  <section> correspondiente más abajo en <main class="content">.
-                  =========================================================================
-               -->
-               <li>
-                  <a href="#" class="nav-link active" data-section="inicio">
-                     <i class="fa-solid fa-gauge-high"></i>
-                     <span>Inicio</span>
-                  </a>
-               </li>
-               <!-- ============================= FIN DEL EJEMPLO ============================= -->
-
-               <!-- Las siguientes opciones ya siguen el mismo patrón de arriba -->
-               <li>
-                  <a href="#" class="nav-link" data-section="ordenes">
-                     <i class="fa-solid fa-clipboard-list"></i>
-                     <span>Órdenes de trabajo</span>
-                  </a>
-               </li>
-               <li>
-                  <a href="#" class="nav-link" data-section="clientes">
-                     <i class="fa-solid fa-users"></i>
-                     <span>Clientes</span>
-                  </a>
-               </li>
-               <li>
-                  <a href="#" class="nav-link" data-section="vehiculos">
-                     <i class="fa-solid fa-car"></i>
-                     <span>Vehículos</span>
-                  </a>
-               </li>
-
-               <div class="nav-heading">Gestión</div>
-
-               <li>
-                  <a href="#" class="nav-link" data-section="inventario">
-                     <i class="fa-solid fa-boxes-stacked"></i>
-                     <span>Inventario</span>
-                  </a>
-               </li>
-               <li>
-                  <a href="#" class="nav-link" data-section="reportes">
-                     <i class="fa-solid fa-chart-line"></i>
-                     <span>Reportes</span>
-                  </a>
-               </li>
-               <li>
-                  <a href="#" class="nav-link" data-section="configuracion">
-                     <i class="fa-solid fa-gear"></i>
-                     <span>Configuración</span>
-                  </a>
-               </li>
-
-
-               
+               {% include sidebar_template %}
             </ul>
          </nav>
 

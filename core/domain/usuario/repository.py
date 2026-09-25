@@ -11,10 +11,6 @@ from core.domain.usuario.value_objects import UsuarioId, Email
 
 class UsuarioRepository(ABC):
     @abstractmethod
-    def guardar(self, usuario: Usuario) -> None:
-        ...
-
-    @abstractmethod
     def obtener_por_id(self, id: UsuarioId) -> Optional[Usuario]:
         ...
 
@@ -27,5 +23,23 @@ class UsuarioRepository(ABC):
         ...
 
     @abstractmethod
+    def obtener_administradores(self) -> list[Usuario]:
+        ...
+
+    @abstractmethod
     def eliminar(self, id: UsuarioId) -> None:
         ...
+
+    @abstractmethod
+    def guardar_administrador(self, usuario: Usuario) -> None:
+        ...
+
+    @abstractmethod
+    def guardar_vendedor_con_admin(
+            self, 
+            vendedor: Usuario,
+            admin_id: UsuarioId
+    ) -> None:
+        ...
+
+

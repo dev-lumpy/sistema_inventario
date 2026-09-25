@@ -1,0 +1,825 @@
+{% extends "base.html" %}
+
+{% block stylesheet %}
+
+{% endblock %}
+
+<!-- ============================================================
+   SIDEBAR DEL ADMINISTRADOR
+   Secciones permitidas según RF/HU:
+   - Inicio          → panel + alertas (RF-05, HU-04)
+   - Inventario      → consultar stock, filtros (RF-06, RF-07, HU-03)
+   - Ventas          → registrar venta (RF-03, HU-02)
+   - Productos       → registrar/editar (RF-01, HU-01)
+   - Entradas        → registrar compras (RF-02)
+   - Historial       → movimientos (RF-08, HU-05)
+   - Categorías      → gestionar (RF-12)
+   - Proveedores     → gestionar (RF-02)
+   - Usuarios        → gestionar (RF-10, RF-11)
+   - Reportes        → estadísticas (RF-09)
+   - Configuración   → ajustes (RF-11)
+   ============================================================ -->
+{% block sidebar %}
+
+<!--- Operación diaria --->
+<li>
+  <a href="#" class="nav-link active" data-section="inicio">
+    <i class="fa-solid fa-gauge-high"></i>
+    <span>Inicio</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="inventario">
+    <i class="fa-solid fa-boxes-stacked"></i>
+    <span>Inventario</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="ventas">
+    <i class="fa-solid fa-cart-shopping"></i>
+    <span>Ventas</span>
+  </a>
+</li>
+
+<!--- Separador visual --->
+<li class="nav-separator"><hr></li>
+
+<!--- Administración --->
+<li>
+  <a href="#" class="nav-link" data-section="productos">
+    <i class="fa-solid fa-tag"></i>
+    <span>Productos</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="entradas">
+    <i class="fa-solid fa-truck-ramp-box"></i>
+    <span>Entradas de stock</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="historial">
+    <i class="fa-solid fa-clock-rotate-left"></i>
+    <span>Historial</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="categorias">
+    <i class="fa-solid fa-folder-tree"></i>
+    <span>Categorías</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="proveedores">
+    <i class="fa-solid fa-handshake"></i>
+    <span>Proveedores</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="usuarios">
+    <i class="fa-solid fa-users"></i>
+    <span>Usuarios</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="reportes">
+    <i class="fa-solid fa-chart-line"></i>
+    <span>Reportes</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="configuracion">
+    <i class="fa-solid fa-gear"></i>
+    <span>Configuración</span>
+  </a>
+</li>
+{% endblock %}
+
+
+{% block content %}
+
+<!--
+   ==========================================================
+   SECCIÓN: INICIO
+   Panel principal del admin.
+   - Alertas de stock bajo (RF-05, HU-04)
+   - Resumen del día (ventas, movimientos)
+   - Accesos rápidos
+   ============================================================
+-->
+<section id="inicio" class="content-section active">
+  <div class="section-header">
+    <h1>Inicio</h1>
+    <p>Panel del administrador.</p>
+  </div>
+
+  <!--Alertas de stock bajo — RF-05, HU-04 -->
+  <div class="card alertas-stock">
+    <div class="card-header">
+      <h2>
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Productos con stock bajo
+      </h2>
+    </div>
+    <div class="card-body">
+      <ul class="lista-alertas" id="lista-alertas">
+          <!-- Cargado por JS -->
+      </ul>
+      <p class="empty-state" id="alertas-vacio" hidden>
+        No hay productos en alerta. Todo en orden.
+      </p>
+    </div>
+  </div>
+
+  <!-- Resumen del día — decisión tuya, no está en RF -->
+  <div class="card resumen-dia">
+    <div class="card-header">
+      <h2>Resumen del día</h2>
+    </div>
+    <div class="card-body">
+      <div class="stats-grid">
+        <div class="stat">
+          <span class="stat-valor" id="stat-ventas-hoy">—</span>
+          <span class="stat-label">Ventas hoy</span>
+        </div>
+        <div class="stat">
+          <span class="stat-valor" id="stat-entradas-hoy">—</span>
+          <span class="stat-label">Entradas hoy</span>
+        </div>
+        <div class="stat">
+          <span class="stat-valor" id="stat-productos-bajo">—</span>
+          <span class="stat-label">Productos en alerta</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accesos rápidos -->
+  <div class="card accesos-rapidos">
+    <div class="card-header">
+      <h2>Acciones rápidas</h2>
+    </div>
+    <div class="card-body">
+      <button class="btn btn-primario" data-section="ventas">
+        <i class="fa-solid fa-cart-shopping"></i>
+        Registrar venta
+      </button>
+      <button class="btn btn-secundario" data-section="entradas">
+        <i class="fa-solid fa-truck-ramp-box"></i>
+        Registrar entrada
+      </button>
+      <button class="btn btn-secundario" data-section="productos">
+        <i class="fa-solid fa-plus"></i>
+        Nuevo producto
+      </button>
+    </div>
+  </div>
+</section>
+
+
+<!--
+============================================================
+sección: inventario
+consultar stock con filtros.
+- rf-06, rf-07, hu-03
+============================================================
+-->
+<section id="inventario" class="content-section">
+  <div class="section-header">
+    <h1>Inventario</h1>
+    <p>Control de stock completo.</p>
+  </div>
+
+  <!-- Filtros — RF-07, HU-03 -->
+  <div class="card filtros">
+    <div class="card-body">
+      <form id="form-filtros-inventario" class="form-filtros">
+        <div class="form-group">
+          <label for="filtro-texto">Buscar por nombre</label>
+          <input type="text" id="filtro-texto" name="texto" placeholder="Nombre...">
+        </div>
+        <div class="form-group">
+          <label for="filtro-categoria">Categoría</label>
+          <select id="filtro-categoria" name="categoria">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="filtro-estado">Estado</label>
+          <select id="filtro-estado" name="estado">
+            <option value="">Todos</option>
+            <option value="disponible">Disponible</option>
+            <option value="bajo">Bajo</option>
+            <option value="agotado">Agotado</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario">
+            <i class="fa-solid fa-magnifying-glass"></i> Filtrar
+          </button>
+          <button type="button" class="btn btn-secundario" id="btn-limpiar-filtros">
+            Limpiar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabla — RF-06 -->
+  <div class="card tabla-inventario">
+    <div class="card-header">
+      <h2>Productos</h2>
+    </div>
+    <div class="card-body">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Mínimo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-inventario">
+          <!-- Cargado por JS -->
+        </tbody>
+      </table>
+      <p class="empty-state" id="inventario-vacio" hidden>
+        No hay productos que coincidan con los filtros.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+   SECCIÓN: VENTAS
+   Registrar venta (el admin también puede vender).
+   - RF-03, HU-02
+   ============================================================ -->
+<section id="ventas" class="content-section">
+  <div class="section-header">
+    <h1>Registrar venta</h1>
+    <p>Registrá una salida de stock por venta.</p>
+  </div>
+
+  <div class="card form-venta">
+    <div class="card-body">
+      <form id="form-registrar-venta" class="form">
+        <div class="form-group">
+          <label for="venta-producto">Producto <span class="req">*</span></label>
+          <select id="venta-producto" name="producto_id" required>
+            <option value="">Seleccioná un producto</option>
+          </select>
+          <small class="form-help" id="venta-producto-stock">
+            Stock disponible: —
+          </small>
+        </div>
+        <div class="form-group">
+          <label for="venta-cantidad">Cantidad <span class="req">*</span></label>
+          <input type="number" id="venta-cantidad" name="cantidad" min="1" required>
+          <small class="form-help error" id="venta-cantidad-error" hidden>
+            No hay stock suficiente.
+          </small>
+        </div>
+        <div class="form-group">
+          <label for="venta-canal">Canal de venta <span class="req">*</span></label>
+          <select id="venta-canal" name="canal_venta" required>
+            <option value="">Seleccioná un canal</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="instagram">Instagram</option>
+            <option value="facebook">Facebook</option>
+            <option value="presencial">Presencial</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario">
+            <i class="fa-solid fa-check"></i> Registrar venta
+          </button>
+          <button type="reset" class="btn btn-secundario">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="venta-mensaje" class="mensaje" hidden></div>
+</section>
+
+
+<!-- ============================================================
+   SECCIÓN: PRODUCTOS
+   Registrar y editar productos.
+   - RF-01, HU-01
+   ============================================================ -->
+<section id="productos" class="content-section">
+  <div class="section-header">
+    <h1>Productos</h1>
+    <p>Registrá y gestioná productos.</p>
+  </div>
+
+  <!-- Formulario de registro — RF-01, HU-01 -->
+  <div class="card form-producto">
+    <div class="card-header">
+      <h2 id="titulo-form-producto">Nuevo producto</h2>
+    </div>
+    <div class="card-body">
+      <form id="form-producto" class="form">
+        <input type="hidden" id="producto-id" name="id">
+
+        <div class="form-group">
+          <label for="producto-nombre">Nombre <span class="req">*</span></label>
+          <input type="text" id="producto-nombre" name="nombre" required maxlength="100">
+        </div>
+
+        <div class="form-group">
+          <label for="producto-categoria">Categoría <span class="req">*</span></label>
+          <select id="producto-categoria" name="categoria_id" required>
+            <option value="">Seleccioná una categoría</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="producto-precio">Precio unitario <span class="req">*</span></label>
+          <input type="number" id="producto-precio" name="precio"
+                 step="0.01" min="0" required>
+        </div>
+
+        <div class="form-group">
+          <label for="producto-cantidad">Cantidad inicial <span class="req">*</span></label>
+          <input type="number" id="producto-cantidad" name="cantidad_inicial"
+                 min="0" required>
+        </div>
+
+        <div class="form-group">
+          <label for="producto-stock-minimo">Stock mínimo <span class="req">*</span></label>
+          <input type="number" id="producto-stock-minimo" name="stock_minimo"
+                 min="0" required>
+          <small class="form-help">
+            Se mostrará alerta cuando el stock llegue a este valor.
+          </small>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario">
+            <i class="fa-solid fa-check"></i> Guardar
+          </button>
+          <button type="button" class="btn btn-secundario" id="btn-cancelar-producto">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista de productos con acciones -->
+  <div class="card lista-productos">
+    <div class="card-header">
+      <h2>Productos registrados</h2>
+    </div>
+    <div class="card-body">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-productos">
+          <!-- Cargado por JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+   SECCIÓN: ENTRADAS DE STOCK
+   Registrar compras a proveedores.
+   - RF-02, RF-04
+   ============================================================ -->
+<section id="entradas" class="content-section">
+  <div class="section-header">
+    <h1>Entradas de stock</h1>
+    <p>Registrá compras a proveedores.</p>
+  </div>
+
+  <div class="card form-entrada">
+    <div class="card-body">
+      <form id="form-registrar-entrada" class="form">
+        <div class="form-group">
+          <label for="entrada-producto">Producto <span class="req">*</span></label>
+          <select id="entrada-producto" name="producto_id" required>
+            <option value="">Seleccioná un producto</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="entrada-cantidad">Cantidad <span class="req">*</span></label>
+          <input type="number" id="entrada-cantidad" name="cantidad"
+                 min="1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="entrada-proveedor">Proveedor <span class="req">*</span></label>
+          <select id="entrada-proveedor" name="proveedor_id" required>
+            <option value="">Seleccioná un proveedor</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario">
+            <i class="fa-solid fa-check"></i> Registrar entrada
+          </button>
+          <button type="reset" class="btn btn-secundario">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="entrada-mensaje" class="mensaje" hidden></div>
+
+  <!-- Historial reciente de entradas -->
+  <div class="card lista-entradas">
+    <div class="card-header">
+      <h2>Entradas recientes</h2>
+    </div>
+    <div class="card-body">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Proveedor</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-entradas"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+   SECCIÓN: HISTORIAL
+   Historial de movimientos por producto.
+   - RF-08, HU-05
+   ============================================================ -->
+<section id="historial" class="content-section">
+  <div class="section-header">
+    <h1>Historial de movimientos</h1>
+    <p>Auditá las entradas y salidas de un producto.</p>
+  </div>
+
+  <div class="card filtros">
+    <div class="card-body">
+      <div class="form-group">
+        <label for="historial-producto">Producto</label>
+        <select id="historial-producto" name="producto_id">
+          <option value="">Seleccioná un producto</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card tabla-historial">
+    <div class="card-header">
+      <h2>Movimientos</h2>
+    </div>
+    <div class="card-body">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Cantidad</th>
+            <th>Canal / Proveedor</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-historial">
+          <!-- Cargado por JS, ordenado reciente → antiguo (HU-05) -->
+        </tbody>
+      </table>
+      <p class="empty-state" id="historial-vacio" hidden>
+        Seleccioná un producto para ver sus movimientos.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+   SECCIÓN: CATEGORÍAS
+   CRUD de categorías.
+   - RF-12
+   ============================================================ -->
+<section id="categorias" class="content-section">
+  <div class="section-header">
+    <h1>Categorías</h1>
+    <p>Gestioná las categorías de productos.</p>
+  </div>
+
+  <div class="card form-categoria">
+    <div class="card-body">
+      <form id="form-categoria" class="form form-inline">
+        <input type="hidden" id="categoria-id" name="id">
+        <div class="form-group">
+          <label for="categoria-nombre">Nombre <span class="req">*</span></label>
+          <input type="text" id="categoria-nombre" name="nombre" required maxlength="100">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario">
+            <i class="fa-solid fa-check"></i> Guardar
+          </button>
+          <button type="button" class="btn btn-secundario" id="btn-cancelar-categoria">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card lista-categorias">
+    <div class="card-header">
+      <h2>Categorías registradas</h2>
+    </div>
+    <div class="card-body">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-categorias"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+   SECCIÓN: PROVEEDORES
+   CRUD de proveedores.
+   - RF-02
+   ============================================================ -->
+<section id="proveedores" class="content-section">
+  <div class="section-header">
+    <h1>Proveedores</h1>
+    <p>Gestioná los proveedores.</p>
+  </div>
+
+  <div class="card form-proveedor">
+    <div class="card-body">
+      <form id="form-proveedor" class="form">
+        <input type="hidden" id="proveedor-id" name="id">
+        <div class="form-group">
+          <label for="proveedor-nombre">Nombre <span class="req">*</span></label>
+          <input type="text" id="proveedor-nombre" name="nombre" required maxlength="100">
+        </div>
+        <div class="form-group">
+          <label for="proveedor-contacto">Contacto</label>
+          <input type="text" id="proveedor-contacto" name="contacto" maxlength="200">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario">
+            <i class="fa-solid fa-check"></i> Guardar
+          </button>
+          <button type="button" class="btn btn-secundario" id="btn-cancelar-proveedor">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card lista-proveedores">
+    <div class="card-header">
+      <h2>Proveedores registrados</h2>
+    </div>
+    <div class="card-body">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Contacto</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-proveedores"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+   SECCIÓN: USUARIOS
+   Gestionar usuarios y roles.
+   - RF-10, RF-11
+   ============================================================ -->
+<section id="usuarios" class="content-section">
+  <div class="section-header">
+    <h1>Usuarios</h1>
+    <p>Gestioná usuarios y roles.</p>
+  </div>
+
+  <div class="card form-usuario">
+    <div class="card-body">
+      <form id="form-usuario" class="form">
+        <input type="hidden" id="usuario-id" name="id">
+
+        <div class="form-group">
+          <label for="usuario-nombre">Nombre <span class="req">*</span></label>
+          <input type="text" id="usuario-nombre" name="nombre" required>
+        </div>
+
+        <div class="form-group">
+          <label for="usuario-email">Email <span class="req">*</span></label>
+          <input type="email" id="usuario-email" name="email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="usuario-password">Contraseña</label>
+          <input type="password" id="usuario-password" name="password"
+                 placeholder="Dejar vacío para no cambiar">
+        </div>
+
+        <div class="form-group">
+          <label for="usuario-rol">Rol <span class="req">*</span></label>
+          <select id="usuario-rol" name="rol" required>
+            <option value="vendedor">Vendedor</option>
+            <option value="administrador">Administrador</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario">
+            <i class="fa-solid fa-check"></i> Guardar
+          </button>
+          <button type="button" class="btn btn-secundario" id="btn-cancelar-usuario">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card lista-usuarios">
+    <div class="card-header">
+      <h2>Usuarios registrados</h2>
+    </div>
+    <div class="card-body">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-usuarios"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+   SECCIÓN: REPORTES
+   Estadísticas del sistema.
+   - RF-09
+   ============================================================ -->
+<section id="reportes" class="content-section">
+  <div class="section-header">
+    <h1>Reportes</h1>
+    <p>Estadísticas del taller.</p>
+  </div>
+
+  <!-- Filtro de período — RF-09 -->
+  <div class="card filtros">
+    <div class="card-body">
+      <form id="form-filtros-reportes" class="form-filtros">
+        <div class="form-group">
+          <label for="reporte-desde">Desde</label>
+          <input type="date" id="reporte-desde" name="desde">
+        </div>
+        <div class="form-group">
+          <label for="reporte-hasta">Hasta</label>
+          <input type="date" id="reporte-hasta" name="hasta">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario">
+            <i class="fa-solid fa-chart-line"></i> Generar reporte
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Productos más vendidos — RF-09 -->
+  <div class="card productos-mas-vendidos">
+    <div class="card-header">
+      <h2>Productos más vendidos</h2>
+    </div>
+    <div class="card-body">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad vendida</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-mas-vendidos"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Movimientos del período — RF-09 -->
+  <div class="card movimientos-periodo">
+    <div class="card-header">
+      <h2>Movimientos del período</h2>
+    </div>
+    <div class="card-body">
+      <div class="stats-grid">
+        <div class="stat">
+          <span class="stat-valor" id="stat-total-entradas">—</span>
+          <span class="stat-label">Entradas</span>
+        </div>
+        <div class="stat">
+          <span class="stat-valor" id="stat-total-salidas">—</span>
+          <span class="stat-label">Salidas</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+   SECCIÓN: CONFIGURACIÓN
+   Ajustes del sistema.
+   - RF-11 (solo admin puede acceder)
+   ============================================================ -->
+<section id="configuracion" class="content-section">
+  <div class="section-header">
+    <h1>Configuración</h1>
+    <p>Ajustes del sistema.</p>
+  </div>
+
+  <div class="card form-configuracion">
+    <div class="card-body">
+      <form id="form-configuracion" class="form">
+        <div class="form-group">
+          <label for="config-nombre-negocio">Nombre del negocio</label>
+          <input type="text" id="config-nombre-negocio" name="nombre_negocio">
+        </div>
+
+        <div class="form-group">
+          <label for="config-moneda">Moneda</label>
+          <select id="config-moneda" name="moneda">
+            <option value="ARS">Peso argentino (ARS)</option>
+            <option value="USD">Dólar (USD)</option>
+            <option value="EUR">Euro (EUR)</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario">
+            <i class="fa-solid fa-check"></i> Guardar configuración
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script src="/static/js/admin/inicio.js"></script>
+<script src="/static/js/admin/inventario.js"></script>
+<script src="/static/js/admin/ventas.js"></script>
+<script src="/static/js/admin/productos.js"></script>
+<script src="/static/js/admin/entradas.js"></script>
+<script src="/static/js/admin/historial.js"></script>
+<script src="/static/js/admin/categorias.js"></script>
+<script src="/static/js/admin/proveedores.js"></script>
+<script src="/static/js/admin/usuarios.js"></script>
+<script src="/static/js/admin/reportes.js"></script>
+<script src="/static/js/admin/configuracion.js"></script>
+{% endblock %}

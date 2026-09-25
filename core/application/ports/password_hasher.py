@@ -3,12 +3,14 @@
 
 from abc import ABC, abstractmethod
 
+from core.domain.usuario.value_objects import Password, PasswordHash
+
 
 class PasswordHasher(ABC):
     @abstractmethod
-    def hashear(self, password: str) -> str:
+    def hashear(self, password: Password) -> PasswordHash:
         ...
 
     @abstractmethod
-    def verificar(self, password: str, hash: str) -> bool:
+    def verificar(self, password: Password, hash: PasswordHash) -> bool:
         ...

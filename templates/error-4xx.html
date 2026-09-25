@@ -172,19 +172,18 @@
 <div class="error-card">
   <div class="error-top">
     <div class="error-icon"><i class="fa-solid fa-circle-question"></i></div>
-    <div class="error-code" id="errorCodeLabel">ERROR 404 · SOLICITUD</div>
-    <h1 id="errorTitle">Página no encontrada</h1>
+    <div class="error-code" id="errorCodeLabel">{{ error_code|default:"ERROR 404 · SOLICITUD" }}</div>
+    <h1 id="errorTitle">{{ error_title|default:"Página no encontrada" }}</h1>
   </div>
 
   <div class="error-body">
     <p id="errorMessage">
-      La página o el recurso que buscás no existe, fue movido, o no tenés
-      permiso para acceder a él.
+      {{ error_message|default:"La página o el recurso que buscás no existe, fue movido, o no tenés permiso para acceder a él." }}
     </p>
 
     <div class="error-detail">
-      <span id="errorPath">ruta: —</span>
-      <span id="errorRef">ref: —</span>
+      <span id="errorPath">{{ error_path|default:"ruta: —" }}</span>
+      <span id="errorRef">{{ error_ref|default:"ref: —" }}</span>
     </div>
 
     <div class="actions">
@@ -225,20 +224,30 @@
   };
 
   const params = new URLSearchParams(window.location.search);
-  const code = parseInt(params.get('code')) || 404;
-  const info = messagesByCode[code] || messagesByCode[404];
+  const codeFromUrl = parseInt(params.get('code'));
 
-  const errorInfo = {
-    code,
-    path: window.location.pathname,
-    ref: 'TALLER-' + Math.random().toString(36).slice(2, 8).toUpperCase()
-  };
+  function getText(id) {
+    return (document.getElementById(id)?.textContent || '').trim();
+  }
 
-  document.getElementById('errorCodeLabel').textContent = `ERROR ${errorInfo.code} · SOLICITUD`;
-  document.getElementById('errorTitle').textContent = info.title;
-  document.getElementById('errorMessage').textContent = info.text;
-  document.getElementById('errorPath').textContent = `ruta: ${errorInfo.path}`;
-  document.getElementById('errorRef').textContent = `ref: ${errorInfo.ref}`;
+  const hasServerError = getText('errorCodeLabel') !== 'ERROR 404 · SOLICITUD';
+
+  if (!hasServerError || codeFromUrl) {
+    const code = codeFromUrl || 404;
+    const info = messagesByCode[code] || messagesByCode[404];
+
+    const errorInfo = {
+      code,
+      path: window.location.pathname,
+      ref: 'TALLER-' + Math.random().toString(36).slice(2, 8).toUpperCase()
+    };
+
+    document.getElementById('errorCodeLabel').textContent = `ERROR ${errorInfo.code} · SOLICITUD`;
+    document.getElementById('errorTitle').textContent = info.title;
+    document.getElementById('errorMessage').textContent = info.text;
+    document.getElementById('errorPath').textContent = `ruta: ${errorInfo.path}`;
+    document.getElementById('errorRef').textContent = `ref: ${errorInfo.ref}`;
+  }
 
   const statusMsg = document.getElementById('statusMsg');
   const btnReport = document.getElementById('btnReport');

@@ -54,5 +54,5 @@ class AutenticarUsuario:
             usuario_id=str(usuario.id),
             nombre=usuario.nombre.valor,
             email=usuario.email.valor,
-            rol=usuario.rol.value,
+            rol=usuario.rol.valor,
         )

@@ -14,6 +14,7 @@ from core.domain.producto.value_objects import (
     Cantidad,
     StockMinimo,
 )
+from core.domain.usuario.value_objects import UsuarioId
 from core.domain.shared.fecha import Fecha
 
 
@@ -23,6 +24,7 @@ class RegistrarProductoInput:
     precio: float
     cantidad_inicial: int
     stock_minimo: int
+    vendedor_id: str
     categoria_id: Optional[str] = None
 
 
@@ -44,6 +46,7 @@ class RegistrarProducto:
             precio=Precio(input.precio),
             cantidad_inicial=Cantidad(input.cantidad_inicial),
             stock_minimo=StockMinimo(input.stock_minimo),
+            vendedor_id=UsuarioId.desde_str(input.vendedor_id),
             categoria_id=input.categoria_id,
             fecha_creacion=Fecha.ahora(),
         )

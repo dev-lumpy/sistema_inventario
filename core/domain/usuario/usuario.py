@@ -1,20 +1,30 @@
 """Entidad Usuario (Aggregate Root)"""
 
 from __future__ import annotations
+from typing import Optional
+from enum import Enum
 
 from core.domain.usuario.value_objects import (
+    RolUser,
     UsuarioId,
     Email,
     NombreUsuario,
     PasswordHash,
+    EstadoUsuario
 )
 from core.domain.usuario.rol import Rol
-from core.domain.usuario.exceptions import PermisoDenegadoException
+from core.domain.usuario.exceptions import (
+    UsuarioInactivoException
+)
 from core.domain.shared.fecha import Fecha
 
 
 class Usuario:
-    """Entidad raíz del agregado Usuario"""
+    """Entidad raíz del agregado Usuario.
+
+    Representa tanto a administradores como a vendedores.
+    La relación admin→vendedor NO vive aquí; vive en el repositorio.
+    """
 
     def __init__(
         self,
@@ -22,8 +32,8 @@ class Usuario:
         nombre: NombreUsuario,
         email: Email,
         password_hash: PasswordHash,
-        rol: Rol = Rol.VENDEDOR,
-        activo: bool = True,
+        rol: RolUser,
+        activo: EstadoUsuario,
         fecha_creacion: Fecha | None = None,
     ):
         self.id = id
@@ -34,27 +44,27 @@ class Usuario:
         self.activo = activo
         self.fecha_creacion = fecha_creacion or Fecha.ahora()
 
-    def puede_configurar(self) -> bool:
-        """RF-11: Solo ADMINISTRADOR puede configurar"""
-        return self.rol == Rol.ADMINISTRADOR
+    def es_vendedor(self) -> bool:
+        return self.rol.es_vendedor
 
-    def cambiar_rol(self, nuevo_rol: Rol) -> None:
-        self.rol = nuevo_rol
+    def es_administrador(self) -> bool:
+        return self.rol.es_administrador
+
+    def puede_configurar(self) -> bool:
+        return self.rol.es_administrador
+
+    def activar(self) -> None:
+        self.activo = EstadoUsuario.activo()
+
+    def desactivar(self) -> None:
+        self.activo = EstadoUsuario.activo()
+
+    def verificar_activo(self) -> None:
+        if self.activo.valor != EstadoUsuario.ACTIVO:
+            raise UsuarioInactivoException(str(self.id))
 
     def cambiar_password(self, nuevo_hash: PasswordHash) -> None:
         self.password_hash = nuevo_hash
-
-    def activar(self) -> None:
-        self.activo = True
-
-    def desactivar(self) -> None:
-        self.activo = False
-
-    def verificar_activo(self) -> None:
-        """Lanza excepción si el usuario está inactivo"""
-        if not self.activo:
-            from core.domain.usuario.exceptions import UsuarioInactivoException
-            raise UsuarioInactivoException(str(self.id))
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Usuario):
@@ -65,4 +75,8 @@ class Usuario:
         return hash(self.id)
 
     def __repr__(self) -> str:
-        return f"Usuario(id={self.id}, email='{self.email.valor}', rol={self.rol.value})"
+        return (
+            f"Usuario(id={self.id}, email='{self.email.valor}', "
+            f"rol={self.rol.valor}, activo={self.activo.valor})"
+        )
+

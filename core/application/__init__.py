@@ -32,6 +32,8 @@ from core.application.usuario import (
     AutenticarUsuario,
     AutenticarUsuarioInput,
     AutenticarUsuarioOutput,
+    CrearAdministrador,
+    CrearVendedor
 )
 from core.application.ports import (
     PasswordHasher,
@@ -59,6 +61,8 @@ __all__ = [
     'CrearCategoria',
     'CrearCategoriaInput',
     'CrearCategoriaOutput',
+    'CrearVendedor',
+    'CrearAdministrador',
     'ListarCategorias',
     'ListarCategoriasOutput',
     'AutenticarUsuario',

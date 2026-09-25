@@ -260,12 +260,12 @@
     <form id="loginForm" novalidate>
 
       <div class="field">
-        <label for="username">Usuario</label>
+        <label for="correo">Email</label>
         <div class="input-wrap">
           <i class="fa-solid fa-user"></i>
-          <input type="text" id="username" name="username" placeholder="Tu usuario" autocomplete="username">
+          <input type="text" id="email" name="correo" placeholder="Tu Email" autocomplete="email">
         </div>
-        <div class="field-error" id="usernameError">Ingresá tu usuario.</div>
+        <div class="field-error" id="correoError">Ingresá tu correo electronico.</div>
       </div>
 
       <div class="field">
@@ -293,7 +293,7 @@
       </button>
       
       <div class="register-footer">
-          ¿No tienes cuenta? <a href="{% url 'usuarios:register' %}">crear cuenta</a>
+          ¿No tienes cuenta? <a href="{% url 'pages:register' %}">crear cuenta</a>
       </div>
 
       <div class="form-msg" id="formMsg"></div>

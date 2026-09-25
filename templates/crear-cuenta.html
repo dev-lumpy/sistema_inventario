@@ -1,3 +1,4 @@
+{% load static %} 
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -290,6 +291,40 @@
         <div class="strength-label" id="strengthLabel"></div>
       </div>
 
+      <div class="field">
+        <label>Rol</label>
+        <div style="display:flex;gap:16px;margin-top:4px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:.9rem;cursor:pointer">
+            <input type="radio" name="rol" value="vendedor" checked> Vendedor
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:.9rem;cursor:pointer">
+            <input type="radio" name="rol" value="administrador"> Administrador
+          </label>
+        </div>
+      </div>
+
+       <div class="field" id="adminField">
+          <label for="adminUsername">Administrador</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-user-tie field-icon"></i>
+
+            <!-- Input visible: el usuario escribe el username -->
+            <input
+              type="text"
+              id="adminUsername"
+              name="adminUsername"
+              placeholder="Nombre de usuario del administrador"
+              autocomplete="off"
+            >
+
+            <!-- Input oculto: guarda el ID real del admin seleccionado -->
+            <input type="hidden" id="adminId" name="adminId">
+          </div>
+
+          <div class="field-error" id="adminError">Seleccioná un administrador.</div>
+          <div id="adminResults" class="admin-results"></div>
+          <div id="adminSelected" class="admin-selected"></div>
+        </div>
       <button type="submit" class="btn-register" id="btnRegister">
         <i class="fa-solid fa-user-plus"></i>
         <i class="fa-solid fa-spinner fa-spin"></i>
@@ -305,126 +340,7 @@
   </div>
 </div>
 
-<script>
-  /*
-    =========================================================================
-    Lógica del registro. Valida los 3 campos (usuario, correo Gmail y
-    contraseña), muestra fuerza de contraseña en vivo, y deja el fetch
-    real comentado donde tenés que conectarlo con tu backend.
-    =========================================================================
-  */
-  const form = document.getElementById('registerForm');
-  const usernameInput = document.getElementById('username');
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-
-  const usernameError = document.getElementById('usernameError');
-  const emailError = document.getElementById('emailError');
-  const passwordError = document.getElementById('passwordError');
-
-  const btnRegister = document.getElementById('btnRegister');
-  const formMsg = document.getElementById('formMsg');
-  const togglePass = document.getElementById('togglePass');
-  const strengthBar = document.getElementById('strengthBar');
-  const strengthLabel = document.getElementById('strengthLabel');
-
-  // Mostrar / ocultar contraseña
-  togglePass.addEventListener('click', () => {
-    const isPassword = passwordInput.type === 'password';
-    passwordInput.type = isPassword ? 'text' : 'password';
-    togglePass.innerHTML = `<i class="fa-solid ${isPassword ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
-  });
-
-  function showFieldError(input, errorEl, show){
-    input.classList.toggle('error', show);
-    if (!show) input.classList.add('valid'); else input.classList.remove('valid');
-    errorEl.classList.toggle('show', show);
-  }
-
-  function isValidGmail(value){
-    return /^[^\s@]+@gmail\.com$/i.test(value.trim());
-  }
-
-  // Fuerza de contraseña en vivo (solo visual, no bloquea el envío)
-  passwordInput.addEventListener('input', () => {
-    const value = passwordInput.value;
-    let score = 0;
-    if (value.length >= 8) score++;
-    if (/[A-Z]/.test(value) && /[0-9]/.test(value)) score++;
-    if (/[^A-Za-z0-9]/.test(value) && value.length >= 10) score++;
-
-    strengthBar.className = 'strength-bar';
-    strengthLabel.className = 'strength-label';
-
-    if (!value){
-      strengthLabel.textContent = '';
-      return;
-    }
-    if (score <= 1){
-      strengthBar.classList.add('weak');
-      strengthLabel.classList.add('weak');
-      strengthLabel.textContent = 'Débil';
-    } else if (score === 2){
-      strengthBar.classList.add('medium');
-      strengthLabel.classList.add('medium');
-      strengthLabel.textContent = 'Media';
-    } else {
-      strengthBar.classList.add('strong');
-      strengthLabel.classList.add('strong');
-      strengthLabel.textContent = 'Fuerte';
-    }
-  });
-
-  function setLoading(isLoading){
-    btnRegister.classList.toggle('loading', isLoading);
-    btnRegister.disabled = isLoading;
-  }
-
-  function showFormMsg(text, type){
-    formMsg.textContent = text;
-    formMsg.className = `form-msg show ${type}`;
-  }
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const username = usernameInput.value.trim();
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-
-    const usernameOk = username.length >= 3;
-    const emailOk = isValidGmail(email);
-    const passwordOk = password.length >= 8;
-
-    showFieldError(usernameInput, usernameError, !usernameOk);
-    showFieldError(emailInput, emailError, !emailOk);
-    showFieldError(passwordInput, passwordError, !passwordOk);
-
-    if (!usernameOk || !emailOk || !passwordOk) return;
-
-    setLoading(true);
-    formMsg.classList.remove('show');
-
-    try {
-      // --- Reemplazá este bloque simulado por tu llamada real ---
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      // const res = await fetch('/api/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ username, email, password })
-      // });
-      // if (!res.ok) throw new Error('No se pudo crear la cuenta');
-      // -----------------------------------------------------------
-
-      showFormMsg('Cuenta creada correctamente.', 'ok');
-      // window.location.href = '/login';
-    } catch (err) {
-      showFormMsg('No se pudo crear la cuenta. Intentá de nuevo.', 'fail');
-    } finally {
-      setLoading(false);
-    }
-  });
-</script>
+<script src="{% static 'js/crear-cuenta.js' %}"></script>
 
 </body>
 </html>

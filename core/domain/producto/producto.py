@@ -9,6 +9,7 @@ from core.domain.producto.value_objects import (
     StockMinimo,
     ProductoId,
 )
+from core.domain.usuario.value_objects import UsuarioId
 from core.domain.producto.estado_stock import EstadoStock
 from core.domain.producto.exceptions import (
     ProductoInactivoException,
@@ -29,6 +30,7 @@ class Producto:
         precio: Precio,
         cantidad_inicial: Cantidad,
         stock_minimo: StockMinimo,
+        vendedor_id: UsuarioId,
         categoria_id: str | None = None,
         activo: bool = True,
         fecha_creacion: Fecha | None = None,
@@ -38,6 +40,7 @@ class Producto:
         self.precio = precio
         self.cantidad = cantidad_inicial
         self.stock_minimo = stock_minimo
+        self.vendedor_id = vendedor_id
         self.categoria_id = categoria_id
         self.activo = activo
         self.fecha_creacion = fecha_creacion or Fecha.ahora()
@@ -99,6 +102,9 @@ class Producto:
 
     def desactivar(self) -> None:
         self.activo = False
+
+    def pertenece_a(self, usuario_id: UsuarioId) -> bool:
+        return self.vendedor_id == usuario_id
 
     # ============ IDENTIDAD ============
 

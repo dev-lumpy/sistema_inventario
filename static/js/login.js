@@ -6,9 +6,9 @@ donde tenés que conectarlo con tu backend.
 =========================================================================
 */
 const form = document.getElementById('loginForm');
-const usernameInput = document.getElementById('username');
+const correoInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
-const usernameError = document.getElementById('usernameError');
+const correoError = document.getElementById('correoError');
 const passwordError = document.getElementById('passwordError');
 const btnLogin = document.getElementById('btnLogin');
 const formMsg = document.getElementById('formMsg');
@@ -39,34 +39,36 @@ function setLoading(isLoading){
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const username = usernameInput.value.trim();
+    const correo = correoInput.value.trim();
     const password = passwordInput.value.trim();
 
-    showFieldError(usernameInput, usernameError, !username);
+    showFieldError(correoInput, correoError, !correo);
     showFieldError(passwordInput, passwordError, !password);
 
-    if (!username || !password) return;
+    if (!correo || !password) return;
 
     setLoading(true);
     formMsg.classList.remove('show');
 
     try {
-        // --- Reemplazá este bloque simulado por tu llamada real ---
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        // const res = await fetch('/api/login', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({
-        //     username,
-        //     password,
-        //     remember: document.getElementById('remember').checked
-        //   })
-        // });
-        // if (!res.ok) throw new Error('Credenciales inválidas');
-        // -----------------------------------------------------------
+        const res = await fetch('/usuarios/login/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: correo,
+                password: password,
+            })
+        });
+        if (!res.ok) throw new Error('Credenciales inválidas');
+        const data = await res.json();
+        localStorage.setItem('access', data.access);
+        localStorage.setItem('refresh', data.refresh);
+        localStorage.setItem('usuario', JSON.stringify(data.usuario));
 
         showFormMsg('Ingreso correcto, redirigiendo...', 'ok');
-        // window.location.href = '/dashboard';
+        
+        window.location.href = '/dashboard';
+
     } catch (err) {
         showFormMsg('Usuario o contraseña incorrectos.', 'fail');
     } finally {

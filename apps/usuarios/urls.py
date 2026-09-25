@@ -1,9 +1,10 @@
-from django.urls import path
-from . import views
+# apps/usuarios/urls.py
 
-app_name = 'usuarios'
+from django.urls import path
+from .views import RegistrarAdministrador, RegistrarVendedor
+
 
 urlpatterns = [
-    path('register/', views.register_user, name='register'),
-
+    path("registrar-admin/", RegistrarAdministrador.as_view()),
+    path("registrar-vendedor/", RegistrarVendedor.as_view()),
 ]

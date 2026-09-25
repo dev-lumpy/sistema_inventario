@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block stylesheet %}
+
+{% endblock %} 
+
+<!-- ============================================================
+   SIDEBAR DEL VENDEDOR
+   Secciones permitidas según RF/HU:
+   - Inicio      → panel + alertas (RF-05, HU-04)
+   - Inventario  → consultar stock, filtros (RF-06, RF-07, HU-03)
+   - Ventas      → registrar venta (RF-03, HU-02)
+   NO tiene acceso a configuración (RF-11).
+   ============================================================ -->
+{% block sidebar %}
+<li>
+  <a href="#" class="nav-link active" data-section="inicio">
+    <i class="fa-solid fa-gauge-high"></i>
+    <span>Inicio</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="inventario">
+    <i class="fa-solid fa-boxes-stacked"></i>
+    <span>Inventario</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="ventas">
+    <i class="fa-solid fa-cart-shopping"></i>
+    <span>Ventas</span>
+  </a>
+</li>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ============================================================
+   SECCIÓN: INICIO
+   Panel principal del vendedor.
+   - Alertas de stock bajo (RF-05, HU-04)
+   - Acceso rápido a registrar venta
+   ============================================================ -->
+<section id="inicio" class="content-section active">
+  <div class="section-header">
+    <h1>Inicio</h1>
+    <p>Panel del vendedor.</p>
+  </div>
+
+  <!-- Alertas de stock bajo — RF-05, HU-04 -->
+  <div class="card alertas-stock">
+    <div class="card-header">
+      <h2>
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Productos con stock bajo
+      </h2>
+    </div>
+    <div class="card-body">
+      <!-- Si no hay alertas -->
+      <!-- <p class="empty-state">No hay productos en alerta. Todo en orden.</p> -->
+
+      <!-- Si hay alertas, se listan así: -->
+      <ul class="lista-alertas">
+        <li class="alerta alerta-bajo">
+          <span class="producto-nombre">Producto X</span>
+          <span class="stock-actual">Quedan 3 unidades</span>
+          <span class="badge badge-bajo">Bajo</span>
+        </li>
+        <li class="alerta alerta-agotado">
+          <span class="producto-nombre">Producto Y</span>
+          <span class="stock-actual">Sin stock</span>
+          <span class="badge badge-agotado">Agotado</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Acceso rápido — HU-02 -->
+  <div class="card accesos-rapidos">
+    <div class="card-header">
+      <h2>Acciones rápidas</h2>
+    </div>
+    <div class="card-body">
+      <button class="btn btn-primario" data-section="ventas">
+        <i class="fa-solid fa-cart-shopping"></i>
+        Registrar venta
+      </button>
+      <button class="btn btn-secundario" data-section="inventario">
+        <i class="fa-solid fa-boxes-stacked"></i>
+        Consultar inventario
+      </button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+   SECCIÓN: INVENTARIO
+   Consultar stock con filtros.
+   - Lista de productos (RF-06)
+   - Filtros: categoría, nombre, estado (RF-07, HU-03)
+   - Destacar productos con stock bajo (HU-03)
+   ============================================================ -->
+<section id="inventario" class="content-section">
+  <div class="section-header">
+    <h1>Inventario</h1>
+    <p>Consultá el stock disponible.</p>
+  </div>
+
+  <!-- Filtros — RF-07, HU-03 -->
+  <div class="card filtros">
+    <div class="card-body">
+      <form id="form-filtros-inventario" class="form-filtros">
+        <div class="form-group">
+          <label for="filtro-texto">Buscar por nombre</label>
+          <input
+            type="text"
+            id="filtro-texto"
+            name="texto"
+            placeholder="Nombre del producto..."
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="filtro-categoria">Categoría</label>
+          <select id="filtro-categoria" name="categoria">
+            <option value="">Todas</option>
+            <!-- Opciones cargadas desde el backend -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="filtro-estado">Estado</label>
+          <select id="filtro-estado" name="estado">
+            <option value="">Todos</option>
+            <option value="disponible">Disponible</option>
+            <option value="bajo">Bajo</option>
+            <option value="agotado">Agotado</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            Filtrar
+          </button>
+          <button type="button" class="btn btn-secundario" id="btn-limpiar-filtros">
+            Limpiar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabla de productos — RF-06, HU-03 -->
+  <div class="card tabla-inventario">
+    <div class="card-header">
+      <h2>Productos</h2>
+    </div>
+    <div class="card-body">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-inventario">
+          <!-- Filas cargadas dinámicamente -->
+          <!-- Ejemplo: -->
+          <tr class="fila-disponible">
+            <td>Producto A</td>
+            <td>Categoría 1</td>
+            <td>$100.00</td>
+            <td>20</td>
+            <td><span class="badge badge-disponible">Disponible</span></td>
+          </tr>
+          <tr class="fila-bajo">
+            <td>Producto B</td>
+            <td>Categoría 2</td>
+            <td>$50.00</td>
+            <td>3</td>
+            <td><span class="badge badge-bajo">Bajo</span></td>
+          </tr>
+          <tr class="fila-agotado">
+            <td>Producto C</td>
+            <td>Categoría 1</td>
+            <td>$75.00</td>
+            <td>0</td>
+            <td><span class="badge badge-agotado">Agotado</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="empty-state" id="inventario-vacio" hidden>
+        No hay productos que coincidan con los filtros.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+   SECCIÓN: VENTAS
+   Registrar una salida de stock por venta.
+   - Producto, cantidad, canal de venta (HU-02, RF-03)
+   - Verifica stock suficiente (HU-02)
+   - Actualiza stock inmediatamente (HU-02, RF-04)
+   - Muestra alerta si queda en nivel mínimo (HU-02, RF-05)
+   ============================================================ -->
+<section id="ventas" class="content-section">
+  <div class="section-header">
+    <h1>Registrar venta</h1>
+    <p>Registrá una salida de stock por venta.</p>
+  </div>
+
+  <div class="card form-venta">
+    <div class="card-body">
+      <form id="form-registrar-venta" class="form">
+        <!-- Producto — HU-02 -->
+        <div class="form-group">
+          <label for="venta-producto">Producto <span class="req">*</span></label>
+          <select id="venta-producto" name="producto_id" required>
+            <option value="">Seleccioná un producto</option>
+            <!-- Opciones cargadas desde el backend -->
+          </select>
+          <small class="form-help" id="venta-producto-stock">
+            Stock disponible: —
+          </small>
+        </div>
+
+        <!-- Cantidad — HU-02 -->
+        <div class="form-group">
+          <label for="venta-cantidad">Cantidad <span class="req">*</span></label>
+          <input
+            type="number"
+            id="venta-cantidad"
+            name="cantidad"
+            min="1"
+            required
+            placeholder="0"
+          >
+          <small class="form-help error" id="venta-cantidad-error" hidden>
+            No hay stock suficiente.
+          </small>
+        </div>
+
+        <!-- Canal de venta — RF-03, HU-02 -->
+        <div class="form-group">
+          <label for="venta-canal">Canal de venta <span class="req">*</span></label>
+          <select id="venta-canal" name="canal_venta" required>
+            <option value="">Seleccioná un canal</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="instagram">Instagram</option>
+            <option value="facebook">Facebook</option>
+            <option value="presencial">Presencial</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+
+        <!-- Resumen antes de confirmar -->
+        <div class="resumen-venta" id="resumen-venta" hidden>
+          <h3>Resumen</h3>
+          <p><strong>Producto:</strong> <span id="resumen-producto">—</span></p>
+          <p><strong>Cantidad:</strong> <span id="resumen-cantidad">—</span></p>
+          <p><strong>Canal:</strong> <span id="resumen-canal">—</span></p>
+        </div>
+
+        <!-- Acciones -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario">
+            <i class="fa-solid fa-check"></i>
+            Registrar venta
+          </button>
+          <button type="reset" class="btn btn-secundario">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Mensaje de éxito/error (se llena desde JS) -->
+  <div id="venta-mensaje" class="mensaje" hidden></div>
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script src="/static/js/vendedor/inicio.js"></script>
+<script src="/static/js/vendedor/inventario.js"></script>
+<script src="/static/js/vendedor/ventas.js"></script>
+{% endblock %}
