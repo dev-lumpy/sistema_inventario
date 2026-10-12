@@ -20,7 +20,6 @@ const togglePass = document.getElementById('togglePass');
 const strengthBar = document.getElementById('strengthBar');
 const strengthLabel = document.getElementById('strengthLabel');
 
-const username_admin = document.getElementById('adminUsername');
 
 let rol = "";
 
@@ -103,16 +102,53 @@ form.addEventListener('submit', async (e) => {
 
     try {
 
-        const res = await fetch('/usuarios/register/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, email, password, rol, username_admin})
-        });
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.detail || errData.email || 'No se pudo crear la cuenta');
+        endpoint = "";
+        rol = document.querySelector('input[name="rol"]:checked')?.value || "";
+        cuerpo = {
+            'nombre': username,
+            'email': email,
+            'password': password,
+        }
+        if (rol === "vendedor"){
+            endpoint = '/api/usuarios/registrar-vendedor/';
+            cuerpo['username'] = document.getElementById('adminUsername')?.value;
+
+        } 
+        if (rol === "administrador"){
+            endpoint = '/api/usuarios/registrar-admin/';
         }
 
+        console.log(endpoint);
+        console.log(cuerpo);
+        const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cuerpo),
+        });
+
+        if (!res.ok) {
+            let errData = {};
+            try {
+                errData = await res.json();
+            } catch (e) {
+                console.log(e);
+                throw new Error('Error del servidor');
+            }
+
+            // Mensaje: prioriza el del backend, con fallback genérico
+            const mensaje = errData?.error?.message || 'No se pudo crear la cuenta';
+
+            // Opcional: usar el code y details para algo más
+            const code = errData?.error?.code;
+            const field = errData?.error?.details?.field;
+
+            // Ejemplo: si quieres resaltar el campo del error
+            if (field) {
+                document.querySelector(`[name="${field}"]`)?.classList.add('error');
+            }
+
+            throw new Error(mensaje);
+        }
         showFormMsg('Cuenta creada correctamente.', 'ok');
         setTimeout(() => { window.location.href = '/'; }, 1500);
     } catch (err) {

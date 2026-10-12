@@ -36,6 +36,10 @@ SECRET_KEY = os.getenv("SECRET_KEY", "")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# MAS COMODO: si llamas api/inventario o api/inventario/
+#             funciaran como uno solo
+APPEND_SLASH = True
+
 ALLOWED_HOSTS = ['*']
 
 # Monitoreo de errores — solo se envía lo que explícitamente llames con capture_exception()
@@ -57,6 +61,7 @@ INSTALLED_APPS = [
     
     # Aplicaciones del Negocio (mmmm aun no hay XD)
     'apps.usuarios',
+    'apps.inventario',
 
 
     # Frameworks
@@ -161,18 +166,32 @@ MAILERS = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'apps.usuarios.authentication.CookieJWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'EXCEPTION_HANDLER': 'apps.usuarios.exceptions.custom_exception_handler',
 }
+
+AUTHENTICATION_BACKENDS = [
+    'apps.usuarios.backends.EmailBackend',
+    'apps.usuarios.backends.UsuarioORMBackend',
+    'django.contrib.auth.backends.ModelBackend',  # opcional, para admin
+]
 
 from datetime import timedelta
 
+AUTH_USER_MODEL = 'usuarios.UsuarioORM'
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
+
+    # Le decimos que use el campo 'uuid' como identificador
+    'USER_ID_FIELD': 'uuid',
+    
+    # Y que en el token lo guarde con este nombre
+    'USER_ID_CLAIM': 'user_uuid',
 }

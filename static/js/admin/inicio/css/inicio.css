@@ -1,0 +1,30 @@
+/* static/js/admin/inicio/css/inicio.css */
+/* Estilos solo para lo que genera js/inicio/ (usa tus variables de :root) */
+.lista-alertas { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.alerta-item {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 10px 14px; border: 1px solid var(--border); border-left-width: 4px;
+  border-radius: 8px; background: var(--card-bg);
+}
+.alerta-nombre { font-weight: 700; color: var(--text-main); flex: 1 1 140px; }
+.alerta-stock { font-size: .85rem; color: var(--text-muted); }
+.alerta-badge {
+  display: inline-block;              /* ← para que acepte width/min-width */
+  min-width: 80px;                    /* ← ancho mínimo uniforme */
+  text-align: center;                 /* ← centra el texto adentro */
+  font-size: .72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: #fff;
+}
+.alerta-bajo    { 
+    border-left-color: var(--amber);
+}
+.alerta-bajo .alerta-badge    { background: var(--amber); }
+.alerta-critico { border-left-color: #e5533d; }
+.alerta-critico .alerta-badge { background: #e5533d; }
+.alerta-agotado { border-left-color: #b3261e; }
+.alerta-agotado .alerta-badge { background: #b3261e; }
+.empty-state { color: var(--text-muted); margin: 0; }
+.empty-state[hidden] { display: none; }

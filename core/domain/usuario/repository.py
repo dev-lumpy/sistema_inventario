@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from core.domain.usuario.usuario import Usuario
-from core.domain.usuario.value_objects import UsuarioId, Email
+from core.domain.usuario.value_objects import UsuarioId, Email, NombreUsuario
 
 
 class UsuarioRepository(ABC):
@@ -16,6 +16,10 @@ class UsuarioRepository(ABC):
 
     @abstractmethod
     def obtener_por_email(self, email: Email) -> Optional[Usuario]:
+        ...
+
+    @abstractmethod
+    def obtener_id_for_username(self, username: NombreUsuario) -> Optional[UsuarioId]:
         ...
 
     @abstractmethod

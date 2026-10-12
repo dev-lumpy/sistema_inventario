@@ -20,6 +20,7 @@ from core.domain.shared.fecha import Fecha
 from apps.usuarios.models import (
     AdministradorORM,
     VendedorORM,
+    UsuarioORM
 )
 
 
@@ -80,6 +81,13 @@ class DjangoUsuarioRepository(UsuarioRepository):
 
         return None
 
+    def obtener_id_for_username(self, username: NombreUsuario) -> Optional[UsuarioId]:
+        try:
+            orm = UsuarioORM.objects.only('uuid').get(username=username.valor)
+        except UsuarioORM.DoesNotExist:
+            return None
+        return UsuarioId(orm.uuid)
+    
     def obtener_por_email(self, email: Email) -> Optional[Usuario]:
         admin = AdministradorORM.objects.filter(email=email.valor).first()
         if admin:

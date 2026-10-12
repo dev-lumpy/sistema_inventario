@@ -7,7 +7,7 @@ from core.application.usuario.crear_vendedor import CrearVendedor
 from core.domain.shared.exceptions import DomainException
 from core.domain.usuario.exceptions import UsuarioIdInvalidoException
 from core.domain.usuario.usuario import Usuario
-from core.domain.usuario.value_objects import UsuarioId
+from core.domain.usuario.value_objects import UsuarioId, NombreUsuario
 from infrastructure.django.auth.password_hasher_django import PasswordHasherDjango
 from infrastructure.django.repositories.usuario_repository import DjangoUsuarioRepository
 
@@ -26,13 +26,13 @@ class RegistrarVendedor(APIView):
         {
           "nombre": "Ana García",
           "email": "ana@example.com",
-          "password_plana": "miPassword123",
-          "admin_id": "42"
+          "password": "miPassword123",
+          "username": "el_user_name_del_admin"
         }
         """
 
         # Campos obligatorios que debe traer el JSON
-        campos_requeridos = ["nombre", "email", "password_plana", "admin_id"]
+        campos_requeridos = ["nombre", "email", "password", "username"]
 
         # Buscamos cuáles faltan (o vienen vacíos / None)
         faltantes = [
@@ -47,12 +47,12 @@ class RegistrarVendedor(APIView):
         # Extraemos los valores (ya sabemos que todos existen)
         nombre         = request.data.get("nombre")
         email          = request.data.get("email")
-        password_plana = request.data.get("password_plana")
-        admin_id       = request.data.get("admin_id")
+        password       = request.data.get("password")
+        username       = request.data.get("username")
 
         # Primero verificamos si admin_id es un UUID valido
         try:
-            admin_id = UsuarioId(admin_id)
+            username = NombreUsuario(username)
         except UsuarioIdInvalidoException as e:
             return self._respuesta_error_validacion(
                 mensaje="Datos inválidos",
@@ -67,11 +67,18 @@ class RegistrarVendedor(APIView):
             PasswordHasherDjango()
         )
 
+        admin_id = usuario.usuario_repo.obtener_id_for_username(username)
+        if admin_id == None:
+            return self._respuesta_error_validacion(
+                mensaje="El usuario administrador no existe",
+                error_campo={"username": "No existe un administrador con ese username"},
+            )
+
         try:
             id_usuario = usuario.ejecutar(
                 nombre,
                 email,
-                password_plana,
+                password,
                 admin_id
             )
         except DomainException as e:

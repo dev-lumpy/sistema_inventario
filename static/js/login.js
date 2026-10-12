@@ -51,7 +51,7 @@ form.addEventListener('submit', async (e) => {
     formMsg.classList.remove('show');
 
     try {
-        const res = await fetch('/usuarios/login/', {
+        const res = await fetch('/api/usuarios/auth/login/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -59,7 +59,24 @@ form.addEventListener('submit', async (e) => {
                 password: password,
             })
         });
-        if (!res.ok) throw new Error('Credenciales inválidas');
+
+        // Manejo de errores según el código de estado
+        if (!res.ok) {
+            if (res.status === 500) {
+                throw new Error('SERVER_ERROR');
+            } else if (res.status === 401 || res.status === 400) {
+                throw new Error('INVALID_CREDENTIALS');
+            } else if (res.status === 403) {
+                throw new Error('FORBIDDEN');
+            } else if (res.status === 404) {
+                throw new Error('NOT_FOUND');
+            } else if (res.status >= 500) {
+                throw new Error('SERVER_ERROR');
+            } else {
+                throw new Error('UNKNOWN_ERROR');
+            }
+        }
+
         const data = await res.json();
         localStorage.setItem('access', data.access);
         localStorage.setItem('refresh', data.refresh);
@@ -70,7 +87,30 @@ form.addEventListener('submit', async (e) => {
         window.location.href = '/dashboard';
 
     } catch (err) {
-        showFormMsg('Usuario o contraseña incorrectos.', 'fail');
+        // Manejo de errores según el tipo
+        switch (err.message) {
+            case 'SERVER_ERROR':
+                console.error('Error 500: Error interno del servidor', err);
+                showFormMsg('Hubo un error en el servidor. Por favor, intenta más tarde.', 'fail');
+                break;
+            case 'INVALID_CREDENTIALS':
+                console.error('Error 400/401: Credenciales inválidas', err);
+                showFormMsg('Usuario o contraseña incorrectos.', 'fail');
+                break;
+            case 'FORBIDDEN':
+                console.error('Error 403: Acceso prohibido', err);
+                showFormMsg('No tienes permisos para acceder.', 'fail');
+                break;
+            case 'NOT_FOUND':
+                console.error('Error 404: Recurso no encontrado', err);
+                showFormMsg('El servicio de autenticación no está disponible.', 'fail');
+                break;
+            default:
+                // Errores de red, JSON parse, etc.
+                console.error('Error inesperado:', err);
+                showFormMsg('Error de conexión. Verifica tu red e intenta de nuevo.', 'fail');
+                break;
+        }
     } finally {
         setLoading(false);
     }

@@ -1,9 +1,11 @@
 # apps/usuarios/models.py
 import uuid
+
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 
-class UsuarioORM(models.Model):        # ← PADRE
+class UsuarioORM(AbstractBaseUser, PermissionsMixin, models.Model):        # ← PADRE
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True)
@@ -16,6 +18,21 @@ class UsuarioORM(models.Model):        # ← PADRE
         choices=[("pendiente", "Pendiente"), ("activo", "Activo"), ("inactivo", "Inactivo")],
         default="activo",
     )
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = []
+
+    def get_username(self):
+        return getattr(self, self.USERNAME_FIELD)
+
+    @property
+    def rol(self):
+        # Busca el subtipo manualmente
+        if AdministradorORM.objects.filter(pk=self.pk).exists():
+            return "administrador"
+        if VendedorORM.objects.filter(pk=self.pk).exists():
+            return "vendedor"
+        return "usuario"
 
     class Meta:
         db_table = "usuarios_usuario"

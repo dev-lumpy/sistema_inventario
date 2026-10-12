@@ -8,6 +8,7 @@ class UserES(MessageKey):
     NOT_FOUND          = "Usuario {usuario_id} no encontrado"
     ID_INVALID         = "ID de usuario inválido: {usuario_id}"
     INACTIVE           = "El usuario {usuario_id} está inactivo"
+    ESTADO_INVALIDO    = "El estado de usuario '{valor}' no es válido"
 
     # ─── UsuarioId (UUID) ────────────────────────────────
     ID_NULL            = "El ID de usuario no puede ser nulo"
@@ -47,6 +48,8 @@ class UserEN(MessageKey):
     NOT_FOUND          = "User {usuario_id} not found"
     ID_INVALID         = "Invalid user ID: {usuario_id}"
     INACTIVE           = "User {usuario_id} is inactive"
+    ESTADO_INVALIDO    = "User status '{valor}' is not valid"
+
 
     # ─── UsuarioId (UUID) ────────────────────────────────
     ID_NULL            = "User ID cannot be null"

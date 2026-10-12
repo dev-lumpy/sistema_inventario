@@ -12,7 +12,8 @@ from .exceptions import (
     PasswordInvalidaException,
     NombreUsuarioInvalidoException,
     RolInvalidoException,
-    PasswordHashInvalidoException
+    PasswordHashInvalidoException,
+    EstadoUsuarioInvalidoException
 )
 
 

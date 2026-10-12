@@ -44,6 +44,11 @@ class Usuario:
         self.activo = activo
         self.fecha_creacion = fecha_creacion or Fecha.ahora()
 
+    @property
+    def uuid(self):
+        """Compatibilidad con SimpleJWT (USER_ID_FIELD='uuid')."""
+        return self.id.valor
+
     def es_vendedor(self) -> bool:
         return self.rol.es_vendedor
 

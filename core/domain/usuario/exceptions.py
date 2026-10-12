@@ -4,6 +4,21 @@
 from core.domain.shared.exceptions import DomainException
 
 
+
+class CredencialesInvalidasException(DomainException):
+    """
+    Se lanza cuando el email no existe o la contraseña es incorrecta.
+    No distingue entre ambos casos por seguridad (evita enumeración de usuarios).
+    """
+    def __init__(self):
+        super().__init__(
+            code="CREDENCIALES_INVALIDAS",
+            message="Invalid credentials",
+            message_key="auth.INVALID_CREDENTIALS",
+            status_code=401,
+        )
+
+
 class UsuarioIdInvalidoException(DomainException):
     """
     Excepción única para cualquier fallo al construir un UsuarioId.
@@ -33,7 +48,7 @@ class EmailInvalidoException(DomainException):
     """
     Excepción única para todas las violaciones del VO Email.
     El motivo se expresa como key del catálogo ('email.EMPTY', etc.).
-    """
+    """                                 
     def __init__(self, motivo_key: str, **params):
         super().__init__(
             code="EMAIL_INVALIDO",
@@ -42,6 +57,19 @@ class EmailInvalidoException(DomainException):
             status_code=400,
             field="email",
             **params,
+        )
+
+
+class EmailNoRegistradoException(DomainException):
+    """El email es válido pero no existe en el sistema."""
+    def __init__(self, email: str):
+        super().__init__(
+            code="EMAIL_NO_REGISTRADO",
+            message="Email not registered",
+            message_key="email.NOT_REGISTERED",
+            status_code=404,
+            field="email",
+            email=email,
         )
 
 
@@ -66,6 +94,23 @@ class UsuarioInactivoException(DomainException):
             status_code=403,
             field="usuario_id",
             usuario_id=usuario_id,
+        )
+
+
+class EstadoUsuarioInvalidoException(DomainException):
+    """
+    Se lanza cuando se intenta construir un Value Object de estado
+    de usuario con un valor que no está dentro de los valores válidos.
+    """
+
+    def __init__(self, valor: str):
+        super().__init__(
+            code="ESTADO_USUARIO_INVALIDO",
+            message="Invalid user status",
+            message_key="user.ESTADO_INVALIDO",
+            status_code=422,          # 422 Unprocessable Entity (error de validación de dominio)
+            field="estado",
+            valor=valor,              # se interpola en {valor} del mensaje i18n
         )
 
 

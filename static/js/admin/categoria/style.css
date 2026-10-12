@@ -1,0 +1,15 @@
+.label-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.label-hint {
+  color: #22c55e;        /* verde */
+  padding-left: 8px;
+  display: none;         /* oculto por defecto */
+}
+
+.label-hint.visible {
+  display: inline;       /* se muestra cuando tiene la clase .visible */
+}

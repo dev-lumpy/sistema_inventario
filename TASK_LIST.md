@@ -38,3 +38,7 @@
 - [ ] Estadísticas (2 casos de uso)
   - [ ] CU-24: ObtenerEstadisticasGlobales
   - [ ] CU-25: ObtenerEstadisticasVendedor
+
+# CONSISTENCIA
+# TRASABILIDAD
+# INTEGRO

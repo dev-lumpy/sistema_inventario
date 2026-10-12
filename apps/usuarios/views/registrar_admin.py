@@ -25,7 +25,7 @@ class RegistrarAdministrador(APIView):
         """
 
         # Campos obligatorios que debe traer el JSON
-        campos_requeridos = ["nombre", "email", "password_plana"]
+        campos_requeridos = ["nombre", "email", "password"]
 
         # Buscamos cuáles faltan (o vienen vacíos / None)
         faltantes = [
@@ -41,7 +41,7 @@ class RegistrarAdministrador(APIView):
             admin_id = self.use_case.ejecutar(
                  request.data.get("nombre"), 
                  request.data.get("email"), 
-                 request.data.get("password_plana"), 
+                 request.data.get("password"), 
             )
         except DomainException as e:
             return Response(e.to_dict(), status=e.status_code)

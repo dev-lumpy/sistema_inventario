@@ -7,6 +7,7 @@
 
       <link rel="stylesheet" href="/static/css/css2">
       <link rel="stylesheet" href="/static/css/all.min.css">
+      <link rel="icon" href="data:,">
 
       {% block stylesheet %}{% endblock %}
 
@@ -276,6 +277,62 @@ body{
   @media (prefers-reduced-motion: reduce){
      *{ transition: none !important; scroll-behavior: auto !important; }
   }
+
+
+
+  .user-menu {
+  position: relative;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 180px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(22, 35, 61, 0.12);
+  padding: 6px;
+  z-index: 100;
+
+  /* oculto por defecto */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+}
+
+.user-dropdown.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: var(--bg);
+}
+
+.dropdown-item i {
+  width: 16px;
+  color: var(--text-muted);
+}
       </style>
    </head>
    <body>
@@ -311,13 +368,22 @@ body{
             <div class="topbar-right">
                <i class="fa-regular fa-bell topbar-icon"></i>
                <i class="fa-solid fa-magnifying-glass topbar-icon"></i>
-               <div class="user-chip">
-                  <div class="user-avatar">{{ usuario.nombre|make_list|first|upper }}{% if usuario.nombre|length > 1 %}{{ usuario.nombre|slice:"1:2"|upper }}{% endif %}</div>
-                  <div>
-                     <div class="user-name">{{ usuario.nombre }}</div>
-                     <div class="user-role">{{ usuario.rol|capfirst }}</div>
-                  </div>
-               </div>
+               <div class="user-menu">
+  <div class="user-chip" id="userChip">
+    <div class="user-avatar">{{ nombre|make_list|first|upper }}{% if nombre|length > 1 %}{{ nombre|slice:"1:2"|upper }}{% endif %}</div>
+    <div>
+      <div class="user-name">{{ nombre }}</div>
+      <div class="user-role">{{ rol|capfirst }}</div>
+    </div>
+  </div>
+
+  <div class="user-dropdown" id="userDropdown">
+    <button type="button" class="dropdown-item" id="btnLogout">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      <span>Cerrar sesión</span>
+    </button>
+  </div>
+</div>
             </div>
          </header>
 
@@ -355,6 +421,43 @@ body{
                sidebar.classList.toggle('open');
             })
          })
+
+         const userChip = document.getElementById('userChip');
+const userDropdown = document.getElementById('userDropdown');
+const btnLogout = document.getElementById('btnLogout');
+
+// Mostrar / ocultar al hacer click en el chip
+userChip.addEventListener('click', (e) => {
+  e.stopPropagation();
+  userDropdown.classList.toggle('open');
+});
+
+// Cerrar al hacer click fuera del menú
+document.addEventListener('click', (e) => {
+  if (!userDropdown.contains(e.target)) {
+    userDropdown.classList.remove('open');
+  }
+});
+
+// Cerrar con la tecla Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') userDropdown.classList.remove('open');
+});
+
+// para cerrar sesion
+btnLogout.addEventListener('click', async () => {
+    try {
+      await fetch('/api/usuarios/auth/logout/', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (err) {
+      console.error('Error al cerrar sesión:', err);
+    } finally {
+      window.location.href = "{% url 'pages:login' %}";
+    }
+});
+
       </script>
 
       {% block scripts %}{% endblock %}

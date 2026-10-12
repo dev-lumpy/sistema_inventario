@@ -11,6 +11,7 @@ class EmailES(MessageKey):
     INVALID_FORMAT = "El email '{email}' no tiene un formato válido"
     INVALID_LOCAL_PART = "El email '{email}' tiene puntos consecutivos o al inicio/fin"
     ALREADY_EXISTS = "El email '{email}' ya está registrado"
+    NOT_REGISTERED = "El email '{email}' no está registrado"
 
 
 class EmailEN(EmailES):
@@ -22,6 +23,7 @@ class EmailEN(EmailES):
     INVALID_FORMAT = "Email '{email}' does not have a valid format"
     INVALID_LOCAL_PART = "Email '{email}' has consecutive dots or starts/ends with a dot"
     ALREADY_EXISTS = "Email '{email}' already registered"
+    NOT_REGISTERED = "Email '{email}' is not registered"
 
 
 ENTITY = "email"
