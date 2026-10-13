@@ -13,7 +13,8 @@ from .views import (
     MovimientoHistorialAPIView,
     ProductoSelectNameAPIView,
     ProductoHistoryMovimientosAPIView,
-    ProveedorSelectAPIView
+    ProveedorSelectAPIView,
+    CategoriaDetailAPIView
 )
 
 urlpatterns = [
@@ -36,5 +37,5 @@ urlpatterns = [
 
     # para las categorias ya existe uno que hace devuelve todas las categorias
     re_path(r'^add_categoria/?$', AddCategoriaAPIView.as_view(), name='add-categoria'),
-
+    re_path(r'^categorias/(?P<pk>\d+)/?$', CategoriaDetailAPIView.as_view(), name='categoria-detail'),
 ]

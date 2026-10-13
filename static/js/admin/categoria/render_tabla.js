@@ -28,20 +28,17 @@ export function renderTablaCategorias(categorias) {
     const tdNombre = document.createElement('td');
     tdNombre.textContent = c.nombre;
 
-    // Columna: Acciones (por ahora vacía, pero preparada)
+    // Columna: Acciones 
     const tdAcciones = document.createElement('td');
     tdAcciones.className = 'acciones';
-    // Acá van los botones cuando los hagas:
-    // tdAcciones.innerHTML = `
-    //   <button class="btn-icon editar" data-id="${c.id}">
-    //     <i class="fa-solid fa-pen"></i>
-    //   </button>
-    //   <button class="btn-icon eliminar" data-id="${c.id}">
-    //     <i class="fa-solid fa-trash"></i>
-    //   </button>
-    // `;
-
+    tdAcciones.innerHTML = `
+    <button class="btn-icon editar" data-id="${c.id}" title="Editar">
+    <i class="fa-solid fa-pen"></i> Editar
+    </button>
+    `;
     tr.append(tdNombre, tdAcciones);
     tbody.appendChild(tr);
   }
 }
+
+

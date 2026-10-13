@@ -545,11 +545,12 @@ consultar stock con filtros.
       <form id="form-categoria" class="form form-inline">
         <input type="hidden" id="categoria-id" name="id">
         <div class="form-group">
-        <div class="label-row">
-  <label for="categoria-nombre">Nombre <span class="req">*</span></label>
-  <label class="label-hint">Obligatorio, máximo 100 caracteres</label>
-</div>
-          <input type="text" id="categoria-nombre" name="nombre" required maxlength="100">
+            <div class="label-row">
+              <label for="categoria-nombre">Nombre <span class="req">*</span></label>
+              <label class="label-hint">Obligatorio, máximo 100 caracteres</label>
+            </div>
+            <input type="text" id="categoria-nombre" name="nombre" required maxlength="100">
+            <label id="categoria-label-status">Agregar Categoria</label>
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primario">
@@ -565,14 +566,16 @@ consultar stock con filtros.
 
   <div class="card lista-categorias">
     <div class="card-header">
-      <h2>Categorías registradas</h2>
+        <h2>Categorías registradas</h2>
+        <button type="submit" class="btn btn-primario" id="btn-guardar-categoria">Agregar Categoria</button>
+
     </div>
     <div class="card-body">
       <table class="tabla">
         <thead>
           <tr>
             <th>Nombre</th>
-            <th>Acciones</th>
+            <th>Accion</th>
           </tr>
         </thead>
         <tbody id="tbody-categorias"></tbody>

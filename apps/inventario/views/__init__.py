@@ -1,5 +1,9 @@
 from .prueba import index
-from .categoria import CategoriaSelectAPIView, AddCategoriaAPIView
+from .categoria import (
+    CategoriaSelectAPIView,
+    AddCategoriaAPIView,
+    CategoriaDetailAPIView
+)
 from .resumen import ResumenHoyAPIView
 from .movimiento import (
     RegistrarEntradaStockAPIView,

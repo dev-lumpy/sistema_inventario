@@ -5,11 +5,73 @@
 }
 
 .label-hint {
-  color: #22c55e;        /* verde */
   padding-left: 8px;
   display: none;         /* oculto por defecto */
 }
 
 .label-hint.visible {
+  color: #22c55e;        /* verde */
   display: inline;       /* se muestra cuando tiene la clase .visible */
+}
+
+
+/*  Styles para la columna Acciones de la tabla*/
+/* ---------- Celda de acciones ---------- */
+.tabla td.acciones {
+  width: 1%;               /* la celda se achica al contenido */
+  white-space: nowrap;     /* los botones no se parten */
+  text-align: right;       /* alineados a la derecha */
+}
+
+/* ---------- Botón icono ---------- */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;               /* sacar el padding por defecto del <button> */
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-icon:hover {
+  background: var(--bg);
+  color: var(--text-main);
+}
+
+/* ---------- Editar (hover azul) ---------- */
+.btn-icon.editar:hover {
+  color: var(--blue);
+  border-color: var(--blue);
+}
+
+/* ---------- Eliminar (hover rojo) ---------- */
+.btn-icon.eliminar:hover {
+  color: #dc2626;
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+/* ---------- Separación entre botones ---------- */
+.btn-icon + .btn-icon {
+  margin-left: 6px;
+}
+
+
+/* ----------- Estilos a la etiqueta label-status*/
+#categoria-label-status {
+  display: inline-block;
+  height: 10px;
+  padding-left: 10px;
+  padding-top: 10px;
+
+  color: grey;
+
+  font-size: 10px;
 }
