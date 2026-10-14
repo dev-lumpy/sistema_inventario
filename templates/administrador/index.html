@@ -652,47 +652,6 @@ consultar stock con filtros.
     <p>Gestioná usuarios y roles.</p>
   </div>
 
-  <div class="card form-usuario">
-    <div class="card-body">
-      <form id="form-usuario" class="form">
-        <input type="hidden" id="usuario-id" name="id">
-
-        <div class="form-group">
-          <label for="usuario-nombre">Nombre <span class="req">*</span></label>
-          <input type="text" id="usuario-nombre" name="nombre" required>
-        </div>
-
-        <div class="form-group">
-          <label for="usuario-email">Email <span class="req">*</span></label>
-          <input type="email" id="usuario-email" name="email" required>
-        </div>
-
-        <div class="form-group">
-          <label for="usuario-password">Contraseña</label>
-          <input type="password" id="usuario-password" name="password"
-                 placeholder="Dejar vacío para no cambiar">
-        </div>
-
-        <div class="form-group">
-          <label for="usuario-rol">Rol <span class="req">*</span></label>
-          <select id="usuario-rol" name="rol" required>
-            <option value="vendedor">Vendedor</option>
-            <option value="administrador">Administrador</option>
-          </select>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primario">
-            <i class="fa-solid fa-check"></i> Guardar
-          </button>
-          <button type="button" class="btn btn-secundario" id="btn-cancelar-usuario">
-            Cancelar
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <div class="card lista-usuarios">
     <div class="card-header">
       <h2>Usuarios registrados</h2>
