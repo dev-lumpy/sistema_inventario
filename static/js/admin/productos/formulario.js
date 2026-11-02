@@ -1,70 +1,81 @@
- /* formulario.js — Zona donde se crea / edita un producto */
-
-import { $ } from './utils.js';
+import { $ } from '../../shared/core/dom.js';
 import { state } from './state.js';
 import { guardarProducto } from './api.js';
 import { cambiarEstadoBoton, bloquearBoton, iniciarBoton } from './boton-guardar.js';
 
-const form = $('form-producto');
-const inputNombre = $('producto-nombre');
-const selectCategoria = $('producto-categoria');
-const inputPrecio = $('producto-precio');
-const inputCantidad = $('producto-cantidad');
-const inputStockMinimo = $('producto-stock-minimo');
-const tituloForm = $('titulo-form-producto');
-const btnCancelar = $('btn-cancelar-producto');
+const form = $('#form-producto');
+const inputNombre = $('#producto-nombre');
+const selectCategoria = $('#producto-categoria');
+const inputPrecio = $('#producto-precio');
+const inputCantidad = $('#producto-cantidad');
+const inputStockMinimo = $('#producto-stock-minimo');
+const tituloForm = $('#titulo-form-producto');
+const btnCancelar = $('#btn-cancelar-producto');
 
-let productoEditandoId = null; // null = creando, valor = editando ese producto
-
-// ---- Render ----
+let productoEditandoId = null;
 
 export function renderCategorias() {
-  selectCategoria.innerHTML = '<option value="">Seleccioná una categoría</option>';
-  state.categorias.forEach((cat) => {
-    const opt = document.createElement('option');
-    opt.value = cat.id;
-    opt.textContent = cat.nombre;
-    selectCategoria.appendChild(opt);
-  });
+  if (!selectCategoria) return;
+
+  selectCategoria.replaceChildren();
+
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Seleccioná una categoría';
+  selectCategoria.appendChild(placeholder);
+
+  for (const categoria of state.categorias) {
+    const opcion = document.createElement('option');
+    opcion.value = categoria.id;
+    opcion.textContent = categoria.nombre;
+    selectCategoria.appendChild(opcion);
+  }
 }
 
-// ---- Acciones ----
-
 export function resetFormulario() {
-  form.reset();
+  form?.reset();
   productoEditandoId = null;
-  tituloForm.textContent = 'Nuevo producto';
+  if (tituloForm) tituloForm.textContent = 'Nuevo producto';
+  if (inputCantidad) inputCantidad.disabled = false;
 }
 
 export function cargarEnFormulario(producto) {
   productoEditandoId = producto.id;
+
   inputNombre.value = producto.nombre;
   selectCategoria.value = producto.categoria;
   inputPrecio.value = producto.precio_unitario;
-  inputCantidad.value = producto.cantidad_inicial;
+  inputCantidad.value = producto.stock_actual ?? 0;
   inputStockMinimo.value = producto.stock_minimo;
 
+  inputCantidad.disabled = true;
   tituloForm.textContent = 'Editar producto';
   form.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function leerFormulario() {
+  const esEdicion = productoEditandoId !== null;
+  const cantidad = Number(inputCantidad.value) || 0;
+
   const payload = {
     nombre: inputNombre.value.trim(),
     categoria: selectCategoria.value,
     precio_unitario: inputPrecio.value,
     stock_minimo: inputStockMinimo.value,
-    cantidad_inicial: inputCantidad.value,
+    // En edición el backend ignora este campo, pero lo exige con mínimo 1.
+    cantidad_inicial: esEdicion ? Math.max(1, cantidad) : cantidad,
   };
-  if (productoEditandoId !== null) payload.id = productoEditandoId;
+
+  if (esEdicion) payload.id = productoEditandoId;
   return payload;
 }
 
-async function onSubmit(e, onGuardado) {
-  e.preventDefault();
+async function onSubmit(evento, onGuardado) {
+  evento.preventDefault();
 
   const esEdicion = productoEditandoId !== null;
   const payload = leerFormulario();
+
 
   cambiarEstadoBoton('CARGANDO');
   bloquearBoton(true);
@@ -73,20 +84,24 @@ async function onSubmit(e, onGuardado) {
     const guardado = await guardarProducto(payload, esEdicion);
     cambiarEstadoBoton('CARGADO');
     resetFormulario();
-    onGuardado(guardado, esEdicion); // avisa al archivo principal
-  } catch (err) {
-    console.error('Error guardando producto:', err);
-    alert(err.message || 'No se pudo guardar el producto. Intentá de nuevo.');
+    await onGuardado(guardado, esEdicion);
+    setTimeout(() => cambiarEstadoBoton('DEFAULT'), 1200);
+  } catch (error) {
+    console.error('[producto-form] Error guardando producto:', error);
+    cambiarEstadoBoton('DEFAULT');
+    alert(error.message || 'No se pudo guardar el producto. Intentá de nuevo.');
   } finally {
     bloquearBoton(false);
-    cambiarEstadoBoton('DEFAULT');
   }
 }
 
-// ---- Init ----
-
 export function initFormulario({ onGuardado }) {
+  if (!form) {
+    console.warn('[producto-form] initFormulario: formulario no encontrado');
+    return;
+  }
+
   iniciarBoton();
-  form.addEventListener('submit', (e) => onSubmit(e, onGuardado));
-  btnCancelar.addEventListener('click', resetFormulario);
+  form.addEventListener('submit', (evento) => onSubmit(evento, onGuardado));
+  btnCancelar?.addEventListener('click', resetFormulario);
 }

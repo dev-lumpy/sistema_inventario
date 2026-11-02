@@ -392,73 +392,7 @@ body{
          </main>
       </div>
 
-      <script>
-         // Cambia de sección según el nav-link clickeado, usando data-section <-> id.
-         const navLinks = document.querySelectorAll('.nav-link');
-         const sections = document.querySelectorAll('.content-section');
-         const sidebar = document.getElementById('sidebar');
-         const sidebarToggle = document.querySelectorAll('.sidebarToggle');
-
-         navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-               e.preventDefault();
-               const targetId = link.getAttribute('data-section');
-               const targetSection = document.getElementById(targetId);
-               if (!targetSection) return;
-
-               navLinks.forEach(l => l.classList.remove('active'));
-               sections.forEach(s => s.classList.remove('active'));
-
-               link.classList.add('active');
-               targetSection.classList.add('active');
-
-               if (window.innerWidth <= 900) sidebar.classList.remove('open');
-            });
-         });
-
-         sidebarToggle.forEach(btn => {
-            btn.addEventListener("click", () => { 
-               sidebar.classList.toggle('open');
-            })
-         })
-
-         const userChip = document.getElementById('userChip');
-const userDropdown = document.getElementById('userDropdown');
-const btnLogout = document.getElementById('btnLogout');
-
-// Mostrar / ocultar al hacer click en el chip
-userChip.addEventListener('click', (e) => {
-  e.stopPropagation();
-  userDropdown.classList.toggle('open');
-});
-
-// Cerrar al hacer click fuera del menú
-document.addEventListener('click', (e) => {
-  if (!userDropdown.contains(e.target)) {
-    userDropdown.classList.remove('open');
-  }
-});
-
-// Cerrar con la tecla Escape
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') userDropdown.classList.remove('open');
-});
-
-// para cerrar sesion
-btnLogout.addEventListener('click', async () => {
-    try {
-      await fetch('/api/usuarios/auth/logout/', {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch (err) {
-      console.error('Error al cerrar sesión:', err);
-    } finally {
-      window.location.href = "{% url 'pages:login' %}";
-    }
-});
-
-      </script>
+      <script type="module" src="/static/js/shared/layout.js"></script>
 
       {% block scripts %}{% endblock %}
 

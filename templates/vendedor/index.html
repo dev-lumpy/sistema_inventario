@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
 {% block stylesheet %}
-
-{% endblock %} 
+<link rel="stylesheet" href="/static/css/admin/section_productos.css">
+<link rel="stylesheet" href="/static/js/admin/inicio/css/inicio.css">
+<link rel="stylesheet" href="/static/js/admin/inicio/css/resumen.css">
+{% endblock %}
 
 <!-- ============================================================
    SIDEBAR DEL VENDEDOR
@@ -290,9 +292,6 @@
 
 {% endblock %}
 
-
 {% block scripts %}
-<script src="/static/js/vendedor/inicio.js"></script>
-<script src="/static/js/vendedor/inventario.js"></script>
-<script src="/static/js/vendedor/ventas.js"></script>
+<script type="module" src="/static/js/vendedor/main.js"></script>
 {% endblock %}

@@ -1,0 +1,184 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{array}
+\usepackage[margin=2cm]{geometry}
+
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}m{#1}}
+
+\begin{document}
+
+\begin{center}
+{\Large \textbf{REQUERIMIENTOS NO FUNCIONALES}}\\[4pt]
+Sistema de Gestión de Inventario Multi-canal --- Versión 1.0
+\end{center}
+
+\section*{RNF-01: Facilidad de uso para usuarios básicos}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|L{4cm}|L{12cm}|}
+\hline
+\textbf{ID} & RNF-01 \\
+\hline
+\textbf{Categoría} & Usabilidad \\
+\hline
+\textbf{Nombre} & Facilidad de uso para usuarios básicos \\
+\hline
+\textbf{Descripción} & Un usuario con conocimientos básicos de informática debe poder completar las tareas principales (registrar producto, registrar entrada, registrar salida y consultar stock) sin ayuda externa. \\
+\hline
+\textbf{Métrica} & Máximo 3 intentos por tarea y menos de 5 minutos por tarea. \\
+\hline
+\textbf{Criterio de aceptación} & Prueba con al menos 5 usuarios sin experiencia previa en el sistema, con una tasa de éxito del 80\% o superior. \\
+\hline
+\textbf{Prioridad} & Media \\
+\hline
+\textbf{CU relacionado} & CU-002, CU-005 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{RNF-02: Protección de credenciales y sesiones}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|L{4cm}|L{12cm}|}
+\hline
+\textbf{ID} & RNF-02 \\
+\hline
+\textbf{Categoría} & Seguridad \\
+\hline
+\textbf{Nombre} & Protección de credenciales y sesiones \\
+\hline
+\textbf{Descripción} & El sistema debe proteger las credenciales de los usuarios y gestionar las sesiones de forma segura. \\
+\hline
+\textbf{Métrica} & Contraseñas con hash bcrypt o Argon2. Sesión expira tras 15 minutos de inactividad. HTTPS/TLS 1.2 o superior. Bloqueo tras 5 intentos fallidos. \\
+\hline
+\textbf{Criterio de aceptación} & Auditoría de seguridad que verifique hash de contraseñas, expiración de sesión, cifrado en tránsito y bloqueo por intentos fallidos. \\
+\hline
+\textbf{Prioridad} & Alta \\
+\hline
+\textbf{CU relacionado} & CU-001, CU-010, CU-011 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{RNF-03: Tiempo de respuesta en consultas y registros}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|L{4cm}|L{12cm}|}
+\hline
+\textbf{ID} & RNF-03 \\
+\hline
+\textbf{Categoría} & Rendimiento \\
+\hline
+\textbf{Nombre} & Tiempo de respuesta en consultas y registros \\
+\hline
+\textbf{Descripción} & El sistema debe responder en tiempos aceptables bajo carga normal de operación. \\
+\hline
+\textbf{Métrica} & Con hasta 10.000 productos y 5 usuarios concurrentes: consultas en menos de 2 segundos (percentil 95) y registros en menos de 1 segundo. \\
+\hline
+\textbf{Criterio de aceptación} & Prueba de carga que simule 10.000 productos y 5 usuarios concurrentes, midiendo percentil 95 de tiempos de respuesta. \\
+\hline
+\textbf{Prioridad} & Alta \\
+\hline
+\textbf{CU relacionado} & CU-003, CU-004, CU-005, CU-006, CU-007, CU-008, CU-009 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{RNF-04: Arquitectura en capas y cobertura de pruebas}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|L{4cm}|L{12cm}|}
+\hline
+\textbf{ID} & RNF-04 \\
+\hline
+\textbf{Categoría} & Mantenibilidad \\
+\hline
+\textbf{Nombre} & Arquitectura en capas y cobertura de pruebas \\
+\hline
+\textbf{Descripción} & El sistema debe organizarse en capas y contar con pruebas que faciliten su mantenimiento. \\
+\hline
+\textbf{Métrica} & Arquitectura en capas (presentación, lógica de negocio, acceso a datos). Cobertura de pruebas unitarias mínima del 70\% en la capa de lógica de negocio. \\
+\hline
+\textbf{Criterio de aceptación} & Revisión de arquitectura que confirme separación de capas y reporte de cobertura de pruebas $\geq$70\%. \\
+\hline
+\textbf{Prioridad} & Media \\
+\hline
+\textbf{CU relacionado} & CU-002, CU-003, CU-012 \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{RNF-05: Incorporación de nuevos módulos sin reestructuración}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|L{4cm}|L{12cm}|}
+\hline
+\textbf{ID} & RNF-05 \\
+\hline
+\textbf{Categoría} & Escalabilidad \\
+\hline
+\textbf{Nombre} & Incorporación de nuevos módulos sin reestructuración \\
+\hline
+\textbf{Descripción} & La arquitectura debe permitir incorporar nuevos módulos de integración externa sin afectar el núcleo del sistema. \\
+\hline
+\textbf{Métrica} & Incorporar un nuevo módulo sin modificar más del 20\% del código existente y sin alterar el modelo de datos central. \\
+\hline
+\textbf{Criterio de aceptación} & Prueba de incorporación de un módulo simulado, midiendo el porcentaje de código modificado. \\
+\hline
+\textbf{Prioridad} & Media \\
+\hline
+\textbf{CU relacionado} & --- \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{RNF-06: Compatibilidad con navegadores y dispositivos}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|L{4cm}|L{12cm}|}
+\hline
+\textbf{ID} & RNF-06 \\
+\hline
+\textbf{Categoría} & Compatibilidad \\
+\hline
+\textbf{Nombre} & Compatibilidad con navegadores y dispositivos \\
+\hline
+\textbf{Descripción} & El sistema debe funcionar correctamente en los principales navegadores y dispositivos. \\
+\hline
+\textbf{Métrica} & Últimas dos versiones estables de Chrome, Firefox, Edge y Safari. Resolución de escritorio ($\geq$1280 px) y móvil ($\geq$360 px). Diseño responsive. \\
+\hline
+\textbf{Criterio de aceptación} & Pruebas de compatibilidad en los 4 navegadores y en resoluciones de escritorio y móvil. \\
+\hline
+\textbf{Prioridad} & Alta \\
+\hline
+\textbf{CU relacionado} & --- \\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{RNF-07: Disponibilidad del servicio}
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|L{4cm}|L{12cm}|}
+\hline
+\textbf{ID} & RNF-07 \\
+\hline
+\textbf{Categoría} & Disponibilidad \\
+\hline
+\textbf{Nombre} & Disponibilidad del servicio \\
+\hline
+\textbf{Descripción} & El sistema debe estar disponible para los usuarios la mayor parte del tiempo. \\
+\hline
+\textbf{Métrica} & 99\% de uptime mensual, excluyendo ventanas de mantenimiento programadas y notificadas con 48 horas de antelación. \\
+\hline
+\textbf{Criterio de aceptación} & Monitoreo de uptime mensual con registro de caídas y ventanas de mantenimiento. \\
+\hline
+\textbf{Prioridad} & Media \\
+\hline
+\textbf{CU relacionado} & --- \\
+\hline
+\end{tabular}
+\end{center}
+
+\end{document}

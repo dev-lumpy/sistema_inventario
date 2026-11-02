@@ -45,7 +45,7 @@
 
 <li>           
   <a href="#" class="nav-link" data-section="ventas">
-    <i class="fa-arrow-right-from-bracket"></i>
+    <i class="fa-solid fa-arrow-right-from-bracket"></i>
     <span>Salidas</span>
   </a>
 </li>
@@ -339,19 +339,19 @@ consultar stock con filtros.
         <div class="form-group">
           <label for="producto-precio">Precio unitario <span class="req">*</span></label>
           <input type="number" id="producto-precio" name="precio"
-                 step="0.01" min="0" required>
+                 step="0.01" min="0.01" required>
         </div>
 
         <div class="form-group">
           <label for="producto-cantidad">Cantidad inicial <span class="req">*</span></label>
           <input type="number" id="producto-cantidad" name="cantidad_inicial"
-                 min="0" required>
+                 min="1" required>
         </div>
 
         <div class="form-group">
           <label for="producto-stock-minimo">Stock mínimo <span class="req">*</span></label>
           <input type="number" id="producto-stock-minimo" name="stock_minimo"
-                 min="0" required>
+                 min="1" required>
           <small class="form-help">
             Se mostrará alerta cuando el stock llegue a este valor.
           </small>
@@ -511,9 +511,9 @@ consultar stock con filtros.
       <table class="tabla">
         <thead>
           <tr>
-            <th>Tipo</th>
+            <th>Categoría</th>
             <th>Cantidad</th>
-            <th>Canal / Proveedor</th>
+            <th>Proveedor</th>
             <th>Fecha</th>
           </tr>
         </thead>
@@ -787,12 +787,6 @@ consultar stock con filtros.
 
 
 {% block scripts %}
-<script type="module" src="/static/js/admin/productos/productos.js"></script>
-<script type="module" src="/static/js/admin/inicio/js/main.js"></script>
-<script type="module" src="/static/js/admin/entrada_stock/main.js"></script>
-<script type="module" src="/static/js/admin/historial/main.js"></script>
-<script type="module" src="/static/js/admin/categoria/main.js"></script>
-    
-</script>
+<script type="module" src="/static/js/admin/main.js"></script>
 {% endblock %}
 

@@ -147,3 +147,22 @@ tmp/
 *.tfstate.*
 .terraform.lock.hcl
 *.lock
+
+# ============================================
+# HERRAMIENTAS Y GENERADOS LOCALES
+# ============================================
+graphify-out/
+.opencode/
+.crush/
+staticfiles/
+
+# ============================================
+# ARTEFACTOS DE LaTeX (doc/)
+# ============================================
+doc/*.aux
+doc/*.fls
+doc/*.out
+doc/*.toc
+doc/*.nav
+doc/*.snm
+doc/*.synctex.gz

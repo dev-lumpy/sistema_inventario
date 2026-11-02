@@ -77,10 +77,7 @@ form.addEventListener('submit', async (e) => {
             }
         }
 
-        const data = await res.json();
-        localStorage.setItem('access', data.access);
-        localStorage.setItem('refresh', data.refresh);
-        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+        await res.json();
 
         showFormMsg('Ingreso correcto, redirigiendo...', 'ok');
         
