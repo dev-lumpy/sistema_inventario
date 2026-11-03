@@ -50,6 +50,13 @@ if not exist "%~dp0.env" (
   )
 )
 
+echo Generando migraciones...
+"%PY_EXE%" manage.py makemigrations inventario usuarios --noinput
+if errorlevel 1 (
+  echo [ERROR] No se pudieron generar las migraciones.
+  exit /b 1
+)
+
 echo Aplicando migraciones...
 "%PY_EXE%" manage.py migrate --noinput
 if errorlevel 1 (
