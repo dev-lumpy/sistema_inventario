@@ -15,6 +15,19 @@ def sample_producto_data():
         "precio": 100.50
     }
 
+
+@pytest.fixture
+def administrador(db):
+    from django.contrib.auth.hashers import make_password
+    from apps.usuarios.models import AdministradorORM
+
+    return AdministradorORM.objects.create(
+        username="admin_fixture",
+        email="admin_fixture@test.com",
+        password=make_password("clave-de-test"),
+        activo="activo",
+    )
+
 # @pytest.fixture
 # def mock_repository():
 #     from unittest.mock import Mock

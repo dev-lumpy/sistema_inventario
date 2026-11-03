@@ -41,7 +41,7 @@ def api_client() -> APIClient:
 
 
 @pytest.fixture
-def productos_con_ventas():
+def productos_con_ventas(administrador):
     categoria = Categoria.objects.create(nombre="Frenos Test")
 
     def crear_producto(nombre: str) -> Producto:
@@ -51,6 +51,7 @@ def productos_con_ventas():
             precio_unitario="1000.00",
             stock_minimo=1,
             activo=True,
+            administrador=administrador,
         )
 
     def entrada(producto: Producto, cantidad: int) -> None:

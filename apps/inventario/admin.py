@@ -18,18 +18,18 @@ class CategoriaAdmin(admin.ModelAdmin):
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = (
-        'nombre', 'categoria', 'precio_unitario',
+        'nombre', 'categoria', 'administrador', 'precio_unitario',
         'stock_actual_display', 'stock_minimo', 'estado_alerta',
     )
-    list_filter = ('categoria',)
+    list_filter = ('categoria', 'administrador')
     search_fields = ('nombre',)
     ordering = ('nombre',)
-    list_select_related = ('categoria',)   # evita N+1 en la lista
+    list_select_related = ('categoria', 'administrador')   # evita N+1 en la lista
     readonly_fields = ('creado',)
 
     fieldsets = (
         ('Información básica', {
-            'fields': ('nombre', 'categoria', 'precio_unitario')
+            'fields': ('nombre', 'categoria', 'administrador', 'precio_unitario')
         }),
         ('Stock', {
             'fields': ('stock_minimo',),

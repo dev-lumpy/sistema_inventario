@@ -42,7 +42,7 @@ def api_client() -> APIClient:
 
 
 @pytest.fixture
-def datos_del_reporte():
+def datos_del_reporte(administrador):
     categoria = Categoria.objects.create(nombre="Frenos PDF Test")
 
     producto_a = Producto.objects.create(
@@ -51,6 +51,7 @@ def datos_del_reporte():
         precio_unitario="1000.00",
         stock_minimo=1,
         activo=True,
+        administrador=administrador,
     )
     producto_b = Producto.objects.create(
         nombre="Producto B PDF",
@@ -58,6 +59,7 @@ def datos_del_reporte():
         precio_unitario="2000.00",
         stock_minimo=1,
         activo=True,
+        administrador=administrador,
     )
 
     def movimiento(producto, tipo, motivo, cantidad, fecha, canal=None):

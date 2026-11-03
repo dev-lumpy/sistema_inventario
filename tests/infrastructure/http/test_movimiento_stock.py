@@ -48,7 +48,7 @@ def api_client(administrador_en_bd) -> APIClient:
 
 
 @pytest.fixture
-def producto_con_stock() -> Producto:
+def producto_con_stock(administrador_en_bd) -> Producto:
     """
     Crea un producto real con 10 unidades de stock.
 
@@ -63,6 +63,7 @@ def producto_con_stock() -> Producto:
         precio_unitario="18500.00",
         stock_minimo=3,
         activo=True,
+        administrador=administrador_en_bd,
     )
 
     MovimientoStock.objects.create(

@@ -2,6 +2,7 @@ import { $ } from '../../shared/core/dom.js';
 import { state } from './state.js';
 import { guardarProducto } from './api.js';
 import { cambiarEstadoBoton, bloquearBoton, iniciarBoton } from './boton-guardar.js';
+import { cargarProductos } from '../../shared/ventas/formulario.js';
 
 const form = $('#form-producto');
 const inputNombre = $('#producto-nombre');
@@ -83,6 +84,9 @@ async function onSubmit(evento, onGuardado) {
   try {
     const guardado = await guardarProducto(payload, esEdicion);
     cambiarEstadoBoton('CARGADO');
+    await cargarProductos().catch((error) => {
+      console.error('[producto-form] No se pudo actualizar el select de ventas:', error);
+    });
     resetFormulario();
     await onGuardado(guardado, esEdicion);
     setTimeout(() => cambiarEstadoBoton('DEFAULT'), 1200);

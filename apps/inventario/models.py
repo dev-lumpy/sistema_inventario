@@ -43,6 +43,12 @@ class Producto(models.Model):
     )
     creado = models.DateTimeField(auto_now_add=True)
 
+    administrador = models.ForeignKey(
+        'usuarios.AdministradorORM',
+        on_delete=models.PROTECT,
+        related_name='productos',
+    )
+
     activo = models.BooleanField(default=True)
 
     # ESTADO_ACTIVO = 'activo' Solo es para hacer actualisaciones el codigo

@@ -6,8 +6,8 @@ from apps.inventario.models import (
     Producto,
     Proveedor,
     MovimientoStock,
-    Producto
 )
+from apps.usuarios.models import AdministradorORM
 
 
 class CategoriaSelectSerializer(serializers.ModelSerializer):
@@ -21,7 +21,8 @@ class ProductoSelectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = Producto
-        fields = ['id', 'nombre', 'categoria', 'precio_unitario', 'stock_minimo', 'activo', 'stock_actual']
+        fields = ['id', 'nombre', 'categoria', 'precio_unitario', 'stock_minimo', 'activo', 'stock_actual', 'administrador']
+        read_only_fields = ['administrador']
 
 
 
@@ -58,6 +59,7 @@ class ProductoCreateSerializer(serializers.ModelSerializer):
         min_value=1,
         help_text="Cantidad con la que arranca el producto.",
     )
+    administrador = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Producto
@@ -67,15 +69,36 @@ class ProductoCreateSerializer(serializers.ModelSerializer):
             'categoria',
             'precio_unitario',
             'stock_minimo',
-            'cantidad_inicial', 
+            'cantidad_inicial',
+            'administrador',
         ]
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'administrador']
+
+    def _obtener_administrador(self):
+        request = self.context.get('request')
+        usuario = getattr(request, 'user', None)
+
+        if not usuario or not usuario.is_authenticated:
+            raise serializers.ValidationError({
+                'administrador': 'Debés iniciar sesión como administrador.',
+            })
+
+        try:
+            return AdministradorORM.objects.get(pk=usuario.pk)
+        except AdministradorORM.DoesNotExist:
+            raise serializers.ValidationError({
+                'administrador': 'Solo un administrador puede crear productos.',
+            })
 
     @transaction.atomic
     def create(self, validated_data):
         cantidad = validated_data.pop('cantidad_inicial')
+        administrador = self._obtener_administrador()
 
-        producto = Producto.objects.create(**validated_data)
+        producto = Producto.objects.create(
+            administrador=administrador,
+            **validated_data,
+        )
 
         MovimientoStock.objects.create(
             producto=producto,

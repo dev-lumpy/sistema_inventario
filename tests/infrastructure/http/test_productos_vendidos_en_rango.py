@@ -43,7 +43,7 @@ def api_client() -> APIClient:
 
 
 @pytest.fixture
-def productos_con_ventas_en_octubre():
+def productos_con_ventas_en_octubre(administrador):
     categoria = Categoria.objects.create(nombre="Frenos Rango Test")
 
     def crear_producto(nombre: str) -> Producto:
@@ -53,6 +53,7 @@ def productos_con_ventas_en_octubre():
             precio_unitario="1000.00",
             stock_minimo=1,
             activo=True,
+            administrador=administrador,
         )
 
     def crear_movimiento(producto, tipo, motivo, cantidad, fecha, canal=None):

@@ -8,6 +8,24 @@ function aLista(data) {
   return [];
 }
 
+let productos = [];
+
+export async function cargarProductos() {
+  const selectProducto = $('#venta-producto');
+  if (!selectProducto) return productos;
+
+  const seleccionado = selectProducto.value;
+  productos = aLista(await obtenerProductos());
+  limpiarSelect(selectProducto, 'Seleccioná un producto');
+  llenarSelect(selectProducto, productos);
+
+  if (seleccionado && productos.some((p) => String(p.id) === seleccionado)) {
+    selectProducto.value = seleccionado;
+  }
+
+  return productos;
+}
+
 export async function initFormulario() {
   const form = $('#form-registrar-venta');
   if (!form) return;
@@ -19,12 +37,9 @@ export async function initFormulario() {
   const mensaje = $('#venta-mensaje');
   const boton = form.querySelector('button[type="submit"]');
 
-  let productos = [];
-
   try {
-    productos = aLista(await obtenerProductos());
-    limpiarSelect(selectProducto, 'Seleccioná un producto');
-    llenarSelect(selectProducto, productos);
+    await cargarProductos();
+    console.log("[ventas-formulario] Productos existe?, ", productos);
   } catch (error) {
     mostrarMensaje(mensaje, `No se pudieron cargar los productos: ${error.message}`, 'error');
     return;
