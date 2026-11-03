@@ -57,6 +57,7 @@ ENV/
 env.bak/
 venv.bak/
 python_env/
+python-env/
 .venv/
 .env/
 *.venv
