@@ -13,3 +13,15 @@ def registrar_entrada_stock(*, producto, cantidad, proveedor):
         cantidad=cantidad,
         detalle=f'Compra a {proveedor.nombre}',
     )
+
+
+@transaction.atomic
+def registrar_salida_stock(*, producto, cantidad, canal_venta):
+    return MovimientoStock.objects.create(
+        producto=producto,
+        tipo=MovimientoStock.TIPO_SALIDA,
+        motivo=MovimientoStock.MOTIVO_VENTA,
+        cantidad=cantidad,
+        canal_venta=canal_venta,
+        detalle=f'Venta por {canal_venta}',
+    )

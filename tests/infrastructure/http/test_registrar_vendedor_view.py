@@ -1,4 +1,4 @@
- # tests/infrastructure/http/test_registrar_vendedor_view.py
+# tests/infrastructure/http/test_registrar_vendedor_view.py
 """
 Tests de la vista RegistrarVendedor (APIView).
 

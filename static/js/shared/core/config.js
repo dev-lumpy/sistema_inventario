@@ -14,6 +14,8 @@ export const ENDPOINTS = {
   productos: `${CONFIG.INVENTARIO}/productos/`,
   productosSelect: `${CONFIG.INVENTARIO}/productos/select_all/`,
   productosAlertas: `${CONFIG.INVENTARIO}/productos/alertas/`,
+  productosMasVendidos: `${CONFIG.INVENTARIO}/productos/mas-vendidos/`,
+  productosVendidos: `${CONFIG.INVENTARIO}/productos/vendidos/`,
   productoDetail: (id) => `${CONFIG.INVENTARIO}/productos/${id}/`,
 
   // Proveedores
@@ -21,6 +23,9 @@ export const ENDPOINTS = {
 
   // Movimientos
   resumenHoy: `${CONFIG.INVENTARIO}/resumen/hoy/`,
+  resumenPeriodo: `${CONFIG.INVENTARIO}/resumen/periodo/`,
+  reportePdf: `${CONFIG.INVENTARIO}/reportes/pdf/`,
+  salidaStock: `${CONFIG.INVENTARIO}/movimiento/salida/`,
   entradaStock: `${CONFIG.INVENTARIO}/movimiento/entrada/`,
   entradaHistorial: `${CONFIG.INVENTARIO}/movimiento/entrada/historial/`,
   historialProductos: `${CONFIG.INVENTARIO}/history_productos/`,

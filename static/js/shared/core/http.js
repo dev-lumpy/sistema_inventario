@@ -86,4 +86,5 @@ export async function request(path, { method = 'GET', body, headers = {} } = {})
 export const getJSON = (path) => request(path);
 export const postJSON = (path, body) => request(path, { method: 'POST', body });
 export const putJSON = (path, body) => request(path, { method: 'PUT', body });
+export const patchJSON = (path, body) => request(path, { method: 'PATCH', body });
 export const deleteJSON = (path) => request(path, { method: 'DELETE' });

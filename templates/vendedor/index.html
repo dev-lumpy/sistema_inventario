@@ -4,6 +4,12 @@
 <link rel="stylesheet" href="/static/css/admin/section_productos.css">
 <link rel="stylesheet" href="/static/js/admin/inicio/css/inicio.css">
 <link rel="stylesheet" href="/static/js/admin/inicio/css/resumen.css">
+<style>
+.filtros-auto-msg {
+  vertical-align: middle;
+  margin-top: 15px;
+}
+</style>
 {% endblock %}
 
 <!-- ============================================================
@@ -60,7 +66,7 @@
     </div>
     <div class="card-body">
       <!-- Si no hay alertas -->
-      <!-- <p class="empty-state">No hay productos en alerta. Todo en orden.</p> -->
+      <p id="alertas-vacio" class="empty-state" hidden>No hay productos en alerta. Todo en orden.</p>
 
       <!-- Si hay alertas, se listan así: -->
       <ul class="lista-alertas">
@@ -143,13 +149,7 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-primario">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            Filtrar
-          </button>
-          <button type="button" class="btn btn-secundario" id="btn-limpiar-filtros">
-            Limpiar
-          </button>
+          <span class="filtros-auto-msg">Los filtros se aplican automáticamente</span>
         </div>
       </form>
     </div>

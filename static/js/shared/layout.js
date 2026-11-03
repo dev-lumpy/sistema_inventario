@@ -19,10 +19,6 @@ function initUserMenu() {
     dropdown.classList.toggle('open');
   });
 
-  document.addEventListener('click', (evento) => {
-    if (!dropdown.contains(evento.target)) dropdown.classList.remove('open');
-  });
-
   document.addEventListener('keydown', (evento) => {
     if (evento.key === 'Escape') dropdown.classList.remove('open');
   });

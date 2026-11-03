@@ -80,12 +80,6 @@
     <span>Reportes</span>
   </a>
 </li>
-<li>
-  <a href="#" class="nav-link" data-section="configuracion">
-    <i class="fa-solid fa-gear"></i>
-    <span>Configuración</span>
-  </a>
-</li>
 {% endblock %}
 
 
@@ -233,7 +227,6 @@ consultar stock con filtros.
             <th>Stock</th>
             <th>Mínimo</th>
             <th>Estado</th>
-            <th>Acciones</th>
           </tr>
         </thead>
         <tbody id="tbody-inventario">
@@ -662,7 +655,6 @@ consultar stock con filtros.
           <tr>
             <th>Nombre</th>
             <th>Email</th>
-            <th>Rol</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
@@ -698,8 +690,11 @@ consultar stock con filtros.
           <input type="date" id="reporte-hasta" name="hasta">
         </div>
         <div class="form-actions">
-          <button type="submit" class="btn btn-primario">
+          <button type="submit" class="btn btn-primario" id="btn-generar-reporte">
             <i class="fa-solid fa-chart-line"></i> Generar reporte
+          </button>
+          <button type="button" class="btn btn-secundario" id="btn-exportar-pdf" style="margin-left:auto">
+            <i class="fa-solid fa-file-pdf"></i> Exportar PDF
           </button>
         </div>
       </form>

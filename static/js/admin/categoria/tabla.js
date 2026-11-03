@@ -4,7 +4,6 @@ const tbody = $('#tbody-categorias');
 
 export function renderTabla(categorias) {
   if (!tbody) {
-    console.log('[categoria-tabla] renderTabla: no existe #tbody-categorias');
     return;
   }
 
@@ -25,29 +24,36 @@ export function renderTabla(categorias) {
     const tdNombre = crearEl('td', { texto: categoria.nombre });
 
     const tdAcciones = crearEl('td', { clase: 'acciones' });
-    tdAcciones.append(
-      crearEl('button', {
-        clase: 'btn-icon editar',
-        attrs: {
-          type: 'button',
-          'data-action': 'editar',
-          'data-id': categoria.id,
-          title: 'Editar',
-        },
-      }),
-      crearEl('button', {
-        clase: 'btn-icon eliminar',
-        attrs: {
-          type: 'button',
-          'data-action': 'eliminar',
-          'data-id': categoria.id,
-          title: 'Eliminar',
-        },
-      }),
+
+    const botonEditar = crearEl('button', {
+      clase: 'btn-icon con-texto editar',
+      attrs: {
+        type: 'button',
+        'data-action': 'editar',
+        'data-id': categoria.id,
+        title: 'Editar',
+      },
+    });
+    botonEditar.append(
+      crearEl('i', { clase: 'fa-solid fa-pen' }),
+      crearEl('span', { texto: 'Editar' }),
     );
 
-    tdAcciones.firstChild.appendChild(crearEl('i', { clase: 'fa-solid fa-pen' }));
-    tdAcciones.lastChild.appendChild(crearEl('i', { clase: 'fa-solid fa-trash' }));
+    const botonEliminar = crearEl('button', {
+      clase: 'btn-icon con-texto eliminar',
+      attrs: {
+        type: 'button',
+        'data-action': 'eliminar',
+        'data-id': categoria.id,
+        title: 'Borrar',
+      },
+    });
+    botonEliminar.append(
+      crearEl('i', { clase: 'fa-solid fa-trash' }),
+      crearEl('span', { texto: 'Borrar' }),
+    );
+
+    tdAcciones.append(botonEditar, botonEliminar);
 
     tr.append(tdNombre, tdAcciones);
     tbody.appendChild(tr);

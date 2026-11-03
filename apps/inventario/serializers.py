@@ -5,7 +5,8 @@ from apps.inventario.models import (
     Categoria,
     Producto,
     Proveedor,
-    MovimientoStock
+    MovimientoStock,
+    Producto
 )
 
 
@@ -66,7 +67,7 @@ class ProductoCreateSerializer(serializers.ModelSerializer):
             'categoria',
             'precio_unitario',
             'stock_minimo',
-            'cantidad_inicial',   # ← extra, no está en el modelo
+            'cantidad_inicial', 
         ]
         read_only_fields = ['id']
 
@@ -91,11 +92,6 @@ class ProveedorSelectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Proveedor
         fields = ['id', 'nombre']
-
-
-from rest_framework import serializers
-
-from apps.inventario.models import Producto, Proveedor
 
 
 class EntradaStockSerializer(serializers.Serializer):
@@ -148,3 +144,31 @@ class CategoriaSerializer(serializers.ModelSerializer):
         fields = ['id', 'nombre']
         read_only_fields = ['id']
 
+
+class SalidaStockSerializer(serializers.Serializer):
+    producto = serializers.PrimaryKeyRelatedField(
+        queryset=Producto.objects.filter(activo=True),
+        error_messages={'required': 'Elegí un producto.', 'does_not_exist': 'Producto no encontrado.'},
+    )
+    cantidad = serializers.IntegerField(
+        min_value=1,
+        error_messages={'min_value': 'La cantidad debe ser mayor a cero.'},
+    )
+    canal_venta = serializers.ChoiceField(
+        choices=MovimientoStock.CANALES,
+        error_messages={'required': 'Elegí un canal.', 'invalid_choice': 'Canal inválido.'},
+    )
+
+
+class ProductoMasVendidoSerializer(serializers.ModelSerializer):
+    cantidad_vendida = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Producto
+        fields = ["nombre", "cantidad_vendida"]
+
+
+class ProductoVendidoEnRangoSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    nombre = serializers.CharField()
+    cantidad_vendida = serializers.IntegerField()

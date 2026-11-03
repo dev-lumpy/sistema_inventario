@@ -74,7 +74,7 @@ Si --red no existe todavía en tu :root, agregala junto a las demás:
 .form-group select:focus{
   outline: none;
   border-color: var(--blue);
-  background: #fff;
+  background: var(--card-bg);
 }
 
 .form-group input.error,
@@ -118,11 +118,11 @@ Si --red no existe todavía en tu :root, agregala junto a las demás:
 .btn-primario:hover:not(:disabled){ filter: brightness(1.08); }
 
 .btn-secundario{
-  background: #fff;
-  color: var(--text-main);
-  border: 1.5px solid var(--border);
+  background: var(--btn-secundario-bg, var(--card-bg));
+  color: var(--btn-secundario-color, var(--text-main));
+  border: 1.5px solid var(--btn-secundario-border, var(--border));
 }
-.btn-secundario:hover:not(:disabled){ background: var(--bg); }
+.btn-secundario:hover:not(:disabled){ background: var(--btn-secundario-hover-bg, var(--bg)); }
 
 .btn-sm{
   padding: 6px 10px;
@@ -175,7 +175,7 @@ Si --red no existe todavía en tu :root, agregala junto a las demás:
 .table-search input:focus{
   outline: none;
   border-color: var(--blue);
-  background: #fff;
+  background: var(--card-bg);
 }
 
 /* ===== Tabla ===== */
@@ -210,14 +210,15 @@ Si --red no existe todavía en tu :root, agregala junto a las demás:
 }
 
 .tabla tbody tr:hover{
-  background: rgba(47,111,237,.03);
+  background: rgba(47,111,237,.08);
 }
 
 .tabla tbody tr:last-child td{ border-bottom: none; }
 
 .tabla .acciones{
-  display: flex;
-  gap: 6px;
+  white-space: nowrap;
+  text-align: right;
+  width: 1%;
 }
 
 /* Fila de estado (cargando / vacío / error) */
@@ -231,7 +232,7 @@ Si --red no existe todavía en tu :root, agregala junto a las demás:
   display: block;
   font-size: 1.4rem;
   margin-bottom: 8px;
-  color: #c3cadb;
+  color: #46536a;
 }
 .tabla-estado.error i{ color: var(--red, #e0483e); }
 
@@ -250,4 +251,46 @@ Si --red no existe todavía en tu :root, agregala junto a las demás:
 
 @media (prefers-reduced-motion: reduce){
   *{ transition: none !important; }
+}
+
+@media print{
+  .sidebar,
+  .topbar,
+  #reportes .filtros{
+    display: none !important;
+  }
+
+  .main-wrap{ margin-left: 0 !important; }
+  .content{ padding: 0 !important; }
+  .content-section{ display: none !important; }
+  #reportes{ display: block !important; }
+
+  body{
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  #reportes .section-header p{ color: #555 !important; }
+
+  #reportes .card{
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  #reportes .card-header h2,
+  #reportes .tabla thead th,
+  #reportes .tabla tbody td,
+  #reportes .resumen-dia .stat-valor,
+  #reportes .resumen-dia .stat-label{
+    color: #000 !important;
+  }
+
+  #reportes .tabla thead th{ background: #eee !important; }
+
+  #reportes .resumen-dia .stat{
+    background: #f7f7f7 !important;
+    border-color: #ccc !important;
+  }
 }

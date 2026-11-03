@@ -13,17 +13,22 @@
 
       <style>
 :root{
+   color-scheme: dark;
    --navy: #16233d;
    --navy-dark: #0e1728;
    --blue: #2f6fed;
    --blue-dark: #234fb5;
    --amber: #f2994a;
    --green: #2ea86b;
-   --bg: #f4f6fb;
-   --card-bg: #ffffff;
-   --text-main: #1c2536;
-   --text-muted: #7a8499;
-   --border: #e6e9f2;
+   --bg: #0b1017;
+   --card-bg: #141b26;
+   --text-main: #e6edf7;
+   --text-muted: #8a96aa;
+   --border: #232d3d;
+   --btn-secundario-bg: var(--card-bg);
+   --btn-secundario-color: var(--text-main);
+   --btn-secundario-border: var(--border);
+   --btn-secundario-hover-bg: var(--bg);
    --sidebar-w: 260px;
    --topbar-h: 66px;
 }
@@ -150,7 +155,7 @@ body{
      background:none;
      border:none;
      font-size: 1.15rem;
-     color: #141d2f;
+     color: var(--text-main);
      cursor:pointer;
      display:none;
   }
@@ -264,7 +269,7 @@ body{
      color: var(--text-muted);
      font-size: .88rem;
   }
-  .placeholder-box i{ font-size: 1.5rem; display:block; margin-bottom:8px; color: #c3cadb; }
+  .placeholder-box i{ font-size: 1.5rem; display:block; margin-bottom:8px; color: #46536a; }
 
   /* ===================== RESPONSIVE ===================== */
   @media (max-width: 900px){
@@ -292,7 +297,7 @@ body{
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(22, 35, 61, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   padding: 6px;
   z-index: 100;
 
@@ -326,7 +331,7 @@ body{
 }
 
 .dropdown-item:hover {
-  background: var(--bg);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .dropdown-item i {
@@ -335,7 +340,7 @@ body{
 }
       </style>
    </head>
-   <body>
+   <body data-user-id="{{ user_id|default:'' }}">
 
       <!-- ===================== SIDEBAR ===================== -->
       <aside class="sidebar" id="sidebar">

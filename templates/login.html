@@ -12,6 +12,7 @@
 
 <style>
   :root{
+    color-scheme: dark;
     --navy: #16233d;
     --navy-dark: #0e1728;
     --blue: #2f6fed;
@@ -19,11 +20,11 @@
     --amber: #f2994a;
     --green: #2ea86b;
     --red: #e0483e;
-    --bg: #f4f6fb;
-    --card-bg: #ffffff;
-    --text-main: #1c2536;
-    --text-muted: #7a8499;
-    --border: #e6e9f2;
+    --bg: #0b1017;
+    --card-bg: #141b26;
+    --text-main: #e6edf7;
+    --text-muted: #8a96aa;
+    --border: #232d3d;
   }
 
   *{ box-sizing: border-box; }
@@ -49,7 +50,7 @@
     border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
-    box-shadow: 0 20px 50px rgba(15, 26, 46, .08);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .45);
   }
 
   /* ===== Cabecera navy, mismo patrón de siempre ===== */
@@ -131,7 +132,7 @@
   .input-wrap input:focus{
     outline: none;
     border-color: var(--blue);
-    background: #fff;
+    background: var(--card-bg);
   }
 
   .input-wrap input.error{

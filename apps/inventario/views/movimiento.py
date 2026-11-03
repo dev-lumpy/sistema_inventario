@@ -6,10 +6,14 @@ from rest_framework.response import Response
 from rest_framework import serializers, status
 
 from apps.inventario.models import MovimientoStock
-from apps.inventario.services.movimiento_service import registrar_entrada_stock
+from apps.inventario.services.movimiento_service import (
+    registrar_entrada_stock,
+    registrar_salida_stock,
+)
 from apps.inventario.serializers import (
     EntradaStockSerializer,
-    MovimientoHistorialSerializer
+    MovimientoHistorialSerializer,
+    SalidaStockSerializer,
 )
 
 
@@ -37,6 +41,24 @@ class RegistrarEntradaStockAPIView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+
+class RegistrarSalidaStockAPIView(APIView):
+    def post(self, request):
+        serializer = SalidaStockSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        mov = registrar_salida_stock(**serializer.validated_data)
+        producto = mov.producto
+        return Response({
+            'mensaje': 'Venta registrada correctamente.',
+            'movimiento_id': mov.id,
+            'producto_id': producto.id,
+            'producto': producto.nombre,
+            'cantidad': mov.cantidad,
+            'canal_venta': mov.canal_venta,
+            'nuevo_stock': producto.stock_actual,
+        }, status=status.HTTP_201_CREATED)
 
 
 class MovimientoHistorialAPIView(ListAPIView):

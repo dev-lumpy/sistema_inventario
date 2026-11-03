@@ -99,7 +99,29 @@ class MovimientoStock(models.Model):
         (MOTIVO_DEVOLUCION, 'Devolución'),
     ]
 
+    # ---------- Canal -----------
+    CANAL_WHATSAPP   = 'whatsapp'
+    CANAL_INSTAGRAM  = 'instagram'
+    CANAL_FACEBOOK   = 'facebook'
+    CANAL_PRESENCIAL = 'presencial'
+    CANAL_OTRO       = 'otro'
+
+    CANALES = [
+        (CANAL_WHATSAPP,   'WhatsApp'),
+        (CANAL_INSTAGRAM,  'Instagram'),
+        (CANAL_FACEBOOK,   'Facebook'),
+        (CANAL_PRESENCIAL, 'Presencial'),
+        (CANAL_OTRO,       'Otro'),
+    ]
+
     # ---------- Campos ----------
+    canal_venta = models.CharField(
+        max_length=20,
+        choices=CANALES,
+        null=True,
+        blank=True,
+        help_text="Solo para salidas por venta.",
+    )
     producto = models.ForeignKey(
         Producto,
         on_delete=models.CASCADE,
@@ -175,6 +197,12 @@ class MovimientoStock(models.Model):
             raise ValidationError({
                 'proveedor': 'Para una compra, indicá el proveedor.'
             })
+
+        if self.motivo == self.MOTIVO_VENTA and not self.canal_venta:
+            raise ValidationError({'canal_venta': 'Para una venta, indicá el canal.'})
+
+        if self.canal_venta and self.motivo != self.MOTIVO_VENTA:
+            raise ValidationError({'canal_venta': 'El canal solo aplica a ventas.'})
 
     def save(self, *args, **kwargs):
         self.full_clean()

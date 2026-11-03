@@ -30,12 +30,14 @@
   justify-content: center;
   width: 32px;
   height: 32px;
+  flex: 0 0 32px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--card-bg);
   color: var(--text-muted);
   cursor: pointer;
   font-size: 0.85rem;
+  line-height: 1;
   padding: 0;               /* sacar el padding por defecto del <button> */
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
@@ -56,6 +58,15 @@
   color: #dc2626;
   border-color: #dc2626;
   background: #fef2f2;
+}
+
+/* ---------- Variante con texto ---------- */
+.btn-icon.con-texto {
+  width: auto;
+  flex: 0 0 auto;
+  padding: 0 12px;
+  gap: 8px;
+  font-weight: 600;
 }
 
 /* ---------- Separación entre botones ---------- */

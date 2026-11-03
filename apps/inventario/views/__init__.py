@@ -4,10 +4,11 @@ from .categoria import (
     AddCategoriaAPIView,
     CategoriaDetailAPIView
 )
-from .resumen import ResumenHoyAPIView
+from .resumen import ResumenHoyAPIView, ResumenPeriodoAPIView
 from .movimiento import (
     RegistrarEntradaStockAPIView,
     MovimientoHistorialAPIView,
+    RegistrarSalidaStockAPIView,
 )
 from .proveedor import ProveedorSelectAPIView
 from .producto import (
@@ -17,8 +18,11 @@ from .producto import (
     ProductoUpdateAPIView,
     ProductoAlertStockAPIView,
     ProductoSelectNameAPIView,
-    ProductoHistoryMovimientosAPIView
+    ProductoHistoryMovimientosAPIView,
+    ProductosMasVendidosView,
+    ProductosVendidosEnRangoView,
 )
+from .reportes_pdf import ReportePeriodoPDFView
 
 __all__ = [
     "ProveedorSelectAPIView",
@@ -28,6 +32,9 @@ __all__ = [
     "ProductoUpdateAPIView",
     "ProductoAlertStockAPIView",
     "ProductoSelectNameAPIView",
-    "ProductoSelectAPIView"
-
+    "ProductoSelectAPIView",
+    "ProductosMasVendidosView",
+    "ProductosVendidosEnRangoView",
+    "ResumenPeriodoAPIView",
+    "ReportePeriodoPDFView",
 ]

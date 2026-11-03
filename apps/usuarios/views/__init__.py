@@ -3,11 +3,17 @@ from .registrar_vendedor import RegistrarVendedor
 from .autenticar_usuario import AutenticarUsuario
 from .refrescar_token import RefrescarToken
 from .cerrar_sesion import CerrarSesion
+from .gestion_usuarios import (
+    VendedoresPorAdminView,
+    VendedorDetalleView,
+)
 
 __all__ = [
     "RegistrarAdministrador",
     "AutenticarUsuario",
     "RefrescarToken",
     "CerrarSesion",
-    "RegistrarVendedor"
+    "RegistrarVendedor",
+    "VendedoresPorAdminView",
+    "VendedorDetalleView"
 ]

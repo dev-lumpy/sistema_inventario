@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page { size: A4; margin: 18mm; }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'DejaVu Sans', Arial, sans-serif;
+      color: #111;
+      font-size: 12px;
+    }
+
+    h1 { margin: 0 0 4px; font-size: 20px; }
+    h2 { margin: 20px 0 8px; font-size: 14px; }
+
+    .fechas { margin: 0 0 18px; color: #555; }
+
+    .resumen {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .stat {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .stat .valor {
+      display: block;
+      font-size: 22px;
+      font-weight: bold;
+      line-height: 1.2;
+    }
+
+    .stat .label {
+      color: #555;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #f2f2f2;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    td.num, th.num { text-align: right; }
+
+    .vacio { margin: 8px 0; color: #777; }
+  </style>
+</head>
+<body>
+  <h1>Reporte del período</h1>
+  <p class="fechas">Desde {{ desde }} hasta {{ hasta }}</p>
+
+  <div class="resumen">
+    <div class="stat">
+      <span class="valor">{{ resumen.entradas }}</span>
+      <span class="label">Entradas</span>
+    </div>
+    <div class="stat">
+      <span class="valor">{{ resumen.salidas }}</span>
+      <span class="label">Salidas</span>
+    </div>
+  </div>
+
+  <h2>Productos más vendidos</h2>
+
+  {% if productos %}
+  <table>
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th class="num">Cantidad vendida</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for producto in productos %}
+      <tr>
+        <td>{{ producto.nombre }}</td>
+        <td class="num">{{ producto.cantidad_vendida }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="vacio">No hay ventas registradas en el período.</p>
+  {% endif %}
+</body>
+</html>

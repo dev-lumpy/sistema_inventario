@@ -16,7 +16,8 @@ def _tiene_token_valido(request) -> Optional[dict]:
         token = AccessToken(raw_token)
         return {
             'rol': token['rol'],
-            'nombre': token['username']
+            'nombre': token['username'],
+            'user_uuid': token.get('user_uuid'),
         }
     except (TokenError, KeyError):
         return None
@@ -52,12 +53,12 @@ def dashboard_page(request):
     if rol == 'administrador':
         return render(
             request, 'administrador/index.html',
-            {'nombre': nombre, 'rol': rol}
+            {'nombre': nombre, 'rol': rol, 'user_id': info.get('user_uuid')}
         )
     if rol == 'vendedor':
         return render(
             request, 'vendedor/index.html',
-            {'nombre': nombre, 'rol': rol}
+            {'nombre': nombre, 'rol': rol, 'user_id': info.get('user_uuid')}
         )
 
     raise ValueError("Rol inexistente")
