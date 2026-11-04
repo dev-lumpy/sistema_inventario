@@ -24,6 +24,15 @@ from config.sentry_utils import sentry_before_send
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# WeasyPrint en Windows necesita las DLLs de GTK3 y saber donde estan.
+# Se empaquetan en python-env/gtk3 para que el .zip sea autocontenido.
+if os.name == 'nt':
+    _gtk3_dir = BASE_DIR / 'python-env' / 'gtk3'
+    if _gtk3_dir.is_dir():
+        os.environ.setdefault('WEASYPRINT_DLL_DIRECTORIES', str(_gtk3_dir / 'bin'))
+        os.environ.setdefault('FONTCONFIG_PATH', str(_gtk3_dir / 'etc' / 'fonts'))
+        os.environ['PATH'] = f"{_gtk3_dir / 'bin'}{os.pathsep}{os.environ.get('PATH', '')}"
+
 # Agregamos la carpeta 'apps' al path de Python
 sys.path.insert(0, str(BASE_DIR / 'apps'))
 

@@ -20,6 +20,11 @@ goto :end
 set "PY_DIR=%~dp0python-env"
 set "PY_EXE=%PY_DIR%\python.exe"
 
+set "GTK3_DIR=%PY_DIR%\gtk3"
+set "WEASYPRINT_DLL_DIRECTORIES=%GTK3_DIR%\bin"
+set "FONTCONFIG_PATH=%GTK3_DIR%\etc\fonts"
+set "PATH=%GTK3_DIR%\bin;%PATH%"
+
 if not exist "%PY_EXE%" (
   echo [ERROR] No se encontro el Python embebido en:
   echo   %PY_EXE%
