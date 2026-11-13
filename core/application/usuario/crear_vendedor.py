@@ -35,7 +35,8 @@ class CrearVendedor:
         nombre: str,
         email: str,
         password_plana: str,
-        admin_id: UsuarioId,
+        admin_id: UsuarioId | None = None,
+        admin_ids: list[UsuarioId] | None = None,
     ) -> UsuarioId:
         # 1. Validar email único
         email_vo = Email(email)
@@ -43,19 +44,22 @@ class CrearVendedor:
         if existente is not None:
             raise EmailYaRegistradoException(email)
 
-        # 2. Validar que el admin exista
-        admin = self.usuario_repo.obtener_por_id(admin_id)
-        if admin is None:
-            raise AdminNoEncontradoException(str(admin_id.valor))
+        # 2. Validar admins (puede no tener ninguno)
+        ids_admins = list(admin_ids) if admin_ids else (
+            [admin_id] if admin_id is not None else []
+        )
+        for id_admin in ids_admins:
+            admin = self.usuario_repo.obtener_por_id(id_admin)
+            if admin is None:
+                raise AdminNoEncontradoException(str(id_admin.valor))
 
-        # 3. Validar que el usuario sea administrador
-        if not admin.es_administrador():
-            raise UsuarioNoEsAdminException(str(admin_id.valor))
+            if not admin.es_administrador():
+                raise UsuarioNoEsAdminException(str(id_admin.valor))
 
-        # 4. Hashear contraseña
+        # 3. Hashear contraseña
         hash_ = self.password_hasher.hashear(Password(password_plana))
 
-        # 5. Construir el usuario
+        # 4. Construir el usuario
         vendedor = Usuario(
             id=UsuarioId.generar(),
             nombre=NombreUsuario(nombre),
@@ -65,7 +69,7 @@ class CrearVendedor:
             rol=RolUser(RolUser.VENDEDOR),
         )
 
-        # 6. Persistir CON admin
-        self.usuario_repo.guardar_vendedor_con_admin(vendedor, admin_id)
+        # 5. Persistir con los admins indicados (o sin ninguno)
+        self.usuario_repo.guardar_vendedor(vendedor, ids_admins)
 
         return vendedor.id

@@ -1,6 +1,7 @@
 import { $, crearEl, crearFilaEstado } from '../../shared/core/dom.js';
 import { CONFIG } from '../../shared/core/config.js';
 import { deleteJSON, getJSON, patchJSON } from '../../shared/core/http.js';
+import { crearVendedor } from './api.js';
 
 const SELECTOR_TBODY = '#tbody-usuarios';
 const ANCHOS_COLUMNAS = ['28%', '36%', '14%', '22%'];
@@ -17,6 +18,10 @@ function aLista(data) {
 
 function idDelUsuarioActual() {
   return document.body.dataset.userId || '';
+}
+
+function nombreAdminActual() {
+  return document.getElementById('usuarios')?.dataset.userName || '';
 }
 
 function urlVendedores(adminId) {
@@ -185,7 +190,44 @@ function campo({ id, etiqueta, tipo, valor, maxlength }) {
   return { grupo, input };
 }
 
-function abrirEditor(vendedor) {
+function esPasswordValida(password) {
+  if (password.length < 8) return false;
+  if (!/[A-Z]/.test(password)) return false;
+  if (!/[a-z]/.test(password)) return false;
+  if (!/\d/.test(password)) return false;
+  if (!/[!@#$%^&*()_\-+=]/.test(password)) return false;
+  if (/\s/.test(password)) return false;
+  if (/(.)\1{3,}/.test(password)) return false;
+
+  const bajo = password.toLowerCase();
+  for (const secuencia of ['0123456789', 'abcdefghijklmnopqrstuvwxyz']) {
+    for (let i = 0; i <= secuencia.length - 4; i += 1) {
+      if (bajo.includes(secuencia.slice(i, i + 4))) return false;
+    }
+  }
+
+  return true;
+}
+
+function generarPasswordTemporal() {
+  const mayusculas = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const minusculas = 'abcdefghijkmnopqrstuvwxyz';
+  const digitos = '23456789';
+  const especiales = '!@#$%^&*';
+  const todos = mayusculas + minusculas + digitos + especiales;
+  const elegir = (conjunto) => conjunto[Math.floor(Math.random() * conjunto.length)];
+
+  for (let intento = 0; intento < 20; intento += 1) {
+    let password = elegir(mayusculas) + elegir(minusculas) + elegir(digitos) + elegir(especiales);
+    while (password.length < 12) password += elegir(todos);
+    if (esPasswordValida(password)) return password;
+  }
+
+  return 'Taller#2026';
+}
+
+function abrirEditor(vendedor = null) {
+  const esCreacion = !vendedor;
   cerrarEditor();
 
   const overlay = crearEl('div', { attrs: { id: 'usuario-editor' } });
@@ -200,16 +242,16 @@ function abrirEditor(vendedor) {
 
   const usuario = campo({
     id: 'editor-username',
-    etiqueta: 'Nombre de usuario',
+    etiqueta: esCreacion ? 'Nombre' : 'Nombre de usuario',
     tipo: 'text',
-    valor: vendedor.username,
+    valor: vendedor?.username,
     maxlength: '150',
   });
   const email = campo({
     id: 'editor-email',
     etiqueta: 'Email',
     tipo: 'email',
-    valor: vendedor.email,
+    valor: vendedor?.email,
   });
 
   const grupoActivo = crearEl('div', { clase: 'form-group' });
@@ -220,7 +262,7 @@ function abrirEditor(vendedor) {
       attrs: { value: estado },
     }));
   }
-  selectActivo.value = vendedor.activo ?? 'activo';
+  selectActivo.value = vendedor?.activo ?? 'activo';
   grupoActivo.append(
     crearEl('label', { texto: 'Estado', attrs: { for: 'editor-activo' } }),
     selectActivo,
@@ -236,7 +278,7 @@ function abrirEditor(vendedor) {
   });
   btnGuardar.append(
     crearEl('i', { clase: 'fa-solid fa-check' }),
-    crearEl('span', { texto: 'Guardar' }),
+    crearEl('span', { texto: esCreacion ? 'Crear' : 'Guardar' }),
   );
   const btnCancelar = crearEl('button', {
     clase: 'btn btn-secundario',
@@ -245,7 +287,19 @@ function abrirEditor(vendedor) {
   btnCancelar.appendChild(document.createTextNode('Cancelar'));
 
   acciones.append(btnGuardar, btnCancelar);
-  form.append(usuario.grupo, email.grupo, grupoActivo, error, acciones);
+  form.append(
+    usuario.grupo,
+    email.grupo,
+    grupoActivo,
+    ...(esCreacion
+      ? [crearEl('p', {
+        clase: 'form-help',
+        texto: 'Se generará una contraseña temporal para el usuario.',
+      })]
+      : []),
+    error,
+    acciones,
+  );
   body.appendChild(form);
   card.appendChild(body);
   overlay.appendChild(card);
@@ -262,15 +316,64 @@ function abrirEditor(vendedor) {
     evento.preventDefault();
     error.hidden = true;
 
-    const payload = {
-      username: usuario.input.value.trim(),
-      email: email.input.value.trim(),
-      activo: selectActivo.value,
-    };
+    const nombre = usuario.input.value.trim();
+    const emailValor = email.input.value.trim();
+    const estado = selectActivo.value;
 
     btnGuardar.disabled = true;
 
     try {
+      if (esCreacion) {
+        const adminUsername = nombreAdminActual();
+        if (!nombre || !emailValor) {
+          throw new Error('Completá nombre y email.');
+        }
+        if (!/^[^\s@]+@gmail\.com$/i.test(emailValor)) {
+          throw new Error('Ingresá un correo de Gmail válido.');
+        }
+        if (!adminUsername) {
+          throw new Error('No se pudo identificar al administrador.');
+        }
+
+        const password = generarPasswordTemporal();
+        await crearVendedor({
+          nombre,
+          email: emailValor,
+          password,
+          username: adminUsername,
+        });
+
+        await cargar();
+
+        if (estado !== 'activo') {
+          const nuevo = vendedores.find(
+            (item) => (
+              String(item.email) === emailValor
+              || String(item.username) === nombre
+            ),
+          );
+          if (nuevo) {
+            const actualizado = await patchJSON(urlUsuario(nuevo.uuid), { activo: estado });
+            vendedores = vendedores.map((item) => (
+              String(item.uuid) === String(nuevo.uuid)
+                ? { ...item, ...actualizado }
+                : item
+            ));
+            renderTabla(vendedores);
+          }
+        }
+
+        cerrarEditor();
+        alert(`Usuario creado. Contraseña temporal: ${password}`);
+        return;
+      }
+
+      const payload = {
+        username: nombre,
+        email: emailValor,
+        activo: estado,
+      };
+
       const actualizado = await patchJSON(urlUsuario(vendedor.uuid), payload);
       vendedores = vendedores.map((item) => (
         String(item.uuid) === String(vendedor.uuid)
@@ -325,6 +428,8 @@ export async function initUsuarios({ onEditar, onEliminar } = {}) {
       if (onEliminar) return onEliminar(vendedor);
       eliminar(vendedor);
     });
+
+    $('#btn-crear-usuario')?.addEventListener('click', () => abrirEditor());
   }
 
   await cargar();

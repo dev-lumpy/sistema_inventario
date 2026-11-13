@@ -43,21 +43,32 @@ class DjangoUsuarioRepository(UsuarioRepository):
             },
         )
 
-    def guardar_vendedor_con_admin(
-        self, vendedor: Usuario, admin_id: UsuarioId
+    def guardar_vendedor(
+        self,
+        vendedor: Usuario,
+        admin_ids: Optional[list[UsuarioId]] = None,
     ) -> None:
-        admin_orm = AdministradorORM.objects.get(uuid=admin_id.valor)
-
-        VendedorORM.objects.update_or_create(
+        vendedor_orm, _ = VendedorORM.objects.update_or_create(
             uuid=vendedor.id.valor,
             defaults={
                 "username": vendedor.nombre.valor,
                 "email": vendedor.email.valor,
                 "password": vendedor.password_hash.valor,
                 "activo": vendedor.activo.valor,
-                "admin": admin_orm,
             },
         )
+
+        admins = [
+            AdministradorORM.objects.get(uuid=admin_id.valor)
+            for admin_id in (admin_ids or [])
+        ]
+        if admins:
+            vendedor_orm.admins.add(*admins)
+
+    def guardar_vendedor_con_admin(
+        self, vendedor: Usuario, admin_id: Optional[UsuarioId] = None
+    ) -> None:
+        self.guardar_vendedor(vendedor, [admin_id] if admin_id is not None else [])
 
     # ------------------------------------------------------------------
     # LECTURA
@@ -72,7 +83,6 @@ class DjangoUsuarioRepository(UsuarioRepository):
         # 2) intenta vendedor
         vendedor = (
             VendedorORM.objects
-            .select_related("admin")
             .filter(uuid=id.valor)
             .first()
         )
@@ -95,7 +105,6 @@ class DjangoUsuarioRepository(UsuarioRepository):
 
         vendedor = (
             VendedorORM.objects
-            .select_related("admin")
             .filter(email=email.valor)
             .first()
         )
@@ -108,7 +117,7 @@ class DjangoUsuarioRepository(UsuarioRepository):
         admins = [self._admin_to_domain(a) for a in AdministradorORM.objects.all()]
         vendedores = [
             self._vendedor_to_domain(v)
-            for v in VendedorORM.objects.select_related("admin").all()
+            for v in VendedorORM.objects.all()
         ]
         return admins + vendedores
 

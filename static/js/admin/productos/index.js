@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { fetchProductos, fetchCategorias } from './api.js';
+import { fetchProductos, fetchCategorias, eliminarProducto } from './api.js';
 import { initFormulario, renderCategorias, cargarEnFormulario } from './formulario.js';
 import { initTabla, renderTabla, mostrarCargando, mostrarError } from './tabla.js';
 import { cambiarEstadoBoton } from './boton-guardar.js';
@@ -67,6 +67,26 @@ function onEditar(id) {
   else console.warn('[productos] onEditar: producto no encontrado', { id });
 }
 
+async function onEliminar(id) {
+  const producto = buscarPorId(id);
+  if (!producto) {
+    console.warn('[productos] onEliminar: producto no encontrado', { id });
+    return;
+  }
+
+  if (!confirm(`¿Eliminar el producto "${producto.nombre}"?`)) return;
+
+  try {
+    await eliminarProducto(id);
+    state.productos = (state.productos || []).filter(
+      (item) => String(item.id) !== String(id),
+    );
+    renderTabla();
+  } catch (error) {
+    console.error('[productos] Error eliminando producto:', error);
+  }
+}
+
 export async function initProductos() {
   cambiarEstadoBoton('DEFAULT');
 
@@ -76,7 +96,7 @@ export async function initProductos() {
 
   if (!inicializado) {
     initFormulario({ onGuardado });
-    initTabla({ onEditar });
+    initTabla({ onEditar, onEliminar });
     inicializado = true;
   }
 

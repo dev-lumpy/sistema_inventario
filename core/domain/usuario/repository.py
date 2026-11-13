@@ -39,10 +39,18 @@ class UsuarioRepository(ABC):
         ...
 
     @abstractmethod
-    def guardar_vendedor_con_admin(
-            self, 
+    def guardar_vendedor(
+            self,
             vendedor: Usuario,
-            admin_id: UsuarioId
+            admin_ids: Optional[list[UsuarioId]] = None
+    ) -> None:
+        ...
+
+    @abstractmethod
+    def guardar_vendedor_con_admin(
+            self,
+            vendedor: Usuario,
+            admin_id: Optional[UsuarioId] = None
     ) -> None:
         ...
 

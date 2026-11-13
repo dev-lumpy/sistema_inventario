@@ -1,6 +1,9 @@
 import { ENDPOINTS } from '../../shared/core/config.js';
 import { getJSON } from '../../shared/core/http.js';
 
-export const getProductos = () => getJSON(ENDPOINTS.historialProductos);
+export const LIMITE_MOVIMIENTOS = 100;
 
-export const getMovimientos = () => getJSON(ENDPOINTS.historialMovimientos);
+export const getMovimientos = (limite = LIMITE_MOVIMIENTOS) => (
+  getJSON(`${ENDPOINTS.historialMovimientos}${limite}/`)
+);
+

@@ -360,7 +360,7 @@ body{
             </ul>
          </nav>
 
-         <div class="sidebar-footer">Sistema de Gestión de Inventario · v1.0 (MVP)</div>
+         
       </aside>
 
       <!-- ===================== CONTENIDO PRINCIPAL ===================== -->
@@ -371,8 +371,6 @@ body{
                <button class="sidebarToggle" aria-label="Abrir menú"><i class="fa-solid fa-bars"></i></button>
             </div>
             <div class="topbar-right">
-               <i class="fa-regular fa-bell topbar-icon"></i>
-               <i class="fa-solid fa-magnifying-glass topbar-icon"></i>
                <div class="user-menu">
   <div class="user-chip" id="userChip">
     <div class="user-avatar">{{ nombre|make_list|first|upper }}{% if nombre|length > 1 %}{{ nombre|slice:"1:2"|upper }}{% endif %}</div>

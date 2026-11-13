@@ -30,8 +30,13 @@ function filaProducto(producto) {
       <td>${escaparHtml(String(producto.stock_actual ?? ''))}</td>
       <td>${badgeStock(producto)}</td>
       <td class="acciones">
-        <button type="button" class="btn-icon editar" data-action="editar" data-id="${producto.id}" title="Editar">
+        <button type="button" class="btn-icon con-texto editar" data-action="editar" data-id="${producto.id}" title="Editar">
           <i class="fa-solid fa-pen"></i>
+          <span>Editar</span>
+        </button>
+        <button type="button" class="btn-icon con-texto eliminar" data-action="eliminar" data-id="${producto.id}" title="Eliminar">
+          <i class="fa-solid fa-trash"></i>
+          <span>Eliminar</span>
         </button>
       </td>
     </tr>
@@ -78,7 +83,7 @@ export function renderTabla() {
   tbody.innerHTML = lista.map(filaProducto).join('');
 }
 
-export function initTabla({ onEditar }) {
+export function initTabla({ onEditar, onEliminar }) {
   const tbody = getTbody();
   if (!tbody) return;
 
@@ -86,9 +91,11 @@ export function initTabla({ onEditar }) {
   tbody.dataset.eventos = '1';
 
   tbody.addEventListener('click', (evento) => {
-    const boton = evento.target.closest('button[data-action="editar"]');
+    const boton = evento.target.closest('button[data-action]');
     if (!boton) return;
-    onEditar(boton.dataset.id);
+    const { action, id } = boton.dataset;
+    if (action === 'editar') onEditar(id);
+    if (action === 'eliminar') onEliminar(id);
   });
 
   const buscador = getBuscador();

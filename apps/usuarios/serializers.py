@@ -17,7 +17,6 @@ class VendedorSerializer(serializers.ModelSerializer):
             "email",
             "activo",
             "fecha_creacion",
-            "admin",             # UUID del admin
         ]
 
 

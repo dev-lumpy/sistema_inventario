@@ -44,12 +44,10 @@ class AdministradorORM(UsuarioORM):    # ← HIJO 1
 
 
 class VendedorORM(UsuarioORM):         # ← HIJO 2
-    admin = models.ForeignKey(
+    admins = models.ManyToManyField(
         AdministradorORM,
-        on_delete=models.PROTECT,
         related_name="vendedores",
-        null=False,
-        blank=False,
+        blank=True,
     )
 
     class Meta:

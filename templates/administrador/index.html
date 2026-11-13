@@ -485,17 +485,6 @@ consultar stock con filtros.
     <p>Auditá las entradas y salidas de un producto.</p>
   </div>
 
-  <div class="card filtros">
-    <div class="card-body">
-      <div class="form-group">
-        <label for="historial-producto">Producto</label>
-        <select id="historial-producto" name="producto_id">
-          <option value="">Seleccioná un producto</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
   <div class="card tabla-historial">
     <div class="card-header">
       <h2>Movimientos</h2>
@@ -505,6 +494,7 @@ consultar stock con filtros.
         <thead>
           <tr>
             <th>Categoría</th>
+            <th>Productos</th>
             <th>Cantidad</th>
             <th>Proveedor</th>
             <th>Fecha</th>
@@ -639,7 +629,7 @@ consultar stock con filtros.
    Gestionar usuarios y roles.
    - RF-10, RF-11
    ============================================================ -->
-<section id="usuarios" class="content-section">
+<section id="usuarios" class="content-section" data-user-name="{{ nombre }}">
   <div class="section-header">
     <h1>Usuarios</h1>
     <p>Gestioná usuarios y roles.</p>
@@ -648,6 +638,10 @@ consultar stock con filtros.
   <div class="card lista-usuarios">
     <div class="card-header">
       <h2>Usuarios registrados</h2>
+      <button type="button" class="btn btn-primario" id="btn-crear-usuario">
+        <i class="fa-solid fa-user-plus"></i>
+        Crear Usuario
+      </button>
     </div>
     <div class="card-body">
       <table class="tabla">

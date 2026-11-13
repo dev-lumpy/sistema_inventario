@@ -1,5 +1,11 @@
 # apps/inventario/views/producto.py
-from rest_framework.generics import UpdateAPIView, CreateAPIView, ListAPIView
+from rest_framework.generics import (
+    UpdateAPIView,
+    CreateAPIView,
+    ListAPIView,
+    RetrieveUpdateDestroyAPIView
+)
+
 from rest_framework.views import APIView, Response
 from rest_framework import generics
 from rest_framework.exceptions import ValidationError
@@ -24,11 +30,10 @@ class ProductoInsertAPIView(CreateAPIView):
     serializer_class = ProductoCreateSerializer
 
 
-class ProductoUpdateAPIView(UpdateAPIView):
+class ProductoUpdateAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Producto.objects.all()
     serializer_class = ProductoCreateSerializer
     lookup_field = 'pk'
-
 
 class ProductoSelectAPIView(ListAPIView):
     queryset = Producto.objects.all()
@@ -65,10 +70,18 @@ class ProductoAlertStockAPIView(APIView):
 
 
 class ProductoHistoryMovimientosAPIView(ListAPIView):
-    queryset = MovimientoStock.objects.all()
     serializer_class = MovimientoHistorialMovimientoSerializer
     pagination_class = None
 
+    def get_queryset(self):
+        limite = self.kwargs.get('limite')
+        qs = MovimientoStock.objects.select_related('producto', 'proveedor').order_by('-fecha')
+
+        if limite is not None:
+            limite = min(int(limite), 100)  # techo opcional
+            qs = qs[:limite]
+
+        return qs
 
 class ProductosMasVendidosView(ListAPIView):
     serializer_class = ProductoMasVendidoSerializer

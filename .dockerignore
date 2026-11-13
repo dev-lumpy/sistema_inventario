@@ -1,0 +1,52 @@
+# 1. Control de versiones y metadatos
+.git
+.gitignore
+.gitattributes
+.github
+
+# 2. Entornos virtuales y cachés de Python
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# 3. Archivos de entorno y secretos (CRÍTICO)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# 4. Artefactos de build y distribución
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# 5. Herramientas de desarrollo y editores
+.vscode/
+.idea/
+*.swp
+
+# 6. Archivos temporales, logs y bases de datos locales
+*.log
+*.sqlite3
+db.sqlite3
+.DS_Store
+Thumbs.db
+
+# 7. Archivos que no necesitas en la imagen (tu lista de dependencias)
+# Nota: No ignores requirements.txt si lo necesitas dentro del Dockerfile.
+# Si usas Package Version.txt solo como referencia local, ignóralo.
+Package Version.txt
+
+# 8. Archivos grandes o innecesarios para tu app
+# (Añade aquí cualquier carpeta de datos, PDFs, etc. que no use la app en runtime)
+
+temp/
+SistemaTaller-windows.zip

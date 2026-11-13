@@ -36,9 +36,12 @@ class MovimientoHistorialMovimientoSerializer(serializers.ModelSerializer):
     # Fecha: la formateamos como ISO para que JS la parsee fácil
     fecha = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S', read_only=True)
 
+    # Para saber de que producto se trata en la edicion que acabamos de hacer
+    producto = serializers.CharField(source='producto.nombre', read_only=True)
+
     class Meta:
         model = MovimientoStock
-        fields = ['id', 'categoria', 'cantidad', 'proveedor', 'fecha']
+        fields = ['id', 'categoria', 'cantidad', 'proveedor', 'producto', 'fecha']
 
     def get_proveedor(self, obj):
         return obj.proveedor.nombre if obj.proveedor_id else '—'

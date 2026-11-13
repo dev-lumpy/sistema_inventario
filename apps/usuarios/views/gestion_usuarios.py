@@ -11,7 +11,7 @@ class VendedoresPorAdminView(generics.ListAPIView):
     def get_queryset(self):
         admin_id = self.kwargs.get("admin_id")
         # Opcional: validar UUID
-        return VendedorORM.objects.filter(admin_id=admin_id).select_related("usuarioorm_ptr")
+        return VendedorORM.objects.filter(admins__uuid=admin_id).select_related("usuarioorm_ptr")
 
 
 class VendedorDetalleView(generics.RetrieveUpdateDestroyAPIView):

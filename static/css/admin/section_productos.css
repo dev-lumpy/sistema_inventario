@@ -131,6 +131,10 @@ Si --red no existe todavía en tu :root, agregala junto a las demás:
 }
 
 .btn-icon{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text-muted);
@@ -142,6 +146,13 @@ Si --red no existe todavía en tu :root, agregala junto a las demás:
 .btn-icon:hover:not(:disabled){ background: var(--bg); color: var(--text-main); }
 .btn-icon.editar:hover:not(:disabled){ color: var(--blue); border-color: var(--blue); }
 .btn-icon.eliminar:hover:not(:disabled){ color: var(--red, #e0483e); border-color: var(--red, #e0483e); }
+.btn-icon.con-texto{
+  width: auto;
+  flex: 0 0 auto;
+  padding: 0 12px;
+  font-weight: 600;
+}
+.tabla .acciones .btn-icon + .btn-icon{ margin-left: 6px; }
 
 /* ===== Toolbar de la tabla (buscador) ===== */
 .table-toolbar{

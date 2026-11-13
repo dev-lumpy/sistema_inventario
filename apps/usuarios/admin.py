@@ -71,17 +71,23 @@ class AdministradorORMAdmin(UsuarioBaseAdmin):
 # ---------- Hijo 2: Vendedor ----------
 @admin.register(VendedorORM)
 class VendedorORMAdmin(UsuarioBaseAdmin):
-    list_display = UsuarioBaseAdmin.list_display + ('admin',)
-    list_filter = ('activo', 'admin')
-    list_select_related = ('admin',)
-    autocomplete_fields = ('admin',)   # buscador en vez de <select> gigante
+    list_display = UsuarioBaseAdmin.list_display + ('admins_display',)
+    list_filter = ('activo', 'admins')
+    autocomplete_fields = ('admins',)   # buscador en vez de <select> gigante
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('admins')
+
+    @admin.display(description='Administradores')
+    def admins_display(self, obj):
+        return ', '.join(admin.username for admin in obj.admins.all()) or '—'
 
     fieldsets = (
         ('Identidad', {
             'fields': ('uuid', 'username', 'email', 'password')
         }),
         ('Jerarquía', {
-            'fields': ('admin',)
+            'fields': ('admins',)
         }),
         ('Estado', {
             'fields': ('activo',)

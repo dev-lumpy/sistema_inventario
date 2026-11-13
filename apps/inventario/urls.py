@@ -42,7 +42,7 @@ urlpatterns = [
     # para el historial;
     re_path(r'^movimiento/entrada/historial/?$', MovimientoHistorialAPIView.as_view(), name='movimiento-historial'),
     re_path(r'^history_productos/?$', ProductoSelectNameAPIView.as_view(), name="productos-history"),
-    re_path(r'^history_movimientos/?$', ProductoHistoryMovimientosAPIView.as_view(), name="productos-history-movimientos"),
+    re_path(r'^history_movimientos/(?P<limite>\d+)/?$', ProductoHistoryMovimientosAPIView.as_view(), name="productos-history-movimientos"),
 
     # para las categorias ya existe uno que hace devuelve todas las categorias
     re_path(r'^add_categoria/?$', AddCategoriaAPIView.as_view(), name='add-categoria'),

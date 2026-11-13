@@ -27,12 +27,15 @@ class RegistrarVendedor(APIView):
           "nombre": "Ana García",
           "email": "ana@example.com",
           "password": "miPassword123",
-          "username": "el_user_name_del_admin"
+          "username": "el_user_name_del_admin"          # opcional (1 admin)
+          "admins": ["admin1", "admin2"]                # opcional (varios)
         }
+
+        El vendedor puede crearse sin ningún administrador.
         """
 
         # Campos obligatorios que debe traer el JSON
-        campos_requeridos = ["nombre", "email", "password", "username"]
+        campos_requeridos = ["nombre", "email", "password"]
 
         # Buscamos cuáles faltan (o vienen vacíos / None)
         faltantes = [
@@ -43,43 +46,53 @@ class RegistrarVendedor(APIView):
         if faltantes:
             return self._respuesta_error_validacion(campos_faltantes=faltantes)
 
-        
         # Extraemos los valores (ya sabemos que todos existen)
         nombre         = request.data.get("nombre")
         email          = request.data.get("email")
         password       = request.data.get("password")
-        username       = request.data.get("username")
-
-        # Primero verificamos si admin_id es un UUID valido
-        try:
-            username = NombreUsuario(username)
-        except UsuarioIdInvalidoException as e:
-            return self._respuesta_error_validacion(
-                mensaje="Datos inválidos",
-                error_campo={
-                    "admin_id": e.user_message,   # ya viene localizado desde el catálogo
-                    "codigo": e.code,             # ej: "USUARIO_ID_FORMATO_INVALIDO"
-                },
-            )
 
         usuario = CrearVendedor(
             DjangoUsuarioRepository(),
             PasswordHasherDjango()
         )
 
-        admin_id = usuario.usuario_repo.obtener_id_for_username(username)
-        if admin_id == None:
-            return self._respuesta_error_validacion(
-                mensaje="El usuario administrador no existe",
-                error_campo={"username": "No existe un administrador con ese username"},
-            )
+        # Admins opcionales: "username" (uno) o "admins" (varios)
+        usernames_admins = request.data.get("admins")
+        if usernames_admins in (None, "", []):
+            username = request.data.get("username")
+            usernames_admins = [username] if username else []
+        elif isinstance(usernames_admins, str):
+            usernames_admins = [usernames_admins]
+
+        admin_ids = []
+        for username_admin in usernames_admins:
+            # Verificamos que el username sea válido
+            try:
+                username_vo = NombreUsuario(username_admin)
+            except UsuarioIdInvalidoException as e:
+                return self._respuesta_error_validacion(
+                    mensaje="Datos inválidos",
+                    error_campo={
+                        "username": e.user_message,   # ya viene localizado desde el catálogo
+                        "codigo": e.code,             # ej: "USUARIO_ID_FORMATO_INVALIDO"
+                    },
+                )
+
+            admin_id = usuario.usuario_repo.obtener_id_for_username(username_vo)
+            if admin_id == None:
+                return self._respuesta_error_validacion(
+                    mensaje="El usuario administrador no existe",
+                    error_campo={"username": "No existe un administrador con ese username"},
+                )
+
+            admin_ids.append(admin_id)
 
         try:
             id_usuario = usuario.ejecutar(
                 nombre,
                 email,
                 password,
-                admin_id
+                admin_ids=admin_ids
             )
         except DomainException as e:
             return Response(e.to_dict(), status=e.status_code)

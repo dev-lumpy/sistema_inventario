@@ -101,7 +101,8 @@ def cargar_estado():
         movimientos_df["Fecha"] = pd.to_datetime(movimientos_df["Fecha"])
 
     admin_por_vendedor = {
-        v.pk: v.admin.username for v in VendedorORM.objects.select_related("admin")
+        v.pk: ", ".join(a.username for a in v.admins.all())
+        for v in VendedorORM.objects.prefetch_related("admins")
     }
     usuarios_df = pd.DataFrame(
         [
