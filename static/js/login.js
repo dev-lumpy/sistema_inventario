@@ -54,58 +54,56 @@ form.addEventListener('submit', async (e) => {
         const res = await fetch('/api/usuarios/auth/login/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: correo,
-                password: password,
-            })
+            body: JSON.stringify({ email: correo, password: password }),
         });
 
-        // Manejo de errores según el código de estado
         if (!res.ok) {
-            if (res.status === 500) {
-                throw new Error('SERVER_ERROR');
-            } else if (res.status === 401 || res.status === 400) {
-                throw new Error('INVALID_CREDENTIALS');
-            } else if (res.status === 403) {
-                throw new Error('FORBIDDEN');
-            } else if (res.status === 404) {
-                throw new Error('NOT_FOUND');
-            } else if (res.status >= 500) {
-                throw new Error('SERVER_ERROR');
-            } else {
-                throw new Error('UNKNOWN_ERROR');
-            }
+            // Leemos el body una sola vez (detail + code del backend)
+            const data = await res.json().catch(() => null);
+            const detail = data?.detail || null;
+            const code = data?.code || null;
+
+            // Mantenemos los strings que tu switch espera
+            let msg;
+            if (res.status === 400 || res.status === 401) msg = 'INVALID_CREDENTIALS';
+            else if (res.status === 403) msg = 'FORBIDDEN';
+            else if (res.status === 404) msg = 'NOT_FOUND';
+            else if (res.status >= 500) msg = 'SERVER_ERROR';
+            else msg = 'UNKNOWN_ERROR';
+
+            const err = new Error(msg);
+            err.status = res.status;
+            err.detail = detail;
+            err.code = code;    
+            throw err;
         }
 
         await res.json();
-
         showFormMsg('Ingreso correcto, redirigiendo...', 'ok');
-        
         window.location.href = '/dashboard';
 
     } catch (err) {
-        // Manejo de errores según el tipo
         switch (err.message) {
             case 'SERVER_ERROR':
-                console.error('Error 500: Error interno del servidor', err);
-                showFormMsg('Hubo un error en el servidor. Por favor, intenta más tarde.', 'fail');
+                console.error('Error 500:', err);
+                showFormMsg('Hubo un error en el servidor. Intenta más tarde.', 'fail');
                 break;
             case 'INVALID_CREDENTIALS':
-                console.error('Error 400/401: Credenciales inválidas', err);
-                showFormMsg('Usuario o contraseña incorrectos.', 'fail');
+                // si el backend mandó un detail (cuenta inactiva/pendiente), lo mostramos
+                console.error('Error 400/401:', err);
+                showFormMsg(err.detail || 'Usuario o contraseña incorrectos.', 'fail');
                 break;
             case 'FORBIDDEN':
-                console.error('Error 403: Acceso prohibido', err);
-                showFormMsg('No tienes permisos para acceder.', 'fail');
+                console.error('Error 403:', err);
+                showFormMsg(err.detail || 'No tienes permisos para acceder.', 'fail');
                 break;
             case 'NOT_FOUND':
-                console.error('Error 404: Recurso no encontrado', err);
+                console.error('Error 404:', err);
                 showFormMsg('El servicio de autenticación no está disponible.', 'fail');
                 break;
             default:
-                // Errores de red, JSON parse, etc.
                 console.error('Error inesperado:', err);
-                showFormMsg('Error de conexión. Verifica tu red e intenta de nuevo.', 'fail');
+                showFormMsg(err.detail || 'Error de conexión. Verifica tu red.', 'fail');
                 break;
         }
     } finally {

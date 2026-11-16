@@ -2,10 +2,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+from django.db import IntegrityError
+
 from core.application.ports import password_hasher
 from core.application.usuario.crear_vendedor import CrearVendedor
 from core.domain.shared.exceptions import DomainException
-from core.domain.usuario.exceptions import UsuarioIdInvalidoException
+from core.domain.usuario.exceptions import (
+    EmailYaRegistradoException,
+    UsuarioIdInvalidoException,
+)
 from core.domain.usuario.usuario import Usuario
 from core.domain.usuario.value_objects import UsuarioId, NombreUsuario
 from infrastructure.django.auth.password_hasher_django import PasswordHasherDjango
@@ -94,6 +99,9 @@ class RegistrarVendedor(APIView):
                 password,
                 admin_ids=admin_ids
             )
+        except IntegrityError:
+            e = EmailYaRegistradoException(email)
+            return Response(e.to_dict(), status=e.status_code)
         except DomainException as e:
             return Response(e.to_dict(), status=e.status_code)
 

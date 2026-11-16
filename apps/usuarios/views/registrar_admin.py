@@ -1,6 +1,8 @@
 # apps/usuarios/views/registrar_admin.py
 from core.application.usuario.crear_administrador import CrearAdministrador
 from core.domain.shared.exceptions import DomainException
+from core.domain.usuario.exceptions import EmailYaRegistradoException
+from django.db import IntegrityError
 from infrastructure.django.auth.password_hasher_django import PasswordHasherDjango
 from infrastructure.django.repositories.usuario_repository import DjangoUsuarioRepository
 from rest_framework.views import APIView
@@ -43,6 +45,9 @@ class RegistrarAdministrador(APIView):
                  request.data.get("email"), 
                  request.data.get("password"), 
             )
+        except IntegrityError:
+            e = EmailYaRegistradoException(request.data.get("email"))
+            return Response(e.to_dict(), status=e.status_code)
         except DomainException as e:
             return Response(e.to_dict(), status=e.status_code)
         

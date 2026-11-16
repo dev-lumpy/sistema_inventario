@@ -18,6 +18,7 @@
    - Inicio      → panel + alertas (RF-05, HU-04)
    - Inventario  → consultar stock, filtros (RF-06, RF-07, HU-03)
    - Ventas      → registrar venta (RF-03, HU-02)
+   - Admin       → conectarse a un admin  (RF-ADMIN)
    NO tiene acceso a configuración (RF-11).
    ============================================================ -->
 {% block sidebar %}
@@ -37,6 +38,12 @@
   <a href="#" class="nav-link" data-section="ventas">
     <i class="fa-solid fa-cart-shopping"></i>
     <span>Ventas</span>
+  </a>
+</li>
+<li>
+  <a href="#" class="nav-link" data-section="solicitudes-admin">
+    <i class="fa-solid fa-user-tie"></i>
+    <span>Administrador</span>
   </a>
 </li>
 {% endblock %}
@@ -97,6 +104,10 @@
       <button class="btn btn-secundario" data-section="inventario">
         <i class="fa-solid fa-boxes-stacked"></i>
         Consultar inventario
+      </button>
+      <button class="btn btn-secundario" data-section="solicitudes-admin">
+        <i class="fa-solid fa-user-tie"></i>
+        Registrarse con un Administrador
       </button>
     </div>
   </div>
@@ -288,6 +299,135 @@
 
   <!-- Mensaje de éxito/error (se llena desde JS) -->
   <div id="venta-mensaje" class="mensaje" hidden></div>
+</section>
+
+
+<!-- ============================================================
+   GESTION DE ADMINISTRADOR
+   Simplemente elije un administrador RF-ADMIN
+   ============================================================ -->
+<section id="solicitudes-admin" class="content-section">
+
+  <!-- ============ FORMULARIO DE SOLICITUD ============ -->
+  <div class="section-header">
+    <h1>Solicitar Administrador</h1>
+    <p>Enviá una solicitud a un administrador por email. Cuando uno la acepte, los demás quedan bloqueados automáticamente.</p>
+  </div>
+
+  <div class="card solicitud-form">
+    <div class="card-header">
+      <h2>
+        <i class="fa-solid fa-paper-plane"></i>
+        Nueva solicitud
+      </h2>
+    </div>
+    <div class="card-body">
+      <form id="form-solicitud-admin" class="form-solicitud" novalidate>
+
+        <div class="form-group">
+          <label for="solicitud-email">Email del administrador</label>
+          <input
+            type="email"
+            id="solicitud-email"
+            name="email"
+            class="form-control"
+            placeholder="admin@ejemplo.com"
+            autocomplete="email"
+            required
+          />
+          <small class="form-hint">El administrador recibirá la solicitud y deberá aceptarla.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="solicitud-mensaje">Mensaje (opcional)</label>
+          <textarea
+            id="solicitud-mensaje"
+            name="mensaje"
+            class="form-control"
+            rows="3"
+            maxlength="200"
+            placeholder="Contale al administrador quién sos o por qué necesitás acceso."
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primario" id="btn-enviar-solicitud">
+            <i class="fa-solid fa-paper-plane"></i>
+            Enviar solicitud
+          </button>
+          <button type="reset" class="btn btn-secundario">
+            Limpiar
+          </button>
+        </div>
+
+        <p id="solicitud-feedback" class="form-feedback" hidden></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ TABLA DE SOLICITUDES ============ -->
+  <div class="card solicitudes-lista">
+    <div class="card-header">
+      <h2>
+        <i class="fa-solid fa-list-check"></i>
+        Mis solicitudes
+      </h2>
+    </div>
+    <div class="card-body">
+
+      <!-- Estado vacío -->
+      <p id="solicitudes-vacio" class="empty-state" hidden>
+        Todavía no enviaste ninguna solicitud.
+      </p>
+
+      <!-- Tabla de solicitudes -->
+      <div class="tabla-wrapper" id="solicitudes-tabla-wrapper">
+        <table class="tabla-solicitudes">
+          <thead>
+            <tr>
+              <th>Administrador</th>
+              <th>Email</th>
+              <th>Mensaje</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="solicitudes-tbody">
+            <!--
+              Ejemplo de fila pendiente:
+              <tr class="solicitud-pendiente">
+                <td>Admin Pérez</td>
+                <td>admin@ejemplo.com</td>
+                <td>Necesito acceso para cargar productos.</td>
+                <td>12/11/2026 14:30</td>
+                <td><span class="badge badge-pendiente">Pendiente</span></td>
+              </tr>
+
+              Ejemplo de fila aceptada:
+              <tr class="solicitud-aceptada">
+                <td>Admin Pérez</td>
+                <td>admin@ejemplo.com</td>
+                <td>Necesito acceso para cargar productos.</td>
+                <td>12/11/2026 14:30</td>
+                <td><span class="badge badge-aceptada">Aceptada</span></td>
+              </tr>
+
+              Ejemplo de fila bloqueada (otro admin aceptó primero):
+              <tr class="solicitud-bloqueada">
+                <td>Admin Gómez</td>
+                <td>admin2@ejemplo.com</td>
+                <td>—</td>
+                <td>12/11/2026 14:35</td>
+                <td><span class="badge badge-bloqueada">Bloqueada</span></td>
+              </tr>
+            -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
 </section>
 
 {% endblock %}

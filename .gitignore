@@ -170,3 +170,10 @@ doc/*.toc
 doc/*.nav
 doc/*.snm
 doc/*.synctex.gz
+
+# ============================================
+# ignorar documentacion
+# ============================================
+01-documento-propuesta.docx.pdf
+Especificaci-n de la Segunda Presentaci-n del Proyecto.docx.pdf
+Informe_Segunda_Entrega_Inventario.docx

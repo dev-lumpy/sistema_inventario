@@ -7,6 +7,10 @@ from .gestion_usuarios import (
     VendedoresPorAdminView,
     VendedorDetalleView,
 )
+from .solicitud_admin import (
+    SolicitudAdminDetailView,
+    SolicitudAdminListView,
+)
 
 __all__ = [
     "RegistrarAdministrador",
@@ -15,5 +19,7 @@ __all__ = [
     "CerrarSesion",
     "RegistrarVendedor",
     "VendedoresPorAdminView",
-    "VendedorDetalleView"
+    "VendedorDetalleView",
+    "SolicitudAdminDetailView",
+    "SolicitudAdminListView",
 ]

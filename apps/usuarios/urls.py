@@ -10,6 +10,8 @@ from .views import (
     RefrescarToken,
     VendedoresPorAdminView,
     VendedorDetalleView,
+    SolicitudAdminDetailView,
+    SolicitudAdminListView,
 )
 
 
@@ -35,5 +37,18 @@ urlpatterns = [
         "api/<uuid:uuid>/",
         VendedorDetalleView.as_view(),
         name="usuario-detalle",
+    ),
+
+    # Entrada de solicitudes de Vendedores al Admin
+    re_path(
+        r'^solicitudes-admin/?$',
+        SolicitudAdminListView.as_view(),
+        name='solicitudes-admin-list',
+    ),
+    # Detalle: GET (ver una), PATCH (aceptar/rechazar), DELETE (cancelar)
+    re_path(
+        r'^solicitudes-admin/(?P<pk>[0-9a-fA-F-]{36})/?$',
+        SolicitudAdminDetailView.as_view(),
+        name='solicitudes-admin-detail',
     ),
 ]
