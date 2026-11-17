@@ -26,13 +26,15 @@ set "FONTCONFIG_PATH=%GTK3_DIR%\etc\fonts"
 set "PATH=%GTK3_DIR%\bin;%PATH%"
 
 if not exist "%PY_EXE%" (
-  echo [ERROR] No se encontro el Python embebido en:
-  echo   %PY_EXE%
-  echo.
-  echo Descarga Python 3.11.9 embed-amd64, descomprimelo en "python-env"
-  echo y instala las dependencias con:
-  echo   python-env\python.exe -m pip install -r requirements.txt
-  exit /b 1
+  where python >nul 2>&1
+  if errorlevel 1 (
+    echo [ERROR] No se encontro Python embebido ni Python en PATH.
+    echo Instala Python 3.11.9 o superior y agrega "python" al PATH,
+    echo o instala Python embebido en "python-env".
+    exit /b 1
+  )
+  set "PY_EXE=python"
+  echo Python embebido no encontrado; usando Python del PATH.
 )
 
 call :check_port
@@ -40,9 +42,9 @@ if errorlevel 1 exit /b 1
 
 "%PY_EXE%" -c "import django, rest_framework, rest_framework_simplejwt, sentry_sdk" >nul 2>&1
 if errorlevel 1 (
-  echo [ERROR] Al python-env le faltan dependencias.
+  echo [ERROR] A la instalacion de Python seleccionada le faltan dependencias.
   echo Ejecuta:
-  echo   python-env\python.exe -m pip install -r requirements.txt
+  echo   "%PY_EXE%" -m pip install -r requirements.txt
   exit /b 1
 )
 

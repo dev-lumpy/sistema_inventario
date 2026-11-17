@@ -10,10 +10,11 @@ from apps.inventario.services.reportes import (
 )
 from apps.inventario.pdf.reporte_periodo import generar_pdf_reporte
 from apps.inventario.renderers import PDFRenderer
+from apps.usuarios.permissions import IsAdministrador
 
 
 class ReportePeriodoPDFView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdministrador]
     renderer_classes = [PDFRenderer]
 
     def get(self, request):

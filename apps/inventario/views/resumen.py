@@ -6,9 +6,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from apps.inventario.models import MovimientoStock
+from apps.usuarios.permissions import IsAdministrador
 
 
 class ResumenHoyAPIView(APIView):
+    permission_classes = [IsAdministrador]
+
     def get(self, request):
         hoy = date.today()
         movs = MovimientoStock.objects.filter(fecha__date=hoy)
@@ -23,6 +26,8 @@ class ResumenHoyAPIView(APIView):
 
 
 class ResumenPeriodoAPIView(APIView):
+    permission_classes = [IsAdministrador]
+
     def get(self, request):
         desde = request.query_params.get('desde')
         hasta = request.query_params.get('hasta')

@@ -8,11 +8,13 @@ from apps.inventario.serializers import (
     ProveedorSelectSerializer,
     EntradaStockSerializer
 )
+from apps.usuarios.permissions import IsAdministrador
 
 class ProveedorSelectAPIView(ListAPIView):
     queryset = Proveedor.objects.filter(activo=True).order_by('nombre')
     serializer_class = ProveedorSelectSerializer
     pagination_class = None
+    permission_classes = [IsAdministrador]
 
 
 class RegistrarEntradaStockAPIView(APIView):

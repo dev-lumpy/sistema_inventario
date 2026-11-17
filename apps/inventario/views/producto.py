@@ -23,31 +23,38 @@ from apps.inventario.serializers import (
     ProductoMasVendidoSerializer,
     ProductoVendidoEnRangoSerializer,
 )
+from apps.usuarios.permissions import IsAdministrador, IsAdministradorOrReadOnly
 
 
 class ProductoInsertAPIView(CreateAPIView):
     queryset = Producto.objects.all()
     serializer_class = ProductoCreateSerializer
+    permission_classes = [IsAdministrador]
 
 
 class ProductoUpdateAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Producto.objects.all()
     serializer_class = ProductoCreateSerializer
     lookup_field = 'pk'
+    permission_classes = [IsAdministradorOrReadOnly]
 
 class ProductoSelectAPIView(ListAPIView):
     queryset = Producto.objects.all()
     serializer_class = ProductoSelectSerializer
     pagination_class = None
+    permission_classes = [IsAdministradorOrReadOnly]
 
 
 class ProductoSelectNameAPIView(ListAPIView):
     queryset = Producto.objects.all()
     serializer_class = ProductoSelectNameSerializer
     pagination_class = None 
+    permission_classes = [IsAdministrador]
 
 
 class ProductoAlertStockAPIView(APIView):
+    permission_classes = [IsAdministradorOrReadOnly]
+
     def get(self, request):
         # 1. Calcular stock_actual en SQL (una sola query, sin N+1)
         productos = Producto.objects.filter(activo=True).annotate(
@@ -72,6 +79,7 @@ class ProductoAlertStockAPIView(APIView):
 class ProductoHistoryMovimientosAPIView(ListAPIView):
     serializer_class = MovimientoHistorialMovimientoSerializer
     pagination_class = None
+    permission_classes = [IsAdministrador]
 
     def get_queryset(self):
         limite = self.kwargs.get('limite')
@@ -86,6 +94,7 @@ class ProductoHistoryMovimientosAPIView(ListAPIView):
 class ProductosMasVendidosView(ListAPIView):
     serializer_class = ProductoMasVendidoSerializer
     pagination_class = None
+    permission_classes = [IsAdministrador]
 
     def get_queryset(self):
         return (
@@ -107,6 +116,7 @@ class ProductosMasVendidosView(ListAPIView):
 class ProductosVendidosEnRangoView(generics.ListAPIView):
     serializer_class = ProductoVendidoEnRangoSerializer
     pagination_class = None
+    permission_classes = [IsAdministrador]
 
     def get_queryset(self):
         desde = self.request.query_params.get("desde")
@@ -137,6 +147,7 @@ class ProductosVendidosEnRangoView(generics.ListAPIView):
 
 class ProductosVendidosEnRangoView(generics.ListAPIView):
     serializer_class = ProductoVendidoEnRangoSerializer
+    permission_classes = [IsAdministrador]
 
     def get_queryset(self):
         desde, hasta = _parse_fechas(self.request)

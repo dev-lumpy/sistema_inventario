@@ -7,10 +7,16 @@ from rest_framework.response import Response
 
 from apps.usuarios.models import AdministradorORM, SolicitudAdmin, VendedorORM
 from apps.usuarios.serializers import SolicitudAdminSerializer
+from apps.usuarios.permissions import (
+    IsAdministrador,
+    IsVendedor,
+    IsVendedorOrAdministrador,
+)
 
 
 class SolicitudAdminListView(generics.ListAPIView):
     serializer_class = SolicitudAdminSerializer
+    permission_classes = [IsVendedorOrAdministrador]
 
     def get_queryset(self):
         queryset = SolicitudAdmin.objects.select_related(
@@ -18,9 +24,10 @@ class SolicitudAdminListView(generics.ListAPIView):
             "administrador__usuarioorm_ptr",
         )
 
-        admin_id = self.request.query_params.get("admin_id")
-        if admin_id:
-            queryset = queryset.filter(administrador_id=admin_id)
+        if self.request.user.rol == "administrador":
+            queryset = queryset.filter(administrador=self.request.user)
+        else:
+            queryset = queryset.filter(vendedor=self.request.user)
 
         estado = self.request.query_params.get("estado")
         if estado:
@@ -31,6 +38,19 @@ class SolicitudAdminListView(generics.ListAPIView):
 
 class SolicitudAdminDetailView(generics.GenericAPIView):
     serializer_class = SolicitudAdminSerializer
+
+    def get_permissions(self):
+        permissions_by_method = {
+            "POST": [IsVendedor],
+            "GET": [IsVendedorOrAdministrador],
+            "PATCH": [IsAdministrador],
+            "DELETE": [IsVendedor],
+        }
+        permission_classes = permissions_by_method.get(
+            self.request.method,
+            [IsVendedorOrAdministrador],
+        )
+        return [permission() for permission in permission_classes]
 
     def post(self, request, pk):
         email = str(request.data.get("email_administrador") or "").strip().lower()
@@ -47,6 +67,11 @@ class SolicitudAdminDetailView(generics.GenericAPIView):
             return Response(
                 {"error": "El vendedor no existe"},
                 status=status.HTTP_404_NOT_FOUND,
+            )
+        if vendedor.pk != request.user.pk:
+            return Response(
+                {"error": "No puedes enviar solicitudes en nombre de otro vendedor"},
+                status=status.HTTP_403_FORBIDDEN,
             )
 
         administrador = AdministradorORM.objects.filter(email=email).first()
@@ -84,10 +109,13 @@ class SolicitudAdminDetailView(generics.GenericAPIView):
         )
 
     def get(self, request, pk):
-        return Response(SolicitudAdminSerializer(self._obtener(pk)).data)
+        solicitud = self._obtener(pk)
+        self._verificar_acceso(request, solicitud)
+        return Response(SolicitudAdminSerializer(solicitud).data)
 
     def patch(self, request, pk):
         solicitud = self._obtener(pk)
+        self._verificar_acceso(request, solicitud)
 
         if solicitud.estado != SolicitudAdmin.ESTADO_PENDIENTE:
             return Response(
@@ -122,8 +150,19 @@ class SolicitudAdminDetailView(generics.GenericAPIView):
         return Response(SolicitudAdminSerializer(solicitud).data)
 
     def delete(self, request, pk):
-        self._obtener(pk).delete()
+        solicitud = self._obtener(pk)
+        self._verificar_acceso(request, solicitud)
+        solicitud.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @staticmethod
+    def _verificar_acceso(request, solicitud):
+        if request.user.rol == "administrador":
+            tiene_acceso = solicitud.administrador_id == request.user.pk
+        else:
+            tiene_acceso = solicitud.vendedor_id == request.user.pk
+        if not tiene_acceso:
+            raise NotFound("La solicitud no existe")
 
     def _obtener(self, pk):
         solicitud = (

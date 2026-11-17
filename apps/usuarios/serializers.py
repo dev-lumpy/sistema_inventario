@@ -87,19 +87,20 @@ class SolicitudAdminSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    email = serializers.CharField(max_length=254, trim_whitespace=True)
     password = serializers.CharField(write_only=True, trim_whitespace=False)
 
     def validate(self, attrs):
-        request = self.context.get('request')
-        email = attrs['email'].lower().strip()
+        identifier = attrs['email'].strip()
         password = attrs['password']
 
-        # Autenticación por email (porque USERNAME_FIELD es 'username')
-        user_obj = User.objects.filter(email=email).first()
+        user_obj = User.objects.filter(email__iexact=identifier).first()
+        if user_obj is None:
+            user_obj = User.objects.filter(username__iexact=identifier).first()
+
         if user_obj is None or not user_obj.check_password(password):
             raise serializers.ValidationError({
-                'detail': 'Email o contraseña incorrectos.',
+                'detail': 'Correo, usuario o contraseña incorrectos.',
                 'code': 'credenciales_invalidas',
             })
 

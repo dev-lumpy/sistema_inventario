@@ -17,6 +17,11 @@
 
 **`POST /usuarios/login/`** — público
 
+> Los datos `juan@example.com` / `secret123` de este ejemplo son ilustrativos;
+> no corresponden a una cuenta creada automáticamente. Inicia sesión con el
+> correo o nombre de usuario y la contraseña que registraste, o carga los usuarios demo con
+> `python seed_demo.py` (contraseña predeterminada: `Taller#2026`).
+
 ```json
 {"email": "juan@example.com", "password": "secret123"}
 ```

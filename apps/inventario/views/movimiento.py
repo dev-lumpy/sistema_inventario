@@ -15,9 +15,12 @@ from apps.inventario.serializers import (
     MovimientoHistorialSerializer,
     SalidaStockSerializer,
 )
+from apps.usuarios.permissions import IsAdministrador, IsVendedorOrAdministrador
 
 
 class RegistrarEntradaStockAPIView(APIView):
+    permission_classes = [IsAdministrador]
+
     def post(self, request):
         serializer = EntradaStockSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -44,6 +47,8 @@ class RegistrarEntradaStockAPIView(APIView):
 
 
 class RegistrarSalidaStockAPIView(APIView):
+    permission_classes = [IsVendedorOrAdministrador]
+
     def post(self, request):
         serializer = SalidaStockSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -70,4 +75,5 @@ class MovimientoHistorialAPIView(ListAPIView):
     )
     serializer_class = MovimientoHistorialSerializer
     pagination_class = None
+    permission_classes = [IsAdministrador]
 
