@@ -70,6 +70,10 @@ class DjangoUsuarioRepository(UsuarioRepository):
         orm = UsuarioORM.objects.filter(correo__iexact=correo).first()
         return _usuario_to_domain(orm) if orm else None
 
+    def obtener_por_nombre(self, nombre: str) -> Usuario | None:
+        orm = UsuarioORM.objects.filter(nombre__iexact=nombre).first()
+        return _usuario_to_domain(orm) if orm else None
+
     def guardar(self, usuario: Usuario) -> Usuario:
         if usuario.id is None:
             orm = UsuarioORM.objects.create(**_usuario_defaults(usuario))
@@ -157,6 +161,7 @@ class DjangoVendedorRepository(VendedorRepository):
     def listar_por_administrador(self, administrador_id: int) -> list[Vendedor]:
         ids = (
             VinculoORM.objects.filter(administrador_id=administrador_id)
+            .exclude(vendedor_id=administrador_id)
             .values_list("vendedor_id", flat=True)
             .distinct()
         )
@@ -205,6 +210,12 @@ class DjangoVinculoRepository(VinculoRepository):
     ) -> list[VinculoVendedorAdministrador]:
         qs = VinculoORM.objects.filter(vendedor_id=vendedor_id).order_by("-creado_en")
         return [self._to_domain(orm) for orm in qs]
+
+    def eliminar(self, vendedor_id: int, administrador_id: int) -> None:
+        VinculoORM.objects.filter(
+            vendedor_id=vendedor_id,
+            administrador_id=administrador_id,
+        ).delete()
 
     @staticmethod
     def _to_domain(orm: VinculoORM) -> VinculoVendedorAdministrador:

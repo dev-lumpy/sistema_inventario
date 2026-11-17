@@ -25,6 +25,10 @@ class UsuarioRepository(ABC):
         ...
 
     @abstractmethod
+    def obtener_por_nombre(self, nombre: str) -> Usuario | None:
+        ...
+
+    @abstractmethod
     def guardar(self, usuario: Usuario) -> Usuario:
         ...
 
@@ -88,4 +92,8 @@ class VinculoRepository(ABC):
     def listar_por_vendedor(
         self, vendedor_id: int
     ) -> list[VinculoVendedorAdministrador]:
+        ...
+
+    @abstractmethod
+    def eliminar(self, vendedor_id: int, administrador_id: int) -> None:
         ...
