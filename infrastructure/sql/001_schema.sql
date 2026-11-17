@@ -16,7 +16,7 @@ CREATE TABLE usuarios (
     password_hash         TEXT NOT NULL,
     debe_cambiar_password BOOLEAN NOT NULL DEFAULT true,
     activo                BOOLEAN NOT NULL DEFAULT true,
-    creado_en             TIMESTAMP NOT NULL DEFAULT now()
+    creado_en             TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 
@@ -35,10 +35,10 @@ CREATE TABLE administradores (
 CREATE TABLE vendedores (
     id               INT PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
     creado_por_admin INT REFERENCES administradores(id),
-    creado_en        TIMESTAMP NOT NULL DEFAULT now(),
+    creado_en        TIMESTAMPTZ NOT NULL DEFAULT now(),
     bloqueado        BOOLEAN NOT NULL DEFAULT false,
     motivo_bloqueo   TEXT,
-    bloqueado_en     TIMESTAMP
+    bloqueado_en     TIMESTAMPTZ
 );
 
 
@@ -51,8 +51,8 @@ CREATE TABLE vendedor_administrador (
     estado           VARCHAR(20) NOT NULL DEFAULT 'pendiente',
     solicitado_por   VARCHAR(20) NOT NULL,
     motivo_estado    TEXT,
-    creado_en        TIMESTAMP NOT NULL DEFAULT now(),
-    actualizado_en   TIMESTAMP NOT NULL DEFAULT now(),
+    creado_en        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    actualizado_en   TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY (vendedor_id, administrador_id),
     CONSTRAINT chk_va_estado
         CHECK (estado IN ('pendiente','aceptado','rechazado','inactivo')),
@@ -82,7 +82,7 @@ CREATE TABLE productos (
     categoria_id     INT NOT NULL,
     nombre           VARCHAR(200) NOT NULL,
     stock_minimo     NUMERIC(12,3) NOT NULL DEFAULT 0 CHECK (stock_minimo >= 0),
-    creado_en        TIMESTAMP NOT NULL DEFAULT now(),
+    creado_en        TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT uq_producto_admin UNIQUE (id, administrador_id),
     CONSTRAINT fk_producto_categoria
         FOREIGN KEY (categoria_id, administrador_id)
@@ -100,9 +100,9 @@ CREATE TABLE precios_producto (
     tipo_cliente     VARCHAR(20) NOT NULL,
     precio           NUMERIC(12,2) NOT NULL CHECK (precio >= 0),
     moneda           CHAR(3) NOT NULL DEFAULT 'BOB',
-    vigente_desde    TIMESTAMP NOT NULL DEFAULT now(),
-    vigente_hasta    TIMESTAMP,
-    creado_en        TIMESTAMP NOT NULL DEFAULT now(),
+    vigente_desde    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    vigente_hasta    TIMESTAMPTZ,
+    creado_en        TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT fk_precio_producto
         FOREIGN KEY (producto_id, administrador_id)
         REFERENCES productos (id, administrador_id),
@@ -126,7 +126,7 @@ CREATE TABLE ventas (
     cliente_nombre   VARCHAR(150),
     tipo_cliente     VARCHAR(20) NOT NULL,
     canal_venta      VARCHAR(20),
-    fecha            TIMESTAMP NOT NULL DEFAULT now(),
+    fecha            TIMESTAMPTZ NOT NULL DEFAULT now(),
     total            NUMERIC(12,2) NOT NULL DEFAULT 0,
     estado           VARCHAR(20) NOT NULL DEFAULT 'borrador',
     nota             TEXT,
@@ -184,7 +184,7 @@ CREATE TABLE compras (
     administrador_id INT NOT NULL REFERENCES administradores(id) ON DELETE CASCADE,
     proveedor_id     INT NOT NULL,
     usuario_id       INT NOT NULL REFERENCES usuarios(id),
-    fecha            TIMESTAMP NOT NULL DEFAULT now(),
+    fecha            TIMESTAMPTZ NOT NULL DEFAULT now(),
     total            NUMERIC(12,2) NOT NULL DEFAULT 0,
     estado           VARCHAR(20) NOT NULL DEFAULT 'borrador',
     nota             TEXT,
@@ -229,7 +229,7 @@ CREATE TABLE movimiento_inventario (
     producto_id      INT NOT NULL,
     motivo           VARCHAR(30) NOT NULL,
     cantidad         NUMERIC(12,3) NOT NULL CHECK (cantidad > 0),
-    fecha            TIMESTAMP NOT NULL DEFAULT now(),
+    fecha            TIMESTAMPTZ NOT NULL DEFAULT now(),
     costo_unitario   NUMERIC(12,2) CHECK (costo_unitario IS NULL OR costo_unitario >= 0),
     precio_unitario  NUMERIC(12,2) CHECK (precio_unitario IS NULL OR precio_unitario >= 0),
     referencia_tipo  VARCHAR(20),
@@ -259,7 +259,7 @@ CREATE TABLE pagos (
     venta_id         INT NOT NULL,
     metodo           VARCHAR(30) NOT NULL,
     monto            NUMERIC(12,2) NOT NULL CHECK (monto > 0),
-    fecha            TIMESTAMP NOT NULL DEFAULT now(),
+    fecha            TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT fk_pago_venta
         FOREIGN KEY (venta_id, administrador_id)
         REFERENCES ventas (id, administrador_id) ON DELETE CASCADE,
