@@ -1,64 +1,41 @@
-# apps/pages/views.py
-from typing import Optional
+from django.shortcuts import redirect, render
 
-from django.shortcuts import render, redirect
-from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework_simplejwt.exceptions import TokenError
-
-
-def _tiene_token_valido(request) -> Optional[dict]:
-    """Helper: comprueba si el request trae un access_token válido en cookie.
-     y retorna el rol"""
-    raw_token = request.COOKIES.get('access_token')
-    if not raw_token:
-        return None
-    try:
-        token = AccessToken(raw_token)
-        return {
-            'rol': token['rol'],
-            'nombre': token['username'],
-            'user_uuid': token.get('user_uuid'),
-        }
-    except (TokenError, KeyError):
-        return None
 
 def index(request):
-    if _tiene_token_valido(request):
-        return redirect('pages:dashboard') 
-    return redirect('pages:login')
+    return redirect("pages:login")
 
 
 def login_page(request):
-    if _tiene_token_valido(request):
-        return redirect('pages:dashboard') 
-    return render(request, 'login.html')
+    if request.session.get("rol"):
+        return redirect("pages:dashboard")
+    return render(request, "login.html")
 
 
 def register_page(request):
-    if _tiene_token_valido(request):
-        return redirect('pages:dashboard') 
-    return render(request, 'crear-cuenta.html')
+    if request.session.get("rol"):
+        return redirect("pages:dashboard")
+    return render(request, "crear-cuenta.html")
 
 
 def dashboard_page(request):
-    info = _tiene_token_valido(request)
+    rol = request.session.get("rol")
+    nombre = request.session.get("nombre", "")
 
-    if not info:
-        return redirect('pages:login')
-
-    
-    rol    = info['rol']
-    nombre = info['nombre']
-
-    if rol == 'administrador':
+    if rol == "administrador":
         return render(
-            request, 'administrador/index.html',
-            {'nombre': nombre, 'rol': rol, 'user_id': info.get('user_uuid')}
+            request,
+            "administrador/index.html",
+            {"nombre": nombre, "rol": rol},
         )
-    if rol == 'vendedor':
+    if rol == "vendedor":
         return render(
-            request, 'vendedor/index.html',
-            {'nombre': nombre, 'rol': rol, 'user_id': info.get('user_uuid')}
+            request,
+            "vendedor/index.html",
+            {"nombre": nombre, "rol": rol},
         )
+    return redirect("pages:login")
 
-    raise ValueError("Rol inexistente")
+
+def logout_page(request):
+    request.session.flush()
+    return redirect("pages:login")

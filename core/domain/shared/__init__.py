@@ -1,11 +1,26 @@
-"""Módulo compartido del dominio - VOs y excepciones base"""
-
-from core.domain.shared.exceptions import DomainException
-from core.domain.shared.fecha import Fecha
-from core.domain.shared.id import Id
+from core.domain.shared.clock import now
+from core.domain.shared.enums import TipoCliente
+from core.domain.shared.errors import (
+    AuthenticationFailedError,
+    BusinessRuleViolation,
+    ConflictError,
+    DomainError,
+    NotFoundError,
+    PermissionDeniedError,
+    ValidationError,
+)
+from core.domain.shared.value_objects import Money, Quantity
 
 __all__ = [
-    'DomainException',
-    'Fecha',
-    'Id',
+    "AuthenticationFailedError",
+    "BusinessRuleViolation",
+    "ConflictError",
+    "DomainError",
+    "Money",
+    "NotFoundError",
+    "PermissionDeniedError",
+    "Quantity",
+    "TipoCliente",
+    "ValidationError",
+    "now",
 ]

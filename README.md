@@ -1,64 +1,86 @@
-# sistema_taller
+# SistemaTaller
 
-## API — Usuarios
+Reconstrucción del backend sobre arquitectura hexagonal. El front-end existente
+(`templates/` y `static/`) se conserva tal cual.
 
-### Registro
+## Estructura
 
-**`POST /usuarios/register/`** — público
-
-```json
-{"username": "juan", "email": "juan@example.com", "password": "secret123"}
 ```
-```json
-{"uuid": "550e8400-...", "message": "Usuario registrado exitosamente"}
-```
+core/
+  domain/                 Reglas de negocio puras (sin Django)
+    shared/               Money, Quantity, errores, enums compartidos
+    accounts/             Usuario, Administrador, Vendedor, Vinculo
+    catalog/              Categoria, Producto, PrecioProducto, MovimientoInventario
+    sales/                Venta, VentaDetalle
+    purchases/            Proveedor, Compra, CompraDetalle
+    payments/             Pago
+  application/
+    ports/                Interfaces de repositorios y UnitOfWork
 
-### Inicio de sesión
+apps/                     Infraestructura Django
+  accounts/               Modelos ORM unmanaged
+  catalog/
+  sales/
+  purchases/
+  payments/
+  pages/                  Vistas que sirven el front-end
 
-**`POST /usuarios/login/`** — público
-
-> Los datos `juan@example.com` / `secret123` de este ejemplo son ilustrativos;
-> no corresponden a una cuenta creada automáticamente. Inicia sesión con el
-> correo o nombre de usuario y la contraseña que registraste, o carga los usuarios demo con
-> `python seed_demo.py` (contraseña predeterminada: `Taller#2026`).
-
-```json
-{"email": "juan@example.com", "password": "secret123"}
-```
-```json
-{
-  "access": "eyJ...",
-  "refresh": "eyJ...",
-  "usuario": {"id": "550e...", "nombre": "juan", "email": "juan@example.com", "rol": "vendedor"}
-}
+infrastructure/sql/       Esquema PostgreSQL canónico
+config/                   Configuración Django
 ```
 
-Usar el `access` como `Authorization: Bearer <token>` en los endpoints protegidos.
+## Capas
 
-### CRUD (requiere JWT)
+- `core/domain`: entidades, value objects, reglas e invariantes. No importa Django.
+- `core/application/ports`: contratos que la infraestructura debe implementar.
+- `apps`: adaptadores Django. Los modelos están declarados con `managed = False`
+  porque las tablas las crea el esquema SQL, no las migraciones de Django.
 
-| Método | Endpoint | Descripción |
-|---|---|---|
-| `GET` | `/usuarios/api/` | Listar usuarios |
-| `GET` | `/usuarios/api/{uuid}/` | Detalle de usuario |
-| `PUT`/`PATCH` | `/usuarios/api/{uuid}/` | Actualizar usuario |
-| `DELETE` | `/usuarios/api/{uuid}/` | Eliminar usuario |
+## Base de datos
 
-**Ejemplo listar:**
-```
-GET /usuarios/api/
-Authorization: Bearer eyJ...
-```
-```json
-[{"uuid": "550e...", "username": "juan", "email": "juan@example.com", "rol": "vendedor", "activo": true, "fecha_creacion": "..."}]
+El esquema completo está en `infrastructure/sql/001_schema.sql`. Está pensado
+para PostgreSQL e incluye claves compuestas, índices parciales y triggers.
+
+```bash
+createdb sistema_taller
+psql -d sistema_taller -f infrastructure/sql/001_schema.sql
 ```
 
-### Errores comunes
+Variables de entorno para conectar Django a PostgreSQL:
 
-| Código | Cuerpo | Significado |
-|---|---|---|
-| 400 | `{"campo": "Este campo es obligatorio"}` | Falta campo requerido |
-| 400 | `{"detail": "El email 'x' ya está registrado"}` | Email duplicado |
-| 401 | `{"detail": "Credenciales inválidas"}` | Login fallido |
-| 403 | `{"detail": "Usuario inactivo..."}` | Cuenta desactivada |
-| 500 | `{"error": "Error interno del servidor"}` | Error inesperado |
+```
+POSTGRES_DB=sistema_taller
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=tu_password
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+SECRET_KEY=una_clave_segura
+```
+
+Sin `POSTGRES_DB`, Django usa SQLite solo para desarrollo del front-end.
+
+## Desarrollo
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python manage.py check
+python manage.py runserver
+```
+
+Las rutas del front-end quedan en `/`, `/login/`, `/register/` y `/dashboard/`.
+La autenticación y las APIs REST todavía no están implementadas; los endpoints
+que consume el JavaScript se reconstruirán como adaptadores de los puertos.
+
+## Pruebas
+
+```bash
+python -m unittest discover -s tests
+```
+
+o
+
+```bash
+pytest
+```

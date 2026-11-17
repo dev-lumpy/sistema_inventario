@@ -1,0 +1,180 @@
+# Decisiones de arquitectura y reconstrucción
+
+Este documento registra las decisiones tomadas durante la reconstrucción del
+backend. Cada decisión intenta explicar el contexto, la alternativa elegida y
+sus consecuencias.
+
+## ADR-001. Rama nueva y front-end intacto
+
+**Contexto.** El backend anterior mezclaba Django, reglas de negocio y acceso a
+datos. Se pidió reconstruir la base y el dominio sin tocar el front-end.
+
+**Decisión.** Crear la rama `rewrite/hexagonal-domain` desde `main`. Eliminar el
+backend anterior y conservar `templates/` y `static/`. Mantener únicamente el
+bootstrap mínimo de Django (`config/`, `manage.py`, `requirements.txt`).
+
+**Consecuencias.** El front-end sigue siendo la referencia del contrato HTTP.
+Las vistas y APIs se reconstruyen para que el JavaScript existente siga
+funcionando.
+
+## ADR-002. Arquitectura hexagonal
+
+**Contexto.** Se necesita separar las reglas del negocio de Django.
+
+**Decisión.** Organizar el código en tres zonas:
+
+- `core/domain`: entidades, value objects, enums, errores y reglas. No importa
+  Django.
+- `core/application`: puertos de repositorios, unidad de trabajo y casos de uso.
+- `apps/`: adaptadores Django (ORM, autenticación, vistas HTTP).
+
+**Consecuencias.** El dominio puede probarse sin base de datos. Los cambios de
+persistencia no obligan a reescribir reglas.
+
+## ADR-003. El esquema SQL es la fuente de verdad
+
+**Contexto.** El esquema PostgreSQL entregado define claves compuestas, índices
+parciales y triggers que Django no representa de forma directa.
+
+**Decisión.** Guardar el esquema en `infrastructure/sql/001_schema.sql` y
+declarar los modelos Django con `managed = False`. Django no crea ni migra esas
+tablas; las crea el SQL.
+
+**Consecuencias.** `manage.py migrate` solo administra las tablas propias de
+Django (auth, sesiones, admin). Para el sistema hay que aplicar el SQL. Las
+restricciones compuestas y los triggers quedan garantizados por PostgreSQL.
+
+## ADR-004. Identificadores enteros
+
+**Contexto.** El esquema usa `SERIAL` para las entidades del negocio.
+
+**Decisión.** El dominio y los puertos usan `int | None` para los identificadores
+nuevos. No se introducen UUID para las entidades del negocio.
+
+**Consecuencias.** El front-end recibe enteros; donde espera `uuid` se devuelve
+el mismo identificador como texto para conservar el contrato.
+
+## ADR-005. Autenticación por sesión
+
+**Contexto.** El front-end hace `fetch` con `credentials: 'include'` y espera que
+`/dashboard` funcione con una cookie. No inspecciona tokens JWT.
+
+**Decisión.** Usar sesiones de Django y una autenticación DRF basada en la
+sesión. El login guarda `usuario_id`, `rol` y `nombre` en la sesión. No se usa
+SimpleJWT.
+
+**Consecuencias.** Se elimina la dependencia de JWT. La cookie `sessionid` es la
+que autentica tanto páginas como API. El endpoint de refresh queda como no-op
+para compatibilidad.
+
+## ADR-006. Pagos como dominio separado
+
+**Contexto.** El esquema tiene una tabla `pagos`. El front-end no tiene todavía
+una pantalla de cobros.
+
+**Decisión.** Crear `core/domain/payments` y `apps.payments`, en lugar de meter
+`Pago` dentro de ventas. La relación con la venta se hace por identificador.
+
+**Consecuencias.** Se puede crecer la lógica de cobros sin tocar ventas. La
+validación de que la suma de pagos no supere el total se hace en el caso de uso.
+
+## ADR-007. Dinero y cantidades con Decimal
+
+**Contexto.** PostgreSQL usa `NUMERIC(12,2)` y `NUMERIC(12,3)`.
+
+**Decisión.** Usar `Decimal` en los value objects `Money` y `Quantity`. `Money`
+redondea a dos decimales y no admite montos negativos. `Quantity` exige valores
+mayores que cero y redondea a tres decimales.
+
+**Consecuencias.** Se evitan errores de punto flotante. Las cantidades de stock y
+las líneas de venta/compra comparten la misma representación.
+
+## ADR-008. Stock calculado, no almacenado
+
+**Contexto.** El esquema define un kardex en `movimiento_inventario`.
+
+**Decisión.** El stock es la suma con signo de los movimientos. No se agrega una
+columna `stock_actual` a `productos`.
+
+**Consecuencias.** El stock siempre es auditable. Las lecturas agregan
+movimientos; se compensa con índices y, si hace falta, una vista materializada.
+
+## ADR-009. Compatibilidad con el contrato del front-end
+
+**Contexto.** El front-end existente espera campos que el esquema nuevo no tiene
+o tiene con otro nombre.
+
+**Decisión.** Mantener el contrato HTTP y adaptar la infraestructura:
+
+- `productos.stock_minimo` se agrega al esquema para conservar el formulario y
+  las alertas.
+- `ventas.canal_venta` se agrega al esquema para conservar el canal de la venta
+  rápida.
+- `precio_unitario` en las respuestas se obtiene de la tarifa vigente
+  `individual`; no vive en `productos`.
+- `uuid` en las respuestas de usuarios es el identificador entero serializado
+  como texto.
+- `cantidad_inicial` se registra como movimiento de ajuste positivo.
+
+**Consecuencias.** El front-end no necesita cambios. El esquema se aparta de la
+versión original en esos tres puntos, documentados aquí.
+
+## ADR-010. Compras con usuario responsable
+
+**Contexto.** El trigger original de compras usaba
+`(SELECT u.id FROM usuarios LIMIT 1)`, un usuario arbitrario.
+
+**Decisión.** Agregar `compras.usuario_id` como referencia obligatoria a
+`usuarios` y usarlo en el movimiento de entrada.
+
+**Consecuencias.** El kardex registra correctamente quién confirmó la compra.
+
+## ADR-011. Borrado y anulación
+
+**Contexto.** El esquema original solo impedía borrar ventas confirmadas.
+
+**Decisión.** Impedir el borrado de ventas y compras confirmadas. La anulación
+es un cambio de estado; la reversión de stock se implementa en el caso de uso de
+anulación.
+
+**Consecuencias.** No se pierde historia. La anulación genera los movimientos
+inversos correspondientes.
+
+## ADR-012. Validación de stock al confirmar
+
+**Contexto.** El trigger original de stock se ejecutaba al insertar líneas, pero
+las líneas se insertan cuando la venta todavía es borrador. En la práctica nunca
+validaba.
+
+**Decisión.** Validar el stock en un trigger `BEFORE UPDATE` sobre `ventas`,
+cuando el estado pasa a `confirmada`, recorriendo todas las líneas.
+
+**Consecuencias.** La confirmación falla si no hay stock suficiente. La lógica
+de dominio también expone `verificar_stock_suficiente` para el caso de uso.
+
+## ADR-013. Fechas
+
+**Decisión.** Usar `datetime` con zona horaria UTC en el dominio. Django se
+configura con `USE_TZ = True` y `TIME_ZONE = "America/La_Paz"` para presentación.
+
+**Consecuencias.** Los cálculos y comparaciones son consistentes; la
+presentación se adapta a la zona local.
+
+## ADR-014. Pruebas
+
+**Decisión.** Probar el dominio con `unittest` (compatible con `pytest`) sin
+necesidad de base de datos. Las pruebas de infraestructura se agregan cuando los
+adaptadores estén completos.
+
+**Consecuencias.** `python -m unittest discover -s tests` y `pytest` deben
+funcionar sin PostgreSQL.
+
+## ADR-015. PDF con WeasyPrint
+
+**Contexto.** El front-end descarga un PDF de reporte por período.
+
+**Decisión.** Mantener WeasyPrint y una plantilla HTML de reporte en
+`templates/inventario/reporte_periodo_pdf.html`.
+
+**Consecuencias.** Se conserva la exportación PDF existente. WeasyPrint requiere
+las dependencias del sistema que ya estaban documentadas en el proyecto.

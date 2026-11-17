@@ -1,11 +1,13 @@
-from django.urls import re_path
-from .views import dashboard_page, login_page, register_page, index
+from django.urls import path
+
+from .views import dashboard_page, index, login_page, logout_page, register_page
 
 app_name = "pages"
 
 urlpatterns = [
-    re_path(r'^$', index, name="inicio"),
-    re_path(r'^login/?$', login_page, name="login"),
-    re_path(r'^dashboard/?$', dashboard_page, name="dashboard"),
-    re_path(r'^register/?$', register_page, name="register"),
+    path("", index, name="inicio"),
+    path("login/", login_page, name="login"),
+    path("register/", register_page, name="register"),
+    path("dashboard/", dashboard_page, name="dashboard"),
+    path("logout/", logout_page, name="logout"),
 ]
