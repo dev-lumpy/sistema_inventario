@@ -75,11 +75,19 @@ export async function initCategoria() {
     $('#categoria-nombre')?.focus();
   });
 
-  try {
-    categorias = await getCategorias();
-    renderTabla(categorias);
-  } catch (error) {
-    console.error('[categoria]', error);
-    mostrarEstado(`No se pudieron cargar las categorías: ${error.message}`, { error: true });
+  async function cargar() {
+    try {
+      categorias = await getCategorias();
+      renderTabla(categorias);
+    } catch (error) {
+      console.error('[categoria]', error);
+      mostrarEstado(`No se pudieron cargar las categorías: ${error.message}`, { error: true });
+    }
   }
+
+  await cargar();
+
+  document.addEventListener('seccion:activada', (evento) => {
+    if (evento.detail?.seccion === 'categorias') cargar();
+  });
 }

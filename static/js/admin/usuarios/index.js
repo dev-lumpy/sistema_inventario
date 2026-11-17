@@ -205,4 +205,8 @@ export async function initUsuarios({ onEditar, onEliminar } = {}) {
   }
 
   await cargar();
+
+  document.addEventListener('seccion:activada', (evento) => {
+    if (evento.detail?.seccion === 'usuarios') cargar();
+  });
 }
