@@ -97,6 +97,8 @@ class RegistrarVendedor:
             admin_usuario = self._uow.usuarios.obtener_por_user_name(admin_username)
             if admin_usuario is None:
                 admin_usuario = self._uow.usuarios.obtener_por_nombre(admin_username)
+            if admin_usuario is None:
+                admin_usuario = self._uow.usuarios.obtener_por_correo(admin_username)
             if admin_usuario is None or admin_usuario.id is None:
                 raise NotFoundError("El administrador no existe")
             administrador = self._uow.administradores.obtener_por_id(admin_usuario.id)

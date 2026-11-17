@@ -258,7 +258,21 @@ La pantalla y los endpoints listan todos los vínculos.
 modelo. Si se quiere el comportamiento de un solo administrador, hay que
 cambiarlo en el dominio y en el esquema, no solo en la vista.
 
-## ADR-022. Errores de API
+## ADR-022. Vendedor con varios administradores
+
+**Contexto.** El esquema permite que un vendedor tenga varios vínculos
+aceptados. El front-end de ventas no envía el administrador al que pertenece la
+operación.
+
+**Decisión.** El vendedor opera contra el primer vínculo aceptado. Si el cliente
+envía `admin_id` en el cuerpo o en la query, se usa ese vínculo si está
+aceptado.
+
+**Consecuencias.** Con varios administradores el comportamiento por defecto es
+determinista pero puede no ser el esperado. Una interfaz futura debería permitir
+elegir el administrador activo.
+
+## ADR-023. Errores de API
 
 **Decisión.** Los errores de dominio se traducen a HTTP con un handler global:
 400 validación/regla de negocio, 401 credenciales, 403 permisos, 404 no
