@@ -10,6 +10,7 @@ from core.application.ports.catalog import (
     PrecioProductoRepository,
     ProductoRepository,
 )
+from core.application.ports.password_hasher import PasswordHasher
 from core.application.ports.payments import PagoRepository
 from core.application.ports.purchases import CompraRepository, ProveedorRepository
 from core.application.ports.sales import VentaRepository
@@ -21,6 +22,7 @@ __all__ = [
     "CompraRepository",
     "MovimientoInventarioRepository",
     "PagoRepository",
+    "PasswordHasher",
     "PrecioProductoRepository",
     "ProductoRepository",
     "ProveedorRepository",
