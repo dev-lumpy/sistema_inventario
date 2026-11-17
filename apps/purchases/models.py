@@ -14,7 +14,7 @@ class Proveedor(models.Model):
     contacto = models.CharField(max_length=150, null=True, blank=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "proveedores"
         verbose_name = "Proveedor"
         verbose_name_plural = "Proveedores"
@@ -56,7 +56,7 @@ class Compra(models.Model):
     nota = models.TextField(null=True, blank=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "compras"
         verbose_name = "Compra"
         verbose_name_plural = "Compras"
@@ -90,7 +90,7 @@ class CompraDetalle(models.Model):
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "compra_detalle"
         verbose_name = "Detalle de compra"
         verbose_name_plural = "Detalles de compra"

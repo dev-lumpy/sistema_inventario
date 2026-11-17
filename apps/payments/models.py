@@ -30,7 +30,7 @@ class Pago(models.Model):
     fecha = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "pagos"
         verbose_name = "Pago"
         verbose_name_plural = "Pagos"

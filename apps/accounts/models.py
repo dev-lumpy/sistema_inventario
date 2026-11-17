@@ -14,7 +14,7 @@ class Usuario(models.Model):
     creado_en = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "usuarios"
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
@@ -35,7 +35,7 @@ class Administrador(models.Model):
     moneda = models.CharField(max_length=3, default="BOB")
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "administradores"
         verbose_name = "Administrador"
         verbose_name_plural = "Administradores"
@@ -66,7 +66,7 @@ class Vendedor(models.Model):
     bloqueado_en = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "vendedores"
         verbose_name = "Vendedor"
         verbose_name_plural = "Vendedores"
@@ -107,7 +107,7 @@ class VendedorAdministrador(models.Model):
     actualizado_en = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "vendedor_administrador"
         verbose_name = "Vínculo vendedor/administrador"
         verbose_name_plural = "Vínculos vendedor/administrador"

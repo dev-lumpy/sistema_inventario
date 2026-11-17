@@ -47,8 +47,7 @@ local_settings.py
 .env.local
 .env.*.local
 
-# Migraciones: se generan en tiempo de ejecución (no versionar)
-apps/*/migrations/
+
 
 # ============================================
 # ENTORNOS VIRTUALES

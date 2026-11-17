@@ -31,18 +31,18 @@ funcionando.
 **Consecuencias.** El dominio puede probarse sin base de datos. Los cambios de
 persistencia no obligan a reescribir reglas.
 
-## ADR-003. El esquema SQL es la fuente de verdad
+## ADR-003. Esquema SQL y migraciones (decisión inicial)
 
 **Contexto.** El esquema PostgreSQL entregado define claves compuestas, índices
 parciales y triggers que Django no representa de forma directa.
 
-**Decisión.** Guardar el esquema en `infrastructure/sql/001_schema.sql` y
-declarar los modelos Django con `managed = False`. Django no crea ni migra esas
-tablas; las crea el SQL.
+**Decisión inicial (reemplazada por ADR-031).** Guardar el esquema en
+`infrastructure/sql/001_schema.sql` y declarar los modelos Django con
+`managed = False`. Django no creaba esas tablas; las creaba el SQL.
 
-**Consecuencias.** `manage.py migrate` solo administra las tablas propias de
-Django (auth, sesiones, admin). Para el sistema hay que aplicar el SQL. Las
-restricciones compuestas y los triggers quedan garantizados por PostgreSQL.
+**Consecuencias.** `manage.py migrate` solo administraba las tablas propias de
+Django. Este diseño se cambió a pedido del usuario para que `migrate` cree las
+tablas del negocio; ver ADR-031.
 
 ## ADR-004. Identificadores enteros
 
@@ -321,14 +321,14 @@ y la tabla de vendedores muestra solo vínculos efectivos.
 ## ADR-026. Esquema de desarrollo para SQLite
 
 **Contexto.** El sistema usa PostgreSQL en producción, pero el comando
-`python manage.py runserver` sin variables de entorno cae en SQLite. SQLite no
-tiene las tablas del negocio porque los modelos Django son `managed = False`, y
-el error resultante era `no such table: usuarios`.
+`python manage.py runserver` sin variables de entorno cae en SQLite. Antes de
+ADR-031 SQLite no tenía las tablas del negocio porque los modelos eran
+`managed = False`, y el error resultante era `no such table: usuarios`.
 
 **Decisión.** Mantener PostgreSQL como fuente de verdad y agregar un esquema de
 desarrollo para SQLite:
 
-- `ensure_sqlite_schema()` crea las tablas unmanaged con
+- `ensure_sqlite_schema()` crea las tablas faltantes con
   `schema_editor.create_model` y agrega las columnas nuevas que falten.
 - Se crean triggers SQLite equivalentes para recalcular totales, generar
   movimientos al confirmar y bloquear el borrado de documentos confirmados.
@@ -392,3 +392,31 @@ front-end actual no tiene pantallas de cobro ni de anulación.
 **Consecuencias.** La API queda completa para una interfaz futura. Las
 anulaciones generan movimientos inversos y los pagos validan que la suma no
 supere el total de la venta.
+
+## ADR-031. Modelos gestionados por Django
+
+**Contexto.** El usuario pidió expresamente cambiar todos los `managed = False`
+por `managed = True` para que `makemigrations` y `migrate` creen las tablas del
+negocio. El error `no such table: usuarios` ocurría porque las tablas solo se
+creaban con el SQL manual o con el hook de SQLite.
+
+**Decisión.** Todos los modelos de negocio son `managed = True`. Se generaron
+migraciones iniciales por app y se versionaron en el repositorio. El esquema
+SQLite de desarrollo sigue creando los triggers de totales, movimientos y
+bloqueo de borrado.
+
+En PostgreSQL hay dos caminos:
+
+1. **Conservar el SQL completo (recomendado):** aplicar
+   `infrastructure/sql/001_schema.sql` y luego
+   `python manage.py migrate --fake-initial`. Las migraciones iniciales quedan
+   marcadas como aplicadas y se conservan claves compuestas, checks y triggers.
+2. **Usar solo migraciones:** `python manage.py migrate` crea las tablas y las
+   restricciones que Django representa, pero **no** crea las claves compuestas,
+   los checks ni los triggers del SQL.
+
+**Consecuencias.** Las migraciones ahora son parte del proyecto y `makemigrations`
+detecta cambios. La integridad multi-tenant a nivel de base y los triggers de
+PostgreSQL siguen dependiendo del SQL manual. En SQLite el desarrollo funciona
+con `migrate` gracias a las migraciones y a `ensure_sqlite_schema()` para los
+triggers.

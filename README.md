@@ -40,8 +40,9 @@ config/                   Configuración Django
 - `core/domain`: entidades, value objects, reglas e invariantes. No importa Django.
 - `core/application`: puertos y casos de uso. Recibe las dependencias por
   inyección.
-- `apps`: adaptadores Django. Los modelos están declarados con `managed = False`
-  porque las tablas las crea el esquema SQL, no las migraciones de Django.
+- `apps`: adaptadores Django. Los modelos son `managed = True`: las migraciones
+  crean las tablas y las restricciones básicas. El esquema SQL de PostgreSQL
+  agrega las claves compuestas, los triggers y las restricciones adicionales.
 
 ## Base de datos
 
@@ -56,11 +57,16 @@ createdb sistema_taller
 psql -d sistema_taller -v ON_ERROR_STOP=1 -f infrastructure/sql/001_schema.sql
 ```
 
-Después se crean las tablas propias de Django (sesiones y admin):
+Después se marcan como aplicadas las migraciones iniciales del negocio y se
+crean las tablas propias de Django (sesiones y admin):
 
 ```bash
-python manage.py migrate
+python manage.py migrate --fake-initial
 ```
+
+Ese camino conserva los triggers, las claves compuestas y los checks del SQL.
+Si se ejecuta `migrate` normal sobre una base PostgreSQL vacía, Django crea las
+tablas, pero **no** crea esos triggers ni las claves compuestas.
 
 Variables de entorno (podés copiar `.env.example`):
 
@@ -154,8 +160,9 @@ o
 pytest
 ```
 
-Para probar los endpoints hace falta PostgreSQL con
-`infrastructure/sql/001_schema.sql` aplicado.
+Para probar los endpoints alcanza con SQLite (`python manage.py dev_setup` o
+`runserver`). Para PostgreSQL, aplicar `infrastructure/sql/001_schema.sql` y
+luego `python manage.py migrate --fake-initial`.
 
 ## Nota de seguridad
 

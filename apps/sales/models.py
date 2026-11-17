@@ -46,7 +46,7 @@ class Venta(models.Model):
     nota = models.TextField(null=True, blank=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "ventas"
         verbose_name = "Venta"
         verbose_name_plural = "Ventas"
@@ -80,7 +80,7 @@ class VentaDetalle(models.Model):
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "venta_detalle"
         verbose_name = "Detalle de venta"
         verbose_name_plural = "Detalles de venta"

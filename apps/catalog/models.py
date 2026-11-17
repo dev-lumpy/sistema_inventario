@@ -13,10 +13,16 @@ class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "categorias"
         verbose_name = "Categoría"
         verbose_name_plural = "Categorías"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["administrador", "nombre"],
+                name="uq_categoria_nombre",
+            ),
+        ]
 
     def __str__(self) -> str:
         return self.nombre
@@ -41,7 +47,7 @@ class Producto(models.Model):
     creado_en = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "productos"
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
@@ -78,10 +84,17 @@ class PrecioProducto(models.Model):
     creado_en = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "precios_producto"
         verbose_name = "Precio de producto"
         verbose_name_plural = "Precios de producto"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["producto", "tipo_cliente"],
+                condition=models.Q(vigente_hasta__isnull=True),
+                name="uq_precio_vigente",
+            ),
+        ]
 
     def __str__(self) -> str:
         return f"{self.producto} / {self.tipo_cliente}"
@@ -137,7 +150,7 @@ class MovimientoInventario(models.Model):
     nota = models.TextField(null=True, blank=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "movimiento_inventario"
         verbose_name = "Movimiento de inventario"
         verbose_name_plural = "Movimientos de inventario"
