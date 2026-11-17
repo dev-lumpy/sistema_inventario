@@ -110,7 +110,9 @@ function renderTabla() {
     tr.append(
       crearEl('td', { texto: producto.nombre ?? '—' }),
       crearEl('td', { texto: nombreCategoria(producto.categoria) }),
-      crearEl('td', { texto: formatearPrecio(producto.precio_unitario) }),
+      crearEl('td', {
+        texto: formatearPrecio(producto.precio_unitario, producto.moneda),
+      }),
       crearEl('td', { texto: String(producto.stock_actual ?? 0) }),
       tdEstado,
     );

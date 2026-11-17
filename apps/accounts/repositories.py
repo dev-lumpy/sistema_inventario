@@ -16,6 +16,7 @@ from core.domain.accounts.enums import EstadoVinculo, SolicitadoPor
 from core.domain.accounts.value_objects import (
     Apellidos,
     Correo,
+    Moneda,
     Nombre,
     NombreNegocio,
     PasswordHash,
@@ -106,13 +107,17 @@ class DjangoAdministradorRepository(AdministradorRepository):
         return Administrador(
             usuario=_usuario_to_domain(orm.usuario),
             nombre_negocio=NombreNegocio(orm.nombre_negocio),
+            moneda=Moneda(orm.moneda),
         )
 
     def guardar(self, administrador: Administrador) -> Administrador:
         self._usuario_repo.guardar(administrador.usuario)
         AdministradorORM.objects.update_or_create(
             usuario_id=administrador.usuario.id,
-            defaults={"nombre_negocio": administrador.nombre_negocio.valor},
+            defaults={
+                "nombre_negocio": administrador.nombre_negocio.valor,
+                "moneda": administrador.moneda.valor,
+            },
         )
         return administrador
 

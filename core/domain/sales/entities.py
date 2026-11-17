@@ -47,6 +47,7 @@ class Venta:
     vendedor_id: int
     tipo_cliente: TipoCliente
     canal_venta: CanalVenta | None = None
+    moneda: str = "BOB"
     cliente_nombre: str | None = None
     estado: EstadoVenta = EstadoVenta.BORRADOR
     nota: str | None = None
@@ -57,6 +58,9 @@ class Venta:
     def __post_init__(self) -> None:
         if isinstance(self.canal_venta, str):
             self.canal_venta = CanalVenta.desde(self.canal_venta)
+        self.moneda = str(self.moneda or "BOB").strip().upper()
+        if len(self.moneda) != 3 or not self.moneda.isalpha():
+            raise ValidationError("La moneda de la venta debe tener 3 letras")
         self.cliente_nombre = texto_opcional(self.cliente_nombre, "cliente", 150)
         self.nota = texto_opcional(self.nota, "nota", 1000)
 
@@ -67,11 +71,10 @@ class Venta:
     @property
     def total(self) -> Money:
         if not self._lineas:
-            return Money.cero()
-        moneda = self._lineas[0].precio_unitario.currency
-        total = Money.cero(moneda)
+            return Money.cero(self.moneda)
+        total = Money.cero(self.moneda)
         for linea in self._lineas:
-            if linea.precio_unitario.currency != moneda:
+            if linea.precio_unitario.currency != self.moneda:
                 raise ValidationError("No se pueden mezclar monedas en una venta")
             total = total + linea.subtotal
         return total
@@ -98,6 +101,8 @@ class Venta:
         self._exigir_borrador()
         if administrador_id is not None and administrador_id != self.administrador_id:
             raise LineaDeOtroAdministradorError(administrador_id)
+        if precio_unitario.currency != self.moneda:
+            raise ValidationError("La moneda de la línea no coincide con la venta")
         detalle = VentaDetalle(
             administrador_id=self.administrador_id,
             producto_id=producto_id,

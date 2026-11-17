@@ -39,6 +39,7 @@ class Venta(models.Model):
     canal_venta = models.CharField(
         max_length=20, choices=CANALES, null=True, blank=True
     )
+    moneda = models.CharField(max_length=3, default="BOB")
     fecha = models.DateTimeField(default=timezone.now)
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     estado = models.CharField(max_length=20, choices=ESTADOS, default="borrador")

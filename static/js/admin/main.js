@@ -5,6 +5,7 @@ import { initHistorial } from './historial/index.js';
 import { initCategoria } from './categoria/index.js';
 import { initUsuarios } from './usuarios/index.js';
 import { initProveedores } from './proveedores/index.js';
+import { initConfiguracion } from './configuracion/index.js';
 import { initReporte } from './reporte/index.js';
 import { initVentas } from '../shared/ventas/index.js';
 
@@ -15,5 +16,6 @@ initHistorial();
 initCategoria();
 initUsuarios();
 initProveedores();
+initConfiguracion();
 initReporte();
 initVentas();

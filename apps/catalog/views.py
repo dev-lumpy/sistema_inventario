@@ -13,7 +13,13 @@ from core.application.catalog.gestion import (
     GestionarProducto,
     GestionarProveedor,
 )
-from core.application.catalog.movimientos import RegistrarEntrada, RegistrarSalida
+from core.application.catalog.movimientos import (
+    AnularCompra,
+    AnularVenta,
+    RegistrarEntrada,
+    RegistrarSalida,
+)
+from core.application.payments.pagos import RegistrarPago
 from core.domain.shared.errors import DomainError, PermissionDeniedError
 
 from infrastructure.django.unit_of_work import DjangoUnitOfWork
@@ -69,6 +75,7 @@ def _producto_payload(uow: DjangoUnitOfWork, producto) -> dict:
         "nombre": producto.nombre.valor,
         "categoria": producto.categoria_id,
         "precio_unitario": float(precio.precio.amount) if precio else 0.0,
+        "moneda": precio.precio.currency if precio else "BOB",
         "stock_minimo": float(producto.stock_minimo.valor),
         "stock_actual": float(stock),
         "activo": True,
@@ -464,6 +471,96 @@ class ProductosHistoryView(APIView):
 
     def get(self, request):
         return Response(productos_para_historial(request.user.id))
+
+
+class AnularVentaView(APIView):
+    permission_classes = [EsAdministrador]
+
+    def post(self, request, venta_id: int):
+        try:
+            with _uow() as uow:
+                venta = AnularVenta(uow).ejecutar(
+                    request.user.id, request.user.id, venta_id
+                )
+                return Response(
+                    {
+                        "mensaje": "Venta anulada correctamente.",
+                        "venta_id": venta.id,
+                        "estado": venta.estado.value,
+                    }
+                )
+        except DomainError as exc:
+            return responder_domain_error(exc)
+
+
+class AnularCompraView(APIView):
+    permission_classes = [EsAdministrador]
+
+    def post(self, request, compra_id: int):
+        try:
+            with _uow() as uow:
+                compra = AnularCompra(uow).ejecutar(
+                    request.user.id, request.user.id, compra_id
+                )
+                return Response(
+                    {
+                        "mensaje": "Compra anulada correctamente.",
+                        "compra_id": compra.id,
+                        "estado": compra.estado.value,
+                    }
+                )
+        except DomainError as exc:
+            return responder_domain_error(exc)
+
+
+class PagoListCreateView(APIView):
+    permission_classes = [EsAdministrador]
+
+    def get(self, request):
+        venta_id = request.query_params.get("venta_id")
+        with _uow() as uow:
+            if venta_id:
+                try:
+                    pagos = uow.pagos.listar_por_venta(int(venta_id))
+                except ValueError:
+                    return Response(
+                        {"detail": "venta_id inválido"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            else:
+                pagos = uow.pagos.listar_por_administrador(request.user.id)
+            return Response([self._serializar(pago) for pago in pagos])
+
+    def post(self, request):
+        try:
+            with _uow() as uow:
+                pago = RegistrarPago(uow).ejecutar(
+                    administrador_id=request.user.id,
+                    venta_id=int(request.data.get("venta_id") or 0),
+                    metodo=str(request.data.get("metodo") or ""),
+                    monto=request.data.get("monto"),
+                )
+                return Response(
+                    self._serializar(pago), status=status.HTTP_201_CREATED
+                )
+        except DomainError as exc:
+            return responder_domain_error(exc)
+        except (ValueError, TypeError):
+            return Response(
+                {"detail": "Revisá la venta, el método y el monto del pago."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    @staticmethod
+    def _serializar(pago) -> dict:
+        return {
+            "id": pago.id,
+            "venta_id": pago.venta_id,
+            "metodo": pago.metodo.value,
+            "monto": float(pago.monto.amount),
+            "moneda": pago.monto.currency,
+            "fecha": pago.fecha.isoformat(),
+        }
 
 
 class ReportePeriodoPDFView(APIView):

@@ -13,25 +13,28 @@ from core.domain.shared.value_objects import Money, Quantity
 from apps.sales.models import Venta as VentaORM, VentaDetalle as VentaDetalleORM
 
 
-def _detalle_to_domain(orm: VentaDetalleORM) -> VentaDetalle:
+def _detalle_to_domain(orm: VentaDetalleORM, moneda: str) -> VentaDetalle:
     return VentaDetalle(
         id=orm.id,
         venta_id=orm.venta_id,
         administrador_id=orm.administrador_id,
         producto_id=orm.producto_id,
         cantidad=Quantity(orm.cantidad),
-        precio_unitario=Money(orm.precio_unitario),
+        precio_unitario=Money(orm.precio_unitario, moneda),
     )
 
 
 def _venta_to_domain(orm: VentaORM) -> Venta:
-    lineas = [_detalle_to_domain(detalle) for detalle in orm.detalles.all()]
+    lineas = [
+        _detalle_to_domain(detalle, orm.moneda) for detalle in orm.detalles.all()
+    ]
     return Venta(
         id=orm.id,
         administrador_id=orm.administrador_id,
         vendedor_id=orm.vendedor_id,
         tipo_cliente=TipoCliente(orm.tipo_cliente),
         canal_venta=CanalVenta(orm.canal_venta) if orm.canal_venta else None,
+        moneda=orm.moneda,
         cliente_nombre=orm.cliente_nombre,
         estado=EstadoVenta(orm.estado),
         nota=orm.nota,
@@ -57,6 +60,7 @@ class DjangoVentaRepository(VentaRepository):
             "cliente_nombre": venta.cliente_nombre,
             "tipo_cliente": venta.tipo_cliente.value,
             "canal_venta": venta.canal_venta.value if venta.canal_venta else None,
+            "moneda": venta.moneda,
             "fecha": venta.fecha,
             "total": venta.total.amount,
             "estado": venta.estado.value,

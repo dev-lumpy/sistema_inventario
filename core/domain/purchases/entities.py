@@ -55,6 +55,7 @@ class Compra:
     administrador_id: int
     proveedor_id: int
     usuario_id: int
+    moneda: str = "BOB"
     estado: EstadoCompra = EstadoCompra.BORRADOR
     nota: str | None = None
     id: int | None = None
@@ -62,6 +63,9 @@ class Compra:
     _lineas: list[CompraDetalle] = field(default_factory=list, repr=False)
 
     def __post_init__(self) -> None:
+        self.moneda = str(self.moneda or "BOB").strip().upper()
+        if len(self.moneda) != 3 or not self.moneda.isalpha():
+            raise ValidationError("La moneda de la compra debe tener 3 letras")
         self.nota = texto_opcional(self.nota, "nota", 1000)
 
     @property
@@ -71,11 +75,10 @@ class Compra:
     @property
     def total(self) -> Money:
         if not self._lineas:
-            return Money.cero()
-        moneda = self._lineas[0].costo_unitario.currency
-        total = Money.cero(moneda)
+            return Money.cero(self.moneda)
+        total = Money.cero(self.moneda)
         for linea in self._lineas:
-            if linea.costo_unitario.currency != moneda:
+            if linea.costo_unitario.currency != self.moneda:
                 raise ValidationError("No se pueden mezclar monedas en una compra")
             total = total + linea.subtotal
         return total
@@ -98,6 +101,8 @@ class Compra:
         self._exigir_borrador()
         if administrador_id is not None and administrador_id != self.administrador_id:
             raise LineaDeCompraDeOtroAdministradorError(administrador_id)
+        if costo_unitario.currency != self.moneda:
+            raise ValidationError("La moneda de la línea no coincide con la compra")
         detalle = CompraDetalle(
             administrador_id=self.administrador_id,
             producto_id=producto_id,

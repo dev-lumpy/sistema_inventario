@@ -45,16 +45,20 @@ class RegistrarEntrada:
             raise NotFoundError("El proveedor no existe")
         proveedor.verificar_administrador(administrador_id)
 
+        administrador = self._uow.administradores.obtener_por_id(administrador_id)
+        moneda = administrador.moneda.valor if administrador else "BOB"
+
         compra = Compra(
             administrador_id=administrador_id,
             proveedor_id=proveedor_id,
             usuario_id=usuario_id,
+            moneda=moneda,
             nota="Entrada de stock",
         )
         compra.agregar_linea(
             producto_id=producto_id,
             cantidad=Quantity(Decimal(str(cantidad))),
-            costo_unitario=Money(Decimal(str(costo_unitario or 0))),
+            costo_unitario=Money(Decimal(str(costo_unitario or 0)), moneda),
             administrador_id=administrador_id,
         )
         self._uow.compras.guardar(compra)
@@ -114,6 +118,7 @@ class RegistrarSalida:
             vendedor_id=vendedor_id,
             tipo_cliente=TipoCliente.INDIVIDUAL,
             canal_venta=CanalVenta.desde(canal_venta),
+            moneda=precio.precio.currency,
         )
         venta.agregar_linea(
             producto_id=producto_id,

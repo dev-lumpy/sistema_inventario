@@ -32,6 +32,7 @@ class Administrador(models.Model):
         related_name="administrador",
     )
     nombre_negocio = models.CharField(max_length=150, null=True, blank=True)
+    moneda = models.CharField(max_length=3, default="BOB")
 
     class Meta:
         managed = False

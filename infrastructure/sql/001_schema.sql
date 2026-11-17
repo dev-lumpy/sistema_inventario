@@ -25,7 +25,9 @@ CREATE TABLE usuarios (
 -- ============================================================
 CREATE TABLE administradores (
     id             INT PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
-    nombre_negocio VARCHAR(150)
+    nombre_negocio VARCHAR(150),
+    moneda         CHAR(3) NOT NULL DEFAULT 'BOB',
+    CONSTRAINT chk_admin_moneda CHECK (moneda ~ '^[A-Z]{3}$')
 );
 
 
@@ -126,6 +128,7 @@ CREATE TABLE ventas (
     cliente_nombre   VARCHAR(150),
     tipo_cliente     VARCHAR(20) NOT NULL,
     canal_venta      VARCHAR(20),
+    moneda           CHAR(3) NOT NULL DEFAULT 'BOB',
     fecha            TIMESTAMPTZ NOT NULL DEFAULT now(),
     total            NUMERIC(12,2) NOT NULL DEFAULT 0,
     estado           VARCHAR(20) NOT NULL DEFAULT 'borrador',
@@ -136,6 +139,7 @@ CREATE TABLE ventas (
     CONSTRAINT chk_venta_canal
         CHECK (canal_venta IS NULL
             OR canal_venta IN ('whatsapp','instagram','facebook','presencial','otro')),
+    CONSTRAINT chk_venta_moneda CHECK (moneda ~ '^[A-Z]{3}$'),
     CONSTRAINT chk_venta_estado
         CHECK (estado IN ('borrador','confirmada','anulada')),
     CONSTRAINT chk_venta_total CHECK (total >= 0)
@@ -184,6 +188,7 @@ CREATE TABLE compras (
     administrador_id INT NOT NULL REFERENCES administradores(id) ON DELETE CASCADE,
     proveedor_id     INT NOT NULL,
     usuario_id       INT NOT NULL REFERENCES usuarios(id),
+    moneda           CHAR(3) NOT NULL DEFAULT 'BOB',
     fecha            TIMESTAMPTZ NOT NULL DEFAULT now(),
     total            NUMERIC(12,2) NOT NULL DEFAULT 0,
     estado           VARCHAR(20) NOT NULL DEFAULT 'borrador',
@@ -192,6 +197,7 @@ CREATE TABLE compras (
     CONSTRAINT fk_compra_proveedor
         FOREIGN KEY (proveedor_id, administrador_id)
         REFERENCES proveedores (id, administrador_id),
+    CONSTRAINT chk_compra_moneda CHECK (moneda ~ '^[A-Z]{3}$'),
     CONSTRAINT chk_compra_estado
         CHECK (estado IN ('borrador','confirmada','anulada')),
     CONSTRAINT chk_compra_total CHECK (total >= 0)
@@ -259,12 +265,14 @@ CREATE TABLE pagos (
     venta_id         INT NOT NULL,
     metodo           VARCHAR(30) NOT NULL,
     monto            NUMERIC(12,2) NOT NULL CHECK (monto > 0),
+    moneda           CHAR(3) NOT NULL DEFAULT 'BOB',
     fecha            TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT fk_pago_venta
         FOREIGN KEY (venta_id, administrador_id)
         REFERENCES ventas (id, administrador_id) ON DELETE CASCADE,
     CONSTRAINT chk_pago_metodo
-        CHECK (metodo IN ('efectivo','transferencia','qr','tarjeta','otro'))
+        CHECK (metodo IN ('efectivo','transferencia','qr','tarjeta','otro')),
+    CONSTRAINT chk_pago_moneda CHECK (moneda ~ '^[A-Z]{3}$')
 );
 
 

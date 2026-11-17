@@ -26,7 +26,7 @@ function filaProducto(producto) {
     <tr data-id="${producto.id}">
       <td>${escaparHtml(producto.nombre ?? '')}</td>
       <td>${escaparHtml(nombreCategoria(producto.categoria))}</td>
-      <td>${formatearPrecio(producto.precio_unitario)}</td>
+      <td>${formatearPrecio(producto.precio_unitario, producto.moneda)}</td>
       <td>${escaparHtml(String(producto.stock_actual ?? ''))}</td>
       <td>${badgeStock(producto)}</td>
       <td class="acciones">

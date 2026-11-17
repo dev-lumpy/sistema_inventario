@@ -45,9 +45,11 @@ config/                   Configuración Django
 
 ## Base de datos
 
+### PostgreSQL (recomendado)
+
 El esquema completo está en `infrastructure/sql/001_schema.sql`. Está pensado
-para PostgreSQL e incluye claves compuestas, índices parciales, `TIMESTAMPTZ` y
-triggers.
+para PostgreSQL e incluye claves compuestas, índices parciales, `TIMESTAMPTZ`,
+triggers y restricciones de moneda.
 
 ```bash
 createdb sistema_taller
@@ -71,8 +73,24 @@ POSTGRES_PORT=5432
 SECRET_KEY=una_clave_segura
 ```
 
-Sin `POSTGRES_DB`, Django usa SQLite solo para desarrollo del front-end. Las
-tablas del negocio no existen en SQLite porque las crea el SQL de PostgreSQL.
+### SQLite (desarrollo rápido)
+
+Sin `POSTGRES_DB`, Django usa SQLite. El proyecto prepara automáticamente las
+tablas del negocio y triggers de desarrollo:
+
+```bash
+python manage.py dev_setup
+```
+
+o simplemente:
+
+```bash
+python manage.py runserver
+```
+
+Con `DEBUG=True` y SQLite, el comando `runserver` ejecuta `migrate` y crea el
+esquema de desarrollo antes de arrancar. En PostgreSQL no se auto-migra: hay que
+aplicar el SQL y ejecutar `migrate`.
 
 ## Desarrollo
 
@@ -112,9 +130,15 @@ Endpoints principales:
 - `GET /api/inventario/movimiento/entrada/historial/`
 - `GET /api/inventario/history_movimientos/<limite>/`
 - `GET /api/inventario/reportes/pdf/?desde=YYYY-MM-DD&hasta=YYYY-MM-DD`
+- `POST /api/inventario/ventas/<id>/anular/`
+- `POST /api/inventario/compras/<id>/anular/`
+- `GET|POST /api/inventario/pagos/`
+- `GET|PATCH /api/usuarios/admin/perfil/`
 
-Los endpoints de escritura usan los casos de uso y los triggers de PostgreSQL
-generan los movimientos de inventario al confirmar ventas y compras.
+Los endpoints de escritura usan los casos de uso. En PostgreSQL los triggers
+generan los movimientos de inventario al confirmar ventas y compras; en SQLite
+esos triggers también se crean en el esquema de desarrollo. La moneda del
+administrador se usa para nuevas tarifas y se conserva por venta, compra y pago.
 
 ## Pruebas
 

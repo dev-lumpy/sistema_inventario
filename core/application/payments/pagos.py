@@ -32,7 +32,7 @@ class RegistrarPago:
             (pago.monto.amount for pago in self._uow.pagos.listar_por_venta(venta_id)),
             Decimal("0"),
         )
-        nuevo = Money(Decimal(str(monto)))
+        nuevo = Money(Decimal(str(monto)), venta.total.currency)
         if pagado + nuevo.amount > venta.total.amount:
             raise BusinessRuleViolation(
                 "El pago supera el total de la venta",

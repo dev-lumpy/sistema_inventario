@@ -49,6 +49,7 @@ class Compra(models.Model):
         on_delete=models.PROTECT,
         related_name="compras",
     )
+    moneda = models.CharField(max_length=3, default="BOB")
     fecha = models.DateTimeField(default=timezone.now)
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     estado = models.CharField(max_length=20, choices=ESTADOS, default="borrador")

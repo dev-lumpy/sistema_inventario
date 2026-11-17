@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     LoginView,
     LogoutView,
+    PerfilAdministradorView,
     RefreshView,
     RegistrarAdministradorView,
     RegistrarVendedorView,
@@ -19,6 +20,7 @@ urlpatterns = [
     path("auth/refresh/", RefreshView.as_view(), name="refresh"),
     path("auth/logout/", LogoutView.as_view(), name="logout"),
     path("auth/registro/", RegistrarAdministradorView.as_view(), name="registro"),
+    path("admin/perfil/", PerfilAdministradorView.as_view(), name="admin-perfil"),
     path(
         "get_user/admin/<int:admin_id>/vendedores/",
         VendedoresPorAdminView.as_view(),

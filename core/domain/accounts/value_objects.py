@@ -75,3 +75,14 @@ class NombreNegocio:
         object.__setattr__(
             self, "valor", texto_opcional(self.valor, "nombre_negocio", 150)
         )
+
+
+@dataclass(frozen=True)
+class Moneda:
+    valor: str = "BOB"
+
+    def __post_init__(self) -> None:
+        limpio = str(self.valor or "BOB").strip().upper()
+        if len(limpio) != 3 or not limpio.isalpha():
+            raise ValidationError("La moneda debe ser un código de 3 letras")
+        object.__setattr__(self, "valor", limpio)

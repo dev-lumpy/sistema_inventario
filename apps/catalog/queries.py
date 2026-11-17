@@ -26,15 +26,15 @@ def _stock_por_producto(administrador_id: int) -> dict[int, Decimal]:
     return stock
 
 
-def _precios_individuales(administrador_id: int) -> dict[int, Decimal]:
-    precios: dict[int, Decimal] = {}
+def _precios_individuales(administrador_id: int) -> dict[int, tuple[Decimal, str]]:
+    precios: dict[int, tuple[Decimal, str]] = {}
     filas = PrecioORM.objects.filter(
         administrador_id=administrador_id,
         tipo_cliente="individual",
         vigente_hasta__isnull=True,
-    ).values_list("producto_id", "precio")
-    for producto_id, precio in filas:
-        precios[producto_id] = Decimal(precio)
+    ).values_list("producto_id", "precio", "moneda")
+    for producto_id, precio, moneda in filas:
+        precios[producto_id] = (Decimal(precio), moneda)
     return precios
 
 
@@ -49,7 +49,10 @@ def listar_inventario(administrador_id: int) -> list[dict]:
             "id": producto.id,
             "nombre": producto.nombre,
             "categoria": producto.categoria_id,
-            "precio_unitario": float(precios.get(producto.id, Decimal("0"))),
+            "precio_unitario": float(
+                precios.get(producto.id, (Decimal("0"), "BOB"))[0]
+            ),
+            "moneda": precios.get(producto.id, (Decimal("0"), "BOB"))[1],
             "stock_minimo": float(producto.stock_minimo),
             "stock_actual": float(stock.get(producto.id, Decimal("0"))),
             "activo": True,

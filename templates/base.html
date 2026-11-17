@@ -395,6 +395,7 @@ body{
          </main>
       </div>
 
+      <script>window.APP_MONEDA = "{{ moneda|default:'BOB' }}";</script>
       <script type="module" src="/static/js/shared/layout.js"></script>
 
       {% block scripts %}{% endblock %}

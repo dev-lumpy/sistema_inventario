@@ -25,8 +25,8 @@ from core.domain.shared.validators import texto_opcional, texto_requerido
 from core.domain.shared.value_objects import Money, Quantity
 
 
-def _precio(valor) -> Money:
-    return Money(Decimal(str(valor or 0)))
+def _precio(valor, moneda: str = "BOB") -> Money:
+    return Money(Decimal(str(valor or 0)), moneda)
 
 
 class GestionarCategoria:
@@ -150,7 +150,9 @@ class GestionarProducto:
     ) -> None:
         if producto.id is None:
             raise NotFoundError("El producto no está persistido")
-        nuevo = _precio(precio)
+        administrador = self._uow.administradores.obtener_por_id(administrador_id)
+        moneda = administrador.moneda.valor if administrador else "BOB"
+        nuevo = _precio(precio, moneda)
         actual = self._uow.precios.obtener_vigente(
             producto.id, administrador_id, TipoCliente.INDIVIDUAL
         )

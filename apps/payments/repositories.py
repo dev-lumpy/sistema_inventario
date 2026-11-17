@@ -16,7 +16,7 @@ def _pago_to_domain(orm: PagoORM) -> Pago:
         administrador_id=orm.administrador_id,
         venta_id=orm.venta_id,
         metodo=MetodoPago(orm.metodo),
-        monto=Money(orm.monto),
+        monto=Money(orm.monto, orm.moneda),
         fecha=orm.fecha,
     )
 
@@ -32,6 +32,7 @@ class DjangoPagoRepository(PagoRepository):
             "venta_id": pago.venta_id,
             "metodo": pago.metodo.value,
             "monto": pago.monto.amount,
+            "moneda": pago.monto.currency,
             "fecha": pago.fecha,
         }
         if pago.id is None:

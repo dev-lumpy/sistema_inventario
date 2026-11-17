@@ -25,14 +25,14 @@ def _proveedor_to_domain(orm: ProveedorORM) -> Proveedor:
     )
 
 
-def _detalle_to_domain(orm: CompraDetalleORM) -> CompraDetalle:
+def _detalle_to_domain(orm: CompraDetalleORM, moneda: str) -> CompraDetalle:
     return CompraDetalle(
         id=orm.id,
         compra_id=orm.compra_id,
         administrador_id=orm.administrador_id,
         producto_id=orm.producto_id,
         cantidad=Quantity(orm.cantidad),
-        costo_unitario=Money(orm.costo_unitario),
+        costo_unitario=Money(orm.costo_unitario, moneda),
     )
 
 
@@ -42,10 +42,14 @@ def _compra_to_domain(orm: CompraORM) -> Compra:
         administrador_id=orm.administrador_id,
         proveedor_id=orm.proveedor_id,
         usuario_id=orm.usuario_id,
+        moneda=orm.moneda,
         estado=EstadoCompra(orm.estado),
         nota=orm.nota,
         fecha=orm.fecha,
-        _lineas=[_detalle_to_domain(detalle) for detalle in orm.detalles.all()],
+        _lineas=[
+            _detalle_to_domain(detalle, orm.moneda)
+            for detalle in orm.detalles.all()
+        ],
     )
 
 
@@ -95,6 +99,7 @@ class DjangoCompraRepository(CompraRepository):
             "administrador_id": compra.administrador_id,
             "proveedor_id": compra.proveedor_id,
             "usuario_id": compra.usuario_id,
+            "moneda": compra.moneda,
             "fecha": compra.fecha,
             "total": compra.total.amount,
             "estado": compra.estado.value,

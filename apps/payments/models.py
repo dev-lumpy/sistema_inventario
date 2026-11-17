@@ -26,6 +26,7 @@ class Pago(models.Model):
     )
     metodo = models.CharField(max_length=30, choices=METODOS)
     monto = models.DecimalField(max_digits=12, decimal_places=2)
+    moneda = models.CharField(max_length=3, default="BOB")
     fecha = models.DateTimeField(default=timezone.now)
 
     class Meta:

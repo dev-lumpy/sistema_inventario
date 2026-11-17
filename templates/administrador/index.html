@@ -86,6 +86,12 @@
     <span>Reportes</span>
   </a>
 </li>
+<li>
+  <a href="#" class="nav-link" data-section="configuracion">
+    <i class="fa-solid fa-gear"></i>
+    <span>Configuración</span>
+  </a>
+</li>
 {% endblock %}
 
 
@@ -165,83 +171,6 @@
         <i class="fa-solid fa-plus"></i>
         Nuevo producto
       </button>
-    </div>
-  </div>
-</section>
-
-
-<!--
-============================================================
-sección: inventario
-consultar stock con filtros.
-- rf-06, rf-07, hu-03
-============================================================
--->
-<section id="inventario" class="content-section">
-  <div class="section-header">
-    <h1>Inventario</h1>
-    <p>Control de stock completo.</p>
-  </div>
-
-  <!-- Filtros — RF-07, HU-03 -->
-  <div class="card filtros">
-    <div class="card-body">
-      <form id="form-filtros-inventario" class="form-filtros">
-        <div class="form-group">
-          <label for="filtro-texto">Buscar por nombre</label>
-          <input type="text" id="filtro-texto" name="texto" placeholder="Nombre...">
-        </div>
-        <div class="form-group">
-          <label for="filtro-categoria">Categoría</label>
-          <select id="filtro-categoria" name="categoria">
-            <option value="">Todas</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="filtro-estado">Estado</label>
-          <select id="filtro-estado" name="estado">
-            <option value="">Todos</option>
-            <option value="disponible">Disponible</option>
-            <option value="bajo">Bajo</option>
-            <option value="agotado">Agotado</option>
-          </select>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primario">
-            <i class="fa-solid fa-magnifying-glass"></i> Filtrar
-          </button>
-          <button type="button" class="btn btn-secundario" id="btn-limpiar-filtros">
-            Limpiar
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Tabla — RF-06 -->
-  <div class="card tabla-inventario">
-    <div class="card-header">
-      <h2>Productos</h2>
-    </div>
-    <div class="card-body">
-      <table class="tabla">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Precio</th>
-            <th>Stock</th>
-            <th>Mínimo</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-inventario">
-          <!-- Cargado por JS -->
-        </tbody>
-      </table>
-      <p class="empty-state" id="inventario-vacio" hidden>
-        No hay productos que coincidan con los filtros.
-      </p>
     </div>
   </div>
 </section>
@@ -762,8 +691,9 @@ consultar stock con filtros.
         <div class="form-group">
           <label for="config-moneda">Moneda</label>
           <select id="config-moneda" name="moneda">
-            <option value="ARS">Peso argentino (ARS)</option>
+            <option value="BOB">Boliviano (BOB)</option>
             <option value="USD">Dólar (USD)</option>
+            <option value="ARS">Peso argentino (ARS)</option>
             <option value="EUR">Euro (EUR)</option>
           </select>
         </div>
@@ -773,6 +703,8 @@ consultar stock con filtros.
             <i class="fa-solid fa-check"></i> Guardar configuración
           </button>
         </div>
+
+        <p id="config-mensaje" class="mensaje" hidden></p>
       </form>
     </div>
   </div>

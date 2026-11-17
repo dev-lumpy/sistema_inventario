@@ -13,6 +13,7 @@ from core.domain.accounts.exceptions import (
 from core.domain.accounts.value_objects import (
     Apellidos,
     Correo,
+    Moneda,
     Nombre,
     NombreNegocio,
     PasswordHash,
@@ -59,6 +60,7 @@ class Usuario:
 class Administrador:
     usuario: Usuario
     nombre_negocio: NombreNegocio = field(default_factory=NombreNegocio)
+    moneda: Moneda = field(default_factory=Moneda)
 
     @property
     def id(self) -> int | None:

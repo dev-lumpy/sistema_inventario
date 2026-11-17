@@ -14,6 +14,7 @@ from core.domain.accounts.exceptions import (
 from core.domain.accounts.value_objects import (
     Apellidos,
     Correo,
+    Moneda,
     Nombre,
     NombreNegocio,
     PasswordHash,
@@ -25,6 +26,7 @@ __all__ = [
     "Apellidos",
     "Correo",
     "EstadoVinculo",
+    "Moneda",
     "Nombre",
     "NombreNegocio",
     "PasswordHash",

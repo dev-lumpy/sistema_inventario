@@ -1,11 +1,14 @@
 from django.urls import path
 
 from .views import (
+    AnularCompraView,
+    AnularVentaView,
     CategoriaCreateView,
     CategoriaDetailView,
     CategoriaSelectView,
     HistorialEntradasView,
     HistorialMovimientosView,
+    PagoListCreateView,
     ProductoAlertasView,
     ProductoDetailView,
     ProductoListCreateView,
@@ -49,4 +52,15 @@ urlpatterns = [
         name="productos-history-movimientos",
     ),
     path("reportes/pdf/", ReportePeriodoPDFView.as_view(), name="reporte-periodo-pdf"),
+    path(
+        "ventas/<int:venta_id>/anular/",
+        AnularVentaView.as_view(),
+        name="venta-anular",
+    ),
+    path(
+        "compras/<int:compra_id>/anular/",
+        AnularCompraView.as_view(),
+        name="compra-anular",
+    ),
+    path("pagos/", PagoListCreateView.as_view(), name="pagos-list-create"),
 ]

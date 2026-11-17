@@ -317,3 +317,78 @@ también exigen un vínculo aceptado.
 
 **Consecuencias.** La bandeja de solicitudes pendientes muestra solo solicitudes,
 y la tabla de vendedores muestra solo vínculos efectivos.
+
+## ADR-026. Esquema de desarrollo para SQLite
+
+**Contexto.** El sistema usa PostgreSQL en producción, pero el comando
+`python manage.py runserver` sin variables de entorno cae en SQLite. SQLite no
+tiene las tablas del negocio porque los modelos Django son `managed = False`, y
+el error resultante era `no such table: usuarios`.
+
+**Decisión.** Mantener PostgreSQL como fuente de verdad y agregar un esquema de
+desarrollo para SQLite:
+
+- `ensure_sqlite_schema()` crea las tablas unmanaged con
+  `schema_editor.create_model` y agrega las columnas nuevas que falten.
+- Se crean triggers SQLite equivalentes para recalcular totales, generar
+  movimientos al confirmar y bloquear el borrado de documentos confirmados.
+- El comando `dev_setup` ejecuta `migrate` y prepara el esquema.
+- Un comando `runserver` propio, activo solo con `DEBUG=True` y SQLite, ejecuta
+  `migrate` y `ensure_sqlite_schema()` antes de arrancar.
+- El hook `post_migrate` también crea el esquema, así que `migrate` alcanza.
+
+La validación de stock y de tarifa vigente se mantiene en los casos de uso. Los
+triggers SQLite no replican esas validaciones para evitar SQL frágil; PostgreSQL
+sí las tiene a nivel de base.
+
+**Consecuencias.** `python manage.py runserver` funciona en desarrollo sin
+PostgreSQL. En producción se sigue aplicando `infrastructure/sql/001_schema.sql`.
+Los triggers de SQLite son una ayuda de desarrollo; no reemplazan la garantía de
+PostgreSQL.
+
+## ADR-027. Moneda por administrador y por operación
+
+**Contexto.** La pantalla de configuración tenía un selector de moneda, pero no
+existía en el esquema. A su vez, las ventas y compras guardaban solo números, sin
+moneda, así que un pago no podía reconstruir la moneda de la venta.
+
+**Decisión.** Agregar `moneda` a `administradores`, `ventas`, `compras` y
+`pagos`. La moneda del administrador se usa para las tarifas nuevas y para los
+costos de entrada. Cada venta/compra/pago conserva la moneda con la que se
+registró. Las respuestas de productos incluyen la moneda de su tarifa vigente, y
+el front-end formatea cada precio con su propia moneda.
+
+**Consecuencias.** Cambiar la moneda del administrador no convierte precios
+históricos: las tarifas viejas mantienen su moneda y se muestran correctamente.
+Las nuevas tarifas usan la moneda configurada.
+
+## ADR-028. Configuración del administrador conectada
+
+**Decisión.** Se agregó `GET/PATCH /api/usuarios/admin/perfil/` para leer y
+actualizar `nombre_negocio` y `moneda`. El enlace Configuración se agregó al menú
+del administrador y el formulario se conectó con ese endpoint.
+
+**Consecuencias.** La sección que antes era un placeholder ahora funciona. El
+cambio de moneda recarga la página para actualizar el formato global.
+
+## ADR-029. Se eliminó la sección legacy de inventario del admin
+
+**Contexto.** La plantilla del administrador tenía una sección `#inventario` con
+filtros y tabla, pero no estaba enlazada en el menú y no tenía JavaScript. La
+sección `#productos` ya cubre el inventario.
+
+**Decisión.** Eliminar la sección legacy del HTML del administrador. La pantalla
+de inventario del vendedor se conserva.
+
+**Consecuencias.** Se reduce el HTML muerto y no se duplica la lógica de
+inventario.
+
+## ADR-030. Endpoints de anulación y pagos sin interfaz
+
+**Decisión.** Agregar endpoints para anular ventas/compras y para listar/crear
+pagos, usando los casos de uso existentes. No se agregó interfaz porque el
+front-end actual no tiene pantallas de cobro ni de anulación.
+
+**Consecuencias.** La API queda completa para una interfaz futura. Las
+anulaciones generan movimientos inversos y los pagos validan que la suma no
+supere el total de la venta.

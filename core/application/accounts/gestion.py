@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from core.application.ports.unit_of_work import UnitOfWork
-from core.domain.accounts.entities import Usuario, Vendedor
-from core.domain.accounts.value_objects import Correo, UserName
+from core.domain.accounts.entities import Administrador, Usuario, Vendedor
+from core.domain.accounts.value_objects import Correo, Moneda, NombreNegocio, UserName
 from core.domain.shared.errors import ConflictError, NotFoundError, ValidationError
 
 
@@ -63,3 +63,37 @@ class EliminarUsuario:
         if self._uow.usuarios.obtener_por_id(usuario_id) is None:
             raise NotFoundError("El usuario no existe")
         self._uow.usuarios.eliminar(usuario_id)
+
+
+class ObtenerPerfilAdministrador:
+    def __init__(self, uow: UnitOfWork) -> None:
+        self._uow = uow
+
+    def ejecutar(self, administrador_id: int) -> Administrador:
+        administrador = self._uow.administradores.obtener_por_id(administrador_id)
+        if administrador is None:
+            raise NotFoundError("El administrador no existe")
+        return administrador
+
+
+class ActualizarPerfilAdministrador:
+    def __init__(self, uow: UnitOfWork) -> None:
+        self._uow = uow
+
+    def ejecutar(
+        self,
+        administrador_id: int,
+        nombre_negocio: str | None = None,
+        moneda: str | None = None,
+    ) -> Administrador:
+        administrador = self._uow.administradores.obtener_por_id(administrador_id)
+        if administrador is None:
+            raise NotFoundError("El administrador no existe")
+
+        if nombre_negocio is not None:
+            administrador.nombre_negocio = NombreNegocio(nombre_negocio)
+        if moneda is not None:
+            administrador.moneda = Moneda(moneda)
+
+        self._uow.administradores.guardar(administrador)
+        return administrador

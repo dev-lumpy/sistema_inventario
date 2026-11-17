@@ -8,9 +8,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.application.accounts.gestion import (
+    ActualizarPerfilAdministrador,
     ActualizarUsuario,
     EliminarUsuario,
     ListarVendedores,
+    ObtenerPerfilAdministrador,
 )
 from core.application.accounts.registro import (
     AutenticarUsuario,
@@ -198,6 +200,42 @@ class RegistrarVendedorView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+
+class PerfilAdministradorView(APIView):
+    permission_classes = [EsAdministrador]
+
+    def get(self, request):
+        try:
+            with _uow() as uow:
+                administrador = ObtenerPerfilAdministrador(uow).ejecutar(
+                    request.user.id
+                )
+                return Response(self._serializar(administrador))
+        except DomainError as exc:
+            return responder_domain_error(exc)
+
+    def patch(self, request):
+        try:
+            with _uow() as uow:
+                administrador = ActualizarPerfilAdministrador(uow).ejecutar(
+                    request.user.id,
+                    nombre_negocio=request.data.get("nombre_negocio"),
+                    moneda=request.data.get("moneda"),
+                )
+                return Response(self._serializar(administrador))
+        except DomainError as exc:
+            return responder_domain_error(exc)
+
+    @staticmethod
+    def _serializar(administrador) -> dict:
+        return {
+            "id": administrador.id,
+            "username": administrador.usuario.user_name.valor,
+            "email": administrador.usuario.correo.valor,
+            "nombre_negocio": administrador.nombre_negocio.valor,
+            "moneda": administrador.moneda.valor,
+        }
 
 
 class VendedoresPorAdminView(APIView):
