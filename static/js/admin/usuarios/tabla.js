@@ -81,7 +81,22 @@ export function renderTabla(lista) {
     tdEstado.appendChild(badgeEstado(vendedor.activo));
 
     const tdAcciones = crearEl('td', { clase: 'acciones' });
-    if (!vendedor.solicitud) {
+    if (vendedor.solicitud) {
+      tdAcciones.append(
+        botonAccion({
+          accion: 'aceptar',
+          id: vendedor.uuid,
+          icono: 'fa-check',
+          texto: 'Aceptar',
+        }),
+        botonAccion({
+          accion: 'rechazar',
+          id: vendedor.uuid,
+          icono: 'fa-xmark',
+          texto: 'Rechazar',
+        }),
+      );
+    } else {
       tdAcciones.append(
         botonAccion({
           accion: 'editar',

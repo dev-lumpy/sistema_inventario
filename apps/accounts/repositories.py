@@ -160,7 +160,10 @@ class DjangoVendedorRepository(VendedorRepository):
 
     def listar_por_administrador(self, administrador_id: int) -> list[Vendedor]:
         ids = (
-            VinculoORM.objects.filter(administrador_id=administrador_id)
+            VinculoORM.objects.filter(
+                administrador_id=administrador_id,
+                estado=EstadoVinculo.ACEPTADO.value,
+            )
             .exclude(vendedor_id=administrador_id)
             .values_list("vendedor_id", flat=True)
             .distinct()

@@ -282,3 +282,38 @@ Los endpoints de registro devuelven además `{ "error": { "message", "code",
 
 **Consecuencias.** El front-end recibe mensajes útiles sin acoplarse a
 excepciones de Django.
+
+## ADR-024. Conexión del front-end con la API
+
+**Contexto.** Algunas pantallas existían en el HTML pero no tenían JavaScript
+que las conectara: proveedores, solicitudes del vendedor y acciones del
+administrador sobre solicitudes pendientes.
+
+**Decisión.** Se agregaron módulos JavaScript siguiendo el patrón existente:
+
+- `static/js/admin/proveedores/`: CRUD de proveedores usando
+  `/api/inventario/proveedores/`.
+- `static/js/vendedor/solicitudes/`: envío, listado y cancelación de solicitudes
+  usando `/api/usuarios/solicitudes-admin/`.
+- `static/js/admin/usuarios/`: botones Aceptar/Rechazar para solicitudes
+  pendientes.
+
+También se agregó el enlace de Proveedores al menú del administrador y se
+actualizó el texto del vendedor para reflejar el modelo N:M.
+
+**Consecuencias.** Las pantallas que ya existían quedaron funcionales. La
+sección de Configuración sigue siendo un placeholder porque no tiene enlace de
+menú y el esquema solo guarda `nombre_negocio` del administrador.
+
+## ADR-025. Lista de vendedores por vínculo aceptado
+
+**Contexto.** La lista de vendedores de un administrador incluía vínculos
+pendientes y al propio administrador cuando había vendido, duplicando filas en
+la pantalla de usuarios.
+
+**Decisión.** `listar_por_administrador` filtra por estado `aceptado` y excluye
+el identificador del propio administrador. La edición y el borrado de vendedores
+también exigen un vínculo aceptado.
+
+**Consecuencias.** La bandeja de solicitudes pendientes muestra solo solicitudes,
+y la tabla de vendedores muestra solo vínculos efectivos.

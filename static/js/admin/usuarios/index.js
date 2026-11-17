@@ -14,6 +14,7 @@ import {
   eliminarUsuario,
   listarSolicitudes,
   listarVendedores,
+  responderSolicitud,
 } from './api.js';
 import { SELECTOR_TBODY, renderTabla } from './tabla.js';
 import { abrirEditor } from './formulario.js';
@@ -140,6 +141,30 @@ async function eliminar(vendedor) {
   }
 }
 
+async function aceptarSolicitud(solicitud) {
+  try {
+    await responderSolicitud(solicitud.uuid, { estado: 'aceptado' });
+    await cargar();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+async function rechazarSolicitud(solicitud) {
+  const motivo = prompt(`Motivo para rechazar a "${solicitud.username}":`);
+  if (!motivo) return;
+
+  try {
+    await responderSolicitud(solicitud.uuid, {
+      estado: 'rechazado',
+      respuesta_admin: motivo,
+    });
+    await cargar();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
 export async function initUsuarios({ onEditar, onEliminar } = {}) {
   const tbody = $(SELECTOR_TBODY);
   if (!tbody) return;
@@ -153,6 +178,16 @@ export async function initUsuarios({ onEditar, onEliminar } = {}) {
 
       const vendedor = buscarPorId(boton.dataset.id);
       if (!vendedor) return;
+
+      if (boton.dataset.action === 'aceptar') {
+        aceptarSolicitud(vendedor);
+        return;
+      }
+
+      if (boton.dataset.action === 'rechazar') {
+        rechazarSolicitud(vendedor);
+        return;
+      }
 
       if (boton.dataset.action === 'editar') {
         if (onEditar) return onEditar(vendedor);

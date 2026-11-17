@@ -24,3 +24,7 @@ export const actualizarUsuario = (uuid, payload) => (
 );
 
 export const eliminarUsuario = (uuid) => deleteJSON(urlUsuario(uuid));
+
+export const responderSolicitud = (id, payload) => (
+  patchJSON(`${base()}/solicitudes-admin/${id}/`, payload)
+);

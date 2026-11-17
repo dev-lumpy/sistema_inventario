@@ -267,7 +267,7 @@ class VendedorDetalleView(APIView):
         if vendedor is None:
             raise NotFoundError("El vendedor no existe")
         vinculo = uow.vinculos.obtener(usuario_id, administrador_id)
-        if vinculo is None:
+        if vinculo is None or vinculo.estado != EstadoVinculo.ACEPTADO:
             raise NotFoundError("El vendedor no pertenece a este administrador")
         return vendedor
 

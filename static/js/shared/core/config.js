@@ -20,6 +20,11 @@ export const ENDPOINTS = {
 
   // Proveedores
   proveedoresSelect: `${CONFIG.INVENTARIO}/proveedores/select/`,
+  proveedorDetail: (id) => `${CONFIG.INVENTARIO}/proveedores/${id}/`,
+
+  // Solicitudes de administrador
+  solicitudesAdmin: `${CONFIG.USUARIOS}/solicitudes-admin/`,
+  solicitudAdminDetail: (id) => `${CONFIG.USUARIOS}/solicitudes-admin/${id}/`,
 
   // Movimientos
   resumenHoy: `${CONFIG.INVENTARIO}/resumen/hoy/`,

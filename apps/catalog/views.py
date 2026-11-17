@@ -84,6 +84,7 @@ def _proveedor_payload(proveedor) -> dict:
         "id": proveedor.id,
         "nombre": proveedor.nombre,
         "contacto": proveedor.contacto,
+        "activo": True,
     }
 
 
