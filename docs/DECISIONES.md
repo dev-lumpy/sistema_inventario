@@ -156,9 +156,13 @@ de dominio también expone `verificar_stock_suficiente` para el caso de uso.
 
 **Decisión.** Usar `datetime` con zona horaria UTC en el dominio. Django se
 configura con `USE_TZ = True` y `TIME_ZONE = "America/La_Paz"` para presentación.
+Las columnas de fecha del esquema usan `TIMESTAMPTZ`, no `TIMESTAMP`, porque
+Django con `USE_TZ=True` espera instantes con zona horaria y PostgreSQL debe
+preservar el instante original.
 
 **Consecuencias.** Los cálculos y comparaciones son consistentes; la
-presentación se adapta a la zona local.
+presentación se adapta a la zona local. Los `TIMESTAMP` sin zona del esquema
+original producían corrimientos de fecha al filtrar por día.
 
 ## ADR-014. Pruebas
 
@@ -178,3 +182,89 @@ funcionar sin PostgreSQL.
 
 **Consecuencias.** Se conserva la exportación PDF existente. WeasyPrint requiere
 las dependencias del sistema que ya estaban documentadas en el proyecto.
+
+## ADR-016. Casos de uso y UnitOfWork
+
+**Contexto.** Los views no deben contener reglas de negocio ni transacciones
+sueltas.
+
+**Decisión.** Cada flujo de escritura se implementa como un caso de uso en
+`core/application`. Los casos de uso reciben un `UnitOfWork` y un
+`PasswordHasher` por inyección. La implementación `DjangoUnitOfWork` agrupa los
+repositorios y abre una transacción atómica.
+
+**Consecuencias.** Los views solo traducen HTTP a entrada del caso de uso y
+salida a JSON. Las pruebas de aplicación pueden usar un UnitOfWork falso.
+
+## ADR-017. Un administrador también puede vender
+
+**Contexto.** El front-end tiene la misma pantalla de venta para administrador y
+vendedor. El esquema exige que `ventas.vendedor_id` referencie `vendedores`.
+
+**Decisión.** Si un administrador registra una venta y no tiene fila de
+vendedor, se crea automáticamente su subtipo `vendedores` y un vínculo aceptado
+consigo mismo. Ese vendedor automático se excluye de la lista de vendedores
+gestionados.
+
+**Consecuencias.** El administrador puede vender sin cambiar el front-end. La
+tabla `vendedores` puede contener al mismo usuario que `administradores`; el
+esquema ya lo permite.
+
+## ADR-018. Sesión sin CSRF por compatibilidad
+
+**Contexto.** El JavaScript existente hace `fetch` con `credentials: 'include'`
+pero no envía token CSRF. Las vistas de DRF son `csrf_exempt`.
+
+**Decisión.** Autenticar por sesión de Django y aceptar POST/PATCH/DELETE sin
+token CSRF para conservar el front-end.
+
+**Consecuencias.** Funciona con el cliente actual, pero es una debilidad de
+seguridad si el sistema se expone a terceros. Antes de producción hay que
+agregar CSRF o cambiar el front-end para obtener y enviar el token.
+
+## ADR-019. Consultas de lectura en infraestructura
+
+**Contexto.** Reportes, historial y alertas requieren joins y agregaciones que
+no pertenecen al dominio.
+
+**Decisión.** Implementar esas lecturas como read models en
+`apps/catalog/queries.py`, usando el ORM. Las escrituras siguen pasando por
+casos de uso y repositorios.
+
+**Consecuencias.** El dominio queda puro y las consultas pueden optimizarse sin
+tocar reglas. Es una separación práctica tipo CQRS ligero.
+
+## ADR-020. Contrato de identificadores del front-end
+
+**Contexto.** El JavaScript de usuarios usa el campo `uuid` como identificador
+para editar y eliminar.
+
+**Decisión.** Devolver `uuid` como el identificador entero serializado a texto.
+Las rutas aceptan enteros.
+
+**Consecuencias.** El front-end no necesita cambios. El nombre `uuid` es
+heredado y no implica que el identificador sea un UUID real.
+
+## ADR-021. Vínculos N:M y aceptación múltiple
+
+**Contexto.** El texto de la pantalla del vendedor dice que al aceptar un
+administrador "los demás quedan bloqueados". El esquema y las reglas del negocio
+permiten que un vendedor trabaje para varios administradores.
+
+**Decisión.** Respetar el esquema N:M: aceptar un vínculo no inactiva los demás.
+La pantalla y los endpoints listan todos los vínculos.
+
+**Consecuencias.** El texto de la interfaz quedó desactualizado respecto del
+modelo. Si se quiere el comportamiento de un solo administrador, hay que
+cambiarlo en el dominio y en el esquema, no solo en la vista.
+
+## ADR-022. Errores de API
+
+**Decisión.** Los errores de dominio se traducen a HTTP con un handler global:
+400 validación/regla de negocio, 401 credenciales, 403 permisos, 404 no
+encontrado y 409 conflicto. El cuerpo incluye `detail`, `code` y `context`.
+Los endpoints de registro devuelven además `{ "error": { "message", "code",
+"details" } }` porque el JavaScript de registro consume esa forma.
+
+**Consecuencias.** El front-end recibe mensajes útiles sin acoplarse a
+excepciones de Django.

@@ -1,0 +1,52 @@
+from django.urls import path
+
+from .views import (
+    CategoriaCreateView,
+    CategoriaDetailView,
+    CategoriaSelectView,
+    HistorialEntradasView,
+    HistorialMovimientosView,
+    ProductoAlertasView,
+    ProductoDetailView,
+    ProductoListCreateView,
+    ProductoMasVendidosView,
+    ProductosHistoryView,
+    ProductosVendidosView,
+    ProveedorDetailView,
+    ProveedorSelectView,
+    RegistrarEntradaView,
+    RegistrarSalidaView,
+    ReportePeriodoPDFView,
+    ResumenHoyView,
+    ResumenPeriodoView,
+)
+
+urlpatterns = [
+    path("categorias/select/", CategoriaSelectView.as_view(), name="categoria-select"),
+    path("add_categoria/", CategoriaCreateView.as_view(), name="categoria-create"),
+    path("categorias/<int:categoria_id>/", CategoriaDetailView.as_view(), name="categoria-detail"),
+    path("productos/", ProductoListCreateView.as_view(), name="producto-list-create"),
+    path("productos/select_all/", ProductoListCreateView.as_view(), name="producto-select"),
+    path("productos/alertas/", ProductoAlertasView.as_view(), name="producto-alertas"),
+    path("productos/mas-vendidos/", ProductoMasVendidosView.as_view(), name="producto-mas-vendidos"),
+    path("productos/vendidos/", ProductosVendidosView.as_view(), name="producto-vendidos"),
+    path("productos/<int:producto_id>/", ProductoDetailView.as_view(), name="producto-detail"),
+    path("proveedores/select/", ProveedorSelectView.as_view(), name="proveedor-select"),
+    path("proveedores/<int:proveedor_id>/", ProveedorDetailView.as_view(), name="proveedor-detail"),
+    path("resumen/hoy/", ResumenHoyView.as_view(), name="resumen-hoy"),
+    path("resumen/periodo/", ResumenPeriodoView.as_view(), name="resumen-periodo"),
+    path("movimiento/entrada/", RegistrarEntradaView.as_view(), name="movimiento-entrada"),
+    path("movimiento/salida/", RegistrarSalidaView.as_view(), name="movimiento-salida"),
+    path(
+        "movimiento/entrada/historial/",
+        HistorialEntradasView.as_view(),
+        name="movimiento-entrada-historial",
+    ),
+    path("history_productos/", ProductosHistoryView.as_view(), name="productos-history"),
+    path(
+        "history_movimientos/<int:limite>/",
+        HistorialMovimientosView.as_view(),
+        name="productos-history-movimientos",
+    ),
+    path("reportes/pdf/", ReportePeriodoPDFView.as_view(), name="reporte-periodo-pdf"),
+]

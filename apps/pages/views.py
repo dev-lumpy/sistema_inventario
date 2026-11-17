@@ -20,18 +20,19 @@ def register_page(request):
 def dashboard_page(request):
     rol = request.session.get("rol")
     nombre = request.session.get("nombre", "")
+    usuario_id = request.session.get("usuario_id", "")
 
     if rol == "administrador":
         return render(
             request,
             "administrador/index.html",
-            {"nombre": nombre, "rol": rol},
+            {"nombre": nombre, "rol": rol, "user_id": str(usuario_id)},
         )
     if rol == "vendedor":
         return render(
             request,
             "vendedor/index.html",
-            {"nombre": nombre, "rol": rol},
+            {"nombre": nombre, "rol": rol, "user_id": str(usuario_id)},
         )
     return redirect("pages:login")
 
