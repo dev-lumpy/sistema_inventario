@@ -13,6 +13,13 @@ class Venta(models.Model):
         ("confirmada", "Confirmada"),
         ("anulada", "Anulada"),
     )
+    CANALES = (
+        ("whatsapp", "WhatsApp"),
+        ("instagram", "Instagram"),
+        ("facebook", "Facebook"),
+        ("presencial", "Presencial"),
+        ("otro", "Otro"),
+    )
 
     id = models.AutoField(primary_key=True)
     administrador = models.ForeignKey(
@@ -29,6 +36,9 @@ class Venta(models.Model):
     )
     cliente_nombre = models.CharField(max_length=150, null=True, blank=True)
     tipo_cliente = models.CharField(max_length=20, choices=TIPOS_CLIENTE)
+    canal_venta = models.CharField(
+        max_length=20, choices=CANALES, null=True, blank=True
+    )
     fecha = models.DateTimeField(default=timezone.now)
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     estado = models.CharField(max_length=20, choices=ESTADOS, default="borrador")

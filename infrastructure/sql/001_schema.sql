@@ -81,6 +81,7 @@ CREATE TABLE productos (
     administrador_id INT NOT NULL REFERENCES administradores(id) ON DELETE CASCADE,
     categoria_id     INT NOT NULL,
     nombre           VARCHAR(200) NOT NULL,
+    stock_minimo     NUMERIC(12,3) NOT NULL DEFAULT 0 CHECK (stock_minimo >= 0),
     creado_en        TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT uq_producto_admin UNIQUE (id, administrador_id),
     CONSTRAINT fk_producto_categoria
@@ -124,6 +125,7 @@ CREATE TABLE ventas (
     vendedor_id      INT NOT NULL REFERENCES vendedores(id),
     cliente_nombre   VARCHAR(150),
     tipo_cliente     VARCHAR(20) NOT NULL,
+    canal_venta      VARCHAR(20),
     fecha            TIMESTAMP NOT NULL DEFAULT now(),
     total            NUMERIC(12,2) NOT NULL DEFAULT 0,
     estado           VARCHAR(20) NOT NULL DEFAULT 'borrador',
@@ -131,6 +133,9 @@ CREATE TABLE ventas (
     CONSTRAINT uq_venta_admin UNIQUE (id, administrador_id),
     CONSTRAINT chk_venta_tipo_cliente
         CHECK (tipo_cliente IN ('individual','productor','mayoreo')),
+    CONSTRAINT chk_venta_canal
+        CHECK (canal_venta IS NULL
+            OR canal_venta IN ('whatsapp','instagram','facebook','presencial','otro')),
     CONSTRAINT chk_venta_estado
         CHECK (estado IN ('borrador','confirmada','anulada')),
     CONSTRAINT chk_venta_total CHECK (total >= 0)
@@ -153,7 +158,9 @@ CREATE TABLE venta_detalle (
         REFERENCES ventas (id, administrador_id) ON DELETE CASCADE,
     CONSTRAINT fk_detalle_producto
         FOREIGN KEY (producto_id, administrador_id)
-        REFERENCES productos (id, administrador_id)
+        REFERENCES productos (id, administrador_id),
+    CONSTRAINT chk_detalle_subtotal
+        CHECK (subtotal = ROUND(cantidad * precio_unitario, 2))
 );
 
 
@@ -176,6 +183,7 @@ CREATE TABLE compras (
     id               SERIAL PRIMARY KEY,
     administrador_id INT NOT NULL REFERENCES administradores(id) ON DELETE CASCADE,
     proveedor_id     INT NOT NULL,
+    usuario_id       INT NOT NULL REFERENCES usuarios(id),
     fecha            TIMESTAMP NOT NULL DEFAULT now(),
     total            NUMERIC(12,2) NOT NULL DEFAULT 0,
     estado           VARCHAR(20) NOT NULL DEFAULT 'borrador',
@@ -206,7 +214,9 @@ CREATE TABLE compra_detalle (
         REFERENCES compras (id, administrador_id) ON DELETE CASCADE,
     CONSTRAINT fk_cdetalle_producto
         FOREIGN KEY (producto_id, administrador_id)
-        REFERENCES productos (id, administrador_id)
+        REFERENCES productos (id, administrador_id),
+    CONSTRAINT chk_cdetalle_subtotal
+        CHECK (subtotal = ROUND(cantidad * costo_unitario, 2))
 );
 
 
@@ -261,6 +271,8 @@ CREATE TABLE pagos (
 -- ============================================================
 -- INDICES
 -- ============================================================
+CREATE UNIQUE INDEX uq_usuarios_user_name_ci ON usuarios (lower(user_name));
+CREATE UNIQUE INDEX uq_usuarios_correo_ci    ON usuarios (lower(correo));
 CREATE INDEX idx_productos_admin            ON productos (administrador_id);
 CREATE INDEX idx_categorias_admin           ON categorias (administrador_id);
 CREATE INDEX idx_precios_producto           ON precios_producto (producto_id, tipo_cliente);
@@ -269,6 +281,7 @@ CREATE INDEX idx_ventas_vendedor            ON ventas (vendedor_id);
 CREATE INDEX idx_venta_detalle_venta        ON venta_detalle (venta_id);
 CREATE INDEX idx_venta_detalle_producto     ON venta_detalle (producto_id);
 CREATE INDEX idx_compras_admin_fecha        ON compras (administrador_id, fecha);
+CREATE INDEX idx_compras_usuario            ON compras (usuario_id);
 CREATE INDEX idx_compra_detalle_compra      ON compra_detalle (compra_id);
 CREATE INDEX idx_mov_admin_producto_fecha   ON movimiento_inventario (administrador_id, producto_id, fecha);
 CREATE INDEX idx_mov_referencia             ON movimiento_inventario (referencia_tipo, referencia_id);
@@ -340,35 +353,39 @@ BEFORE INSERT OR UPDATE ON venta_detalle
 FOR EACH ROW EXECUTE FUNCTION fn_validar_precio_linea();
 
 
-CREATE OR REPLACE FUNCTION fn_validar_stock_venta() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION fn_validar_stock_confirmacion() RETURNS TRIGGER AS $$
 DECLARE
-    v_estado VARCHAR(20);
     v_stock NUMERIC(14,3);
+    r RECORD;
 BEGIN
-    SELECT estado INTO v_estado FROM ventas WHERE id = NEW.venta_id;
-    IF v_estado <> 'confirmada' THEN
-        RETURN NEW;
-    END IF;
+    IF NEW.estado = 'confirmada' AND OLD.estado IS DISTINCT FROM 'confirmada' THEN
+        FOR r IN
+            SELECT producto_id, SUM(cantidad) AS cantidad_total
+            FROM venta_detalle
+            WHERE venta_id = NEW.id
+            GROUP BY producto_id
+        LOOP
+            SELECT COALESCE(SUM(
+                CASE WHEN motivo IN ('compra','devolucion','ajuste_pos') THEN cantidad
+                     WHEN motivo IN ('venta','merma','ajuste_neg')       THEN -cantidad
+                END), 0) INTO v_stock
+            FROM movimiento_inventario
+            WHERE administrador_id = NEW.administrador_id
+              AND producto_id = r.producto_id;
 
-    SELECT COALESCE(SUM(
-        CASE WHEN motivo IN ('compra','devolucion','ajuste_pos') THEN cantidad
-             WHEN motivo IN ('venta','merma','ajuste_neg')       THEN -cantidad
-        END), 0) INTO v_stock
-    FROM movimiento_inventario
-    WHERE administrador_id = NEW.administrador_id
-      AND producto_id = NEW.producto_id;
-
-    IF v_stock < NEW.cantidad THEN
-        RAISE EXCEPTION 'Stock insuficiente del producto %: hay %, se intenta vender %',
-            NEW.producto_id, v_stock, NEW.cantidad;
+            IF v_stock < r.cantidad_total THEN
+                RAISE EXCEPTION 'Stock insuficiente del producto %: hay %, se intenta vender %',
+                    r.producto_id, v_stock, r.cantidad_total;
+            END IF;
+        END LOOP;
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_validar_stock_venta
-BEFORE INSERT ON venta_detalle
-FOR EACH ROW EXECUTE FUNCTION fn_validar_stock_venta();
+CREATE TRIGGER trg_validar_stock_confirmacion
+BEFORE UPDATE OF estado ON ventas
+FOR EACH ROW EXECUTE FUNCTION fn_validar_stock_confirmacion();
 
 
 CREATE OR REPLACE FUNCTION fn_generar_movimiento_venta() RETURNS TRIGGER AS $$
@@ -398,8 +415,7 @@ BEGIN
             (administrador_id, producto_id, motivo, cantidad,
              costo_unitario, referencia_tipo, referencia_id, usuario_id)
         SELECT cd.administrador_id, cd.producto_id, 'compra', cd.cantidad,
-               cd.costo_unitario, 'compra', NEW.id,
-               (SELECT u.id FROM usuarios u LIMIT 1)
+               cd.costo_unitario, 'compra', NEW.id, NEW.usuario_id
         FROM compra_detalle cd
         WHERE cd.compra_id = NEW.id;
     END IF;
@@ -458,6 +474,20 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_no_borrar_venta_confirmada
 BEFORE DELETE ON ventas
 FOR EACH ROW EXECUTE FUNCTION fn_no_borrar_confirmada();
+
+
+CREATE OR REPLACE FUNCTION fn_no_borrar_compra_confirmada() RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.estado = 'confirmada' THEN
+        RAISE EXCEPTION 'No se puede borrar una compra confirmada (id %). Anúlala.', OLD.id;
+    END IF;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_no_borrar_compra_confirmada
+BEFORE DELETE ON compras
+FOR EACH ROW EXECUTE FUNCTION fn_no_borrar_compra_confirmada();
 
 
 CREATE OR REPLACE FUNCTION fn_actualizar_timestamp_vinculo() RETURNS TRIGGER AS $$

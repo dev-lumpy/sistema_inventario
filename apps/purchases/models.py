@@ -43,6 +43,12 @@ class Compra(models.Model):
         on_delete=models.PROTECT,
         related_name="compras",
     )
+    usuario = models.ForeignKey(
+        "accounts.Usuario",
+        db_column="usuario_id",
+        on_delete=models.PROTECT,
+        related_name="compras",
+    )
     fecha = models.DateTimeField(default=timezone.now)
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     estado = models.CharField(max_length=20, choices=ESTADOS, default="borrador")

@@ -8,7 +8,11 @@ from core.domain.catalog.exceptions import (
     CategoriaDeOtroAdministradorError,
     VigenciaInvalidaError,
 )
-from core.domain.catalog.value_objects import NombreCategoria, NombreProducto
+from core.domain.catalog.value_objects import (
+    NombreCategoria,
+    NombreProducto,
+    StockMinimo,
+)
 from core.domain.shared.clock import now
 from core.domain.shared.enums import TipoCliente
 from core.domain.shared.errors import ValidationError
@@ -33,11 +37,15 @@ class Producto:
     administrador_id: int
     categoria_id: int
     nombre: NombreProducto
+    stock_minimo: StockMinimo = field(default_factory=StockMinimo.cero)
     id: int | None = None
     creado_en: datetime = field(default_factory=now)
 
     def pertenece_a(self, administrador_id: int) -> bool:
         return self.administrador_id == administrador_id
+
+    def cambiar_stock_minimo(self, stock_minimo: StockMinimo) -> None:
+        self.stock_minimo = stock_minimo
 
     def cambiar_categoria(self, categoria: Categoria) -> None:
         if categoria.id is None:

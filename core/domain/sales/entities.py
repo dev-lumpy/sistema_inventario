@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from core.domain.sales.enums import EstadoVenta
+from core.domain.sales.enums import CanalVenta, EstadoVenta
 from core.domain.sales.exceptions import (
     LineaDeOtroAdministradorError,
     TransicionVentaInvalidaError,
@@ -46,6 +46,7 @@ class Venta:
     administrador_id: int
     vendedor_id: int
     tipo_cliente: TipoCliente
+    canal_venta: CanalVenta | None = None
     cliente_nombre: str | None = None
     estado: EstadoVenta = EstadoVenta.BORRADOR
     nota: str | None = None
@@ -54,6 +55,8 @@ class Venta:
     _lineas: list[VentaDetalle] = field(default_factory=list, repr=False)
 
     def __post_init__(self) -> None:
+        if isinstance(self.canal_venta, str):
+            self.canal_venta = CanalVenta.desde(self.canal_venta)
         self.cliente_nombre = texto_opcional(self.cliente_nombre, "cliente", 150)
         self.nota = texto_opcional(self.nota, "nota", 1000)
 

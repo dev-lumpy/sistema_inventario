@@ -54,6 +54,7 @@ class CompraDetalle:
 class Compra:
     administrador_id: int
     proveedor_id: int
+    usuario_id: int
     estado: EstadoCompra = EstadoCompra.BORRADOR
     nota: str | None = None
     id: int | None = None

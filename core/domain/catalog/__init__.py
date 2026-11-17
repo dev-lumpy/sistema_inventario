@@ -13,7 +13,11 @@ from core.domain.catalog.exceptions import (
     VigenciaInvalidaError,
 )
 from core.domain.catalog.services import calcular_stock, verificar_stock_suficiente
-from core.domain.catalog.value_objects import NombreCategoria, NombreProducto
+from core.domain.catalog.value_objects import (
+    NombreCategoria,
+    NombreProducto,
+    StockMinimo,
+)
 
 __all__ = [
     "Categoria",
@@ -23,6 +27,7 @@ __all__ = [
     "NombreCategoria",
     "NombreProducto",
     "PrecioNoVigenteError",
+    "StockMinimo",
     "PrecioProducto",
     "Producto",
     "ProductoDeOtroAdministradorError",

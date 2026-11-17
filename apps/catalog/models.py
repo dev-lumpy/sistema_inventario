@@ -37,6 +37,7 @@ class Producto(models.Model):
         related_name="productos",
     )
     nombre = models.CharField(max_length=200)
+    stock_minimo = models.DecimalField(max_digits=12, decimal_places=3, default=0)
     creado_en = models.DateTimeField(default=timezone.now)
 
     class Meta:
