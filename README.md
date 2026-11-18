@@ -146,6 +146,39 @@ generan los movimientos de inventario al confirmar ventas y compras; en SQLite
 esos triggers también se crean en el esquema de desarrollo. La moneda del
 administrador se usa para nuevas tarifas y se conserva por venta, compra y pago.
 
+## Datos de demostración
+
+Con las tablas creadas y la base sin datos de negocio:
+
+```bash
+python manage.py seed_demo
+```
+
+Eso carga `infrastructure/seed/seed_demo.sql` y ajusta las secuencias. Incluye:
+
+- 2 administradores y 6 vendedores.
+- 6 categorías y 20 productos (10 por administrador).
+- 42 precios, incluyendo cambios de precio históricos y tarifas de productor/mayoreo.
+- 4 proveedores, 4 compras, 6 ventas, 44 movimientos de inventario y 4 pagos.
+
+Usuarios de prueba:
+
+```
+admin1@taller.com
+admin2@taller.com
+vendedor1@taller.com ... vendedor6@taller.com
+Contraseña: Password123!
+```
+
+También se puede cargar el SQL directo:
+
+```bash
+sqlite3 db.sqlite3 < infrastructure/seed/seed_demo.sql
+```
+
+En PostgreSQL, después del SQL directo ejecutar
+`infrastructure/seed/reset_sequences_postgres.sql`.
+
 ## Pruebas
 
 Pruebas de dominio (no requieren base de datos):
