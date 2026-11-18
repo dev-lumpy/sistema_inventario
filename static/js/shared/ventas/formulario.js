@@ -49,7 +49,7 @@ function renderTabla() {
 
   if (!carrito.length) {
     tbody.replaceChildren(crearFilaEstado(
-      5,
+      6,
       'Todavía no agregaste productos.',
       { icono: 'fa-cart-shopping' },
     ));
@@ -79,6 +79,7 @@ function renderTabla() {
       crearEl('td', { texto: item.producto.nombre ?? '—' }),
       crearEl('td', { texto: formatearNumero(cantidad) }),
       crearEl('td', { texto: formatearNumero(item.producto.stock_actual ?? 0) }),
+      crearEl('td', { texto: formatearNumero(precio, item.producto.precio)}),
       crearEl('td', {
         texto: formatearPrecio(subtotal, item.producto.moneda),
       }),
