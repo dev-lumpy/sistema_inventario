@@ -305,3 +305,21 @@ Si --red no existe todavía en tu :root, agregala junto a las demás:
     border-color: #ccc !important;
   }
 }
+
+.venta-total {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 10px;
+  padding: 14px 0;
+  font-size: 1.05rem;
+}
+
+.venta-total strong {
+  color: var(--green, #2ea86b);
+  font-size: 1.3rem;
+}
+
+.tabla-venta .form-actions {
+  justify-content: flex-end;
+}

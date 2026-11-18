@@ -189,7 +189,7 @@
 
   <div class="card form-venta">
     <div class="card-body">
-      <form id="form-registrar-venta" class="form">
+      <form id="form-registrar-venta" class="form" novalidate>
         <div class="form-group">
           <label for="venta-producto">Producto <span class="req">*</span></label>
           <select id="venta-producto" name="producto_id" required>
@@ -218,12 +218,50 @@
           </select>
         </div>
         <div class="form-actions">
-          <button type="submit" class="btn btn-primario">
-            <i class="fa-solid fa-check"></i> Registrar venta
+          <button type="button" class="btn btn-secundario" id="venta-agregar">
+            <i class="fa-solid fa-plus"></i> Añadir
           </button>
-          <button type="reset" class="btn btn-secundario">Cancelar</button>
+          <button type="reset" class="btn btn-secundario" id="venta-cancelar">Cancelar</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div class="card tabla-venta">
+    <div class="card-header">
+      <h2>Productos de la venta</h2>
+    </div>
+    <div class="card-body">
+      <div class="tabla-wrap">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Stock disponible</th>
+              <th>Total</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-venta"></tbody>
+        </table>
+      </div>
+
+      <div class="venta-total">
+        <span>Suma total:</span>
+        <strong id="venta-total">—</strong>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          form="form-registrar-venta"
+          class="btn btn-primario"
+          id="btn-registrar-venta"
+        >
+          <i class="fa-solid fa-check"></i> Registrar venta
+        </button>
+      </div>
     </div>
   </div>
 
