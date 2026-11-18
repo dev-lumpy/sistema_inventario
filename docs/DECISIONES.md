@@ -36,13 +36,13 @@ persistencia no obligan a reescribir reglas.
 **Contexto.** El esquema PostgreSQL entregado define claves compuestas, índices
 parciales y triggers que Django no representa de forma directa.
 
-**Decisión inicial (reemplazada por ADR-031).** Guardar el esquema en
+**Decisión inicial (reemplazada por ADR-032).** Guardar el esquema en
 `infrastructure/sql/001_schema.sql` y declarar los modelos Django con
 `managed = False`. Django no creaba esas tablas; las creaba el SQL.
 
 **Consecuencias.** `manage.py migrate` solo administraba las tablas propias de
 Django. Este diseño se cambió a pedido del usuario para que `migrate` cree las
-tablas del negocio; ver ADR-031.
+tablas del negocio; ver ADR-032.
 
 ## ADR-004. Identificadores enteros
 
@@ -322,7 +322,7 @@ y la tabla de vendedores muestra solo vínculos efectivos.
 
 **Contexto.** El sistema usa PostgreSQL en producción, pero el comando
 `python manage.py runserver` sin variables de entorno cae en SQLite. Antes de
-ADR-031 SQLite no tenía las tablas del negocio porque los modelos eran
+ADR-032 SQLite no tenía las tablas del negocio porque los modelos eran
 `managed = False`, y el error resultante era `no such table: usuarios`.
 
 **Decisión.** Mantener PostgreSQL como fuente de verdad y agregar un esquema de
@@ -393,7 +393,31 @@ front-end actual no tiene pantallas de cobro ni de anulación.
 anulaciones generan movimientos inversos y los pagos validan que la suma no
 supere el total de la venta.
 
-## ADR-031. Modelos gestionados por Django
+## ADR-031. Venta con múltiples líneas y carrito temporal
+
+**Contexto.** El formulario de venta original registraba un solo producto por
+operación. Se pidió una lista temporal de productos, con subtotales y total en
+tiempo real, y un único botón para registrar toda la venta.
+
+**Decisión.** Mantener el endpoint `POST /api/inventario/movimiento/salida/` y
+agregar dos formas de uso:
+
+- La forma anterior: `{producto, cantidad, canal_venta}`.
+- La forma nueva: `{items: [{producto, cantidad}, ...], canal_venta}`.
+
+El front-end mantiene un carrito en memoria. Cada producto agregado se muestra
+primero en la tabla, con cantidad, stock disponible y subtotal. El total se
+calcula en el navegador y el backend lo recalcula con `Decimal`. El backend
+valida stock agregado por producto, moneda única y vínculo del vendedor, y crea
+una sola venta con varias líneas.
+
+**Consecuencias.** Se conserva compatibilidad con el flujo anterior y se evita
+crear una venta separada por cada producto. La tabla y el total son una ayuda
+visual; la fuente de verdad sigue siendo el backend. El formulario usa
+`novalidate` porque la cantidad se limpia después de agregar al carrito y el
+botón final no debe quedar bloqueado por la validación HTML5.
+
+## ADR-032. Modelos gestionados por Django
 
 **Contexto.** El usuario pidió expresamente cambiar todos los `managed = False`
 por `managed = True` para que `makemigrations` y `migrate` creen las tablas del

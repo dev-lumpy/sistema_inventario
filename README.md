@@ -132,7 +132,7 @@ Endpoints principales:
 - `GET /api/inventario/resumen/hoy/`
 - `GET /api/inventario/resumen/periodo/`
 - `POST /api/inventario/movimiento/entrada/`
-- `POST /api/inventario/movimiento/salida/`
+- `POST /api/inventario/movimiento/salida/` (un producto o `items` para venta con varias líneas)
 - `GET /api/inventario/movimiento/entrada/historial/`
 - `GET /api/inventario/history_movimientos/<limite>/`
 - `GET /api/inventario/reportes/pdf/?desde=YYYY-MM-DD&hasta=YYYY-MM-DD`

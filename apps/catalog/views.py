@@ -18,6 +18,7 @@ from core.application.catalog.movimientos import (
     AnularVenta,
     RegistrarEntrada,
     RegistrarSalida,
+    RegistrarVenta,
 )
 from core.application.payments.pagos import RegistrarPago
 from core.domain.shared.errors import DomainError, PermissionDeniedError
@@ -421,12 +422,63 @@ class RegistrarSalidaView(APIView):
         try:
             with _uow() as uow:
                 admin_id = _admin_id(request, uow)
+                canal_venta = str(request.data.get("canal_venta") or "")
+                items = request.data.get("items")
+
+                if items is not None:
+                    if not isinstance(items, list) or not items:
+                        return Response(
+                            {"detail": "Agregá al menos un producto a la venta."},
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                    venta, stocks = RegistrarVenta(uow).ejecutar(
+                        administrador_id=admin_id,
+                        vendedor_id=request.user.id,
+                        items=items,
+                        canal_venta=canal_venta,
+                    )
+                    detalle = []
+                    for linea in venta.lineas:
+                        producto = uow.productos.obtener_por_id(linea.producto_id)
+                        detalle.append(
+                            {
+                                "producto_id": linea.producto_id,
+                                "producto": (
+                                    producto.nombre.valor if producto else "—"
+                                ),
+                                "cantidad": float(linea.cantidad.value),
+                                "precio_unitario": float(
+                                    linea.precio_unitario.amount
+                                ),
+                                "subtotal": float(linea.subtotal.amount),
+                                "moneda": linea.precio_unitario.currency,
+                                "nuevo_stock": float(
+                                    stocks.get(linea.producto_id, 0)
+                                ),
+                            }
+                        )
+                    return Response(
+                        {
+                            "mensaje": "Venta registrada correctamente.",
+                            "venta_id": venta.id,
+                            "total": float(venta.total.amount),
+                            "moneda": venta.moneda,
+                            "canal_venta": (
+                                venta.canal_venta.value
+                                if venta.canal_venta
+                                else None
+                            ),
+                            "items": detalle,
+                        },
+                        status=status.HTTP_201_CREATED,
+                    )
+
                 venta, stock = RegistrarSalida(uow).ejecutar(
                     administrador_id=admin_id,
                     vendedor_id=request.user.id,
                     producto_id=int(request.data.get("producto") or 0),
                     cantidad=request.data.get("cantidad"),
-                    canal_venta=str(request.data.get("canal_venta") or ""),
+                    canal_venta=canal_venta,
                 )
                 producto = uow.productos.obtener_por_id(venta.lineas[0].producto_id)
                 return Response(
@@ -447,7 +499,7 @@ class RegistrarSalidaView(APIView):
             return responder_domain_error(exc)
         except (ValueError, TypeError):
             return Response(
-                {"detail": "Revisá el producto, la cantidad y el canal de venta."},
+                {"detail": "Revisá los productos, las cantidades y el canal de venta."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
